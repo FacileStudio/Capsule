@@ -2,6 +2,7 @@ package pastes
 
 import (
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/hex"
 	"strings"
 	"time"
@@ -103,33 +104,39 @@ func (s *Service) GetMeta(id string) (*MetaResponse, error) {
 }
 
 func (s *Service) GetContent(id string) (*ContentResponse, error) {
-	var paste schemas.Paste
-	if err := s.db.Where("id = ?", id).First(&paste).Error; err != nil {
-		return nil, errors.NotFound("paste not found")
-	}
+	var content string
 
-	if paste.Burned || isExpired(paste.ExpiresAt) {
-		return nil, errors.NotFound("paste not found")
-	}
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		var paste schemas.Paste
+		if err := tx.Raw("SELECT * FROM pastes WHERE id = ? FOR UPDATE", id).Scan(&paste).Error; err != nil || paste.ID == "" {
+			return errors.NotFound("paste not found")
+		}
 
-	content := paste.Content
+		if paste.Burned || isExpired(paste.ExpiresAt) {
+			return errors.NotFound("paste not found")
+		}
 
-	updates := map[string]any{
-		"view_count": gorm.Expr("view_count + 1"),
-	}
+		content = paste.Content
 
-	shouldBurn := paste.BurnAfterRead
-	if !shouldBurn && paste.MaxViews != nil && paste.ViewCount+1 >= *paste.MaxViews {
-		shouldBurn = true
-	}
+		updates := map[string]any{
+			"view_count": gorm.Expr("view_count + 1"),
+		}
 
-	if shouldBurn {
-		updates["burned"] = true
-		updates["content"] = ""
-	}
+		shouldBurn := paste.BurnAfterRead
+		if !shouldBurn && paste.MaxViews != nil && paste.ViewCount+1 >= *paste.MaxViews {
+			shouldBurn = true
+		}
 
-	if err := s.db.Model(&paste).Updates(updates).Error; err != nil {
-		return nil, errors.Internal("failed to update paste", err)
+		if shouldBurn {
+			updates["burned"] = true
+			updates["content"] = ""
+		}
+
+		return tx.Model(&paste).Updates(updates).Error
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
 	return &ContentResponse{Content: content}, nil
@@ -141,7 +148,7 @@ func (s *Service) Revoke(id string, token string) error {
 		return errors.NotFound("paste not found")
 	}
 
-	if paste.DeleteToken != token {
+	if subtle.ConstantTimeCompare([]byte(paste.DeleteToken), []byte(token)) != 1 {
 		return errors.Forbidden("invalid delete token")
 	}
 

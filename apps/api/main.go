@@ -59,11 +59,12 @@ func main() {
 	go cleanup.Start(cleanupCtx, db, appLogger)
 
 	pasteService := pastes.NewService(db, appEnv.MaxPasteSize)
+	createLimiter := middleware.NewRateLimiter(30, time.Minute)
 
 	router := chi.NewRouter()
 	router.Use(chimiddleware.RequestID)
 	router.Use(chimiddleware.RealIP)
-	router.Use(middleware.CORS([]string{"*"}))
+	router.Use(middleware.CORS(appEnv.AllowedOrigins))
 	router.Use(middleware.RequestLogger(appLogger))
 	router.Use(chimiddleware.Recoverer)
 
@@ -80,7 +81,7 @@ func main() {
 		httpjson.WriteJSON(w, http.StatusOK, map[string]string{"status": "ready"})
 	})
 
-	pastes.RegisterRoutes(router, pasteService)
+	pastes.RegisterRoutes(router, pasteService, createLimiter)
 
 	addr := ":" + appEnv.Port
 	server := &http.Server{

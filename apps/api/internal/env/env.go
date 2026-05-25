@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	DatabaseURL  string
-	Port         string
-	LogLevel     string
-	MaxPasteSize int
+	DatabaseURL    string
+	Port           string
+	LogLevel       string
+	MaxPasteSize   int
+	AllowedOrigins []string
 }
 
 func Load() (Config, error) {
@@ -35,6 +36,13 @@ func Load() (Config, error) {
 		return Config{}, fmt.Errorf("MAX_PASTE_SIZE must be a positive integer")
 	}
 	env.MaxPasteSize = maxPaste
+
+	originsStr := valueOrDefault("ALLOWED_ORIGINS", "*")
+	for _, o := range strings.Split(originsStr, ",") {
+		if trimmed := strings.TrimSpace(o); trimmed != "" {
+			env.AllowedOrigins = append(env.AllowedOrigins, trimmed)
+		}
+	}
 
 	return env, nil
 }
