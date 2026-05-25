@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { generateKey, exportKey, encrypt } from '$lib/crypto';
+	import { generateKey, exportKey, encrypt, wrapContentKey, buildPasswordFragment } from '$lib/crypto';
 	import { backend } from '$lib/backend';
 	import { page } from '$app/state';
 
@@ -10,6 +10,8 @@
 	let burnAfterRead = $state(true);
 	let expiresIn = $state('24h');
 	let syntax = $state('plaintext');
+	let usePassword = $state(false);
+	let password = $state('');
 	let error = $state('');
 
 	let capsuleUrl = $state('');
@@ -30,23 +32,34 @@
 
 	async function seal() {
 		if (!content.trim()) return;
+		if (usePassword && !password) return;
 		error = '';
 		state = 'sealing';
 
 		try {
 			const key = await generateKey();
 			const ciphertext = await encrypt(content, key);
-			const keyStr = await exportKey(key);
+
+			let fragment: string;
+			const hasPassword = usePassword && password.length > 0;
+
+			if (hasPassword) {
+				const wrapped = await wrapContentKey(key, password);
+				fragment = buildPasswordFragment(wrapped.encryptedKey, wrapped.salt, wrapped.iv);
+			} else {
+				fragment = await exportKey(key);
+			}
 
 			const result = await backend.createPaste({
 				content: ciphertext,
 				burn_after_read: burnAfterRead,
 				expires_in: expiresIn,
+				has_password: hasPassword,
 				syntax: syntax !== 'plaintext' ? syntax : undefined,
 			});
 
 			const origin = page.url.origin;
-			capsuleUrl = `${origin}/${result.id}#${keyStr}`;
+			capsuleUrl = `${origin}/${result.id}#${fragment}`;
 			deleteToken = result.delete_token;
 			state = 'sealed';
 		} catch (err) {
@@ -64,6 +77,8 @@
 	function reset() {
 		state = 'idle';
 		content = '';
+		usePassword = false;
+		password = '';
 		capsuleUrl = '';
 		deleteToken = '';
 		error = '';
@@ -138,7 +153,27 @@
 							{/each}
 						</select>
 					</label>
+
+					<label class="flex items-center gap-2 text-sm">
+						<input
+							type="checkbox"
+							bind:checked={usePassword}
+							disabled={state === 'sealing'}
+							class="h-4 w-4 rounded border-input accent-primary"
+						/>
+						Password protect
+					</label>
 				</div>
+
+				{#if usePassword}
+					<input
+						type="password"
+						bind:value={password}
+						placeholder="Enter a password..."
+						disabled={state === 'sealing'}
+						class="w-full rounded-lg border border-input bg-card px-4 py-3 text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+					/>
+				{/if}
 
 				{#if error}
 					<p class="text-sm text-red-400">{error}</p>
@@ -146,7 +181,7 @@
 
 				<button
 					onclick={seal}
-					disabled={!content.trim() || state === 'sealing'}
+					disabled={!content.trim() || (usePassword && !password) || state === 'sealing'}
 					class="inline-flex h-11 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{#if state === 'sealing'}
@@ -166,7 +201,7 @@
 					</div>
 					<h1 class="text-3xl font-bold font-heading tracking-tight">Capsule sealed</h1>
 					<p class="mt-2 text-muted-foreground">
-						Share this link — {burnAfterRead ? 'the capsule can only be opened once.' : `it expires in ${expiryOptions.find(o => o.value === expiresIn)?.label}.`}
+						Share this link{usePassword ? ' and the password' : ''} — {burnAfterRead ? 'the capsule can only be opened once.' : `it expires in ${expiryOptions.find(o => o.value === expiresIn)?.label}.`}
 					</p>
 				</div>
 

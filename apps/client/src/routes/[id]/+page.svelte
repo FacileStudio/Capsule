@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { importKey, decrypt } from '$lib/crypto';
+	import { importKey, decrypt, unwrapContentKey, parsePasswordFragment } from '$lib/crypto';
 	import { backend, type PasteMeta } from '$lib/backend';
 
-	type State = 'loading' | 'ready' | 'revealing' | 'revealed' | 'empty' | 'error';
+	type State = 'loading' | 'ready' | 'password' | 'revealing' | 'revealed' | 'empty' | 'error';
 
 	let state: State = $state('loading');
 	let meta: PasteMeta | null = $state(null);
@@ -12,6 +12,8 @@
 	let error = $state('');
 	let copied = $state(false);
 	let keyFragment = $state('');
+	let password = $state('');
+	let passwordError = $state('');
 
 	onMount(async () => {
 		const id = page.params.id;
@@ -30,7 +32,7 @@
 				return;
 			}
 			meta = result;
-			state = 'ready';
+			state = result.has_password ? 'password' : 'ready';
 		} catch {
 			state = 'empty';
 		}
@@ -41,14 +43,35 @@
 		state = 'revealing';
 
 		try {
+			let key: CryptoKey;
+
+			if (meta.has_password) {
+				const parsed = parsePasswordFragment(keyFragment);
+				if (!parsed) throw new Error('Invalid URL fragment');
+				try {
+					key = await unwrapContentKey(parsed.encryptedKey, parsed.salt, parsed.iv, password);
+				} catch {
+					passwordError = 'Wrong password or corrupted link.';
+					state = 'password';
+					return;
+				}
+			} else {
+				key = await importKey(keyFragment);
+			}
+
 			const { content } = await backend.getPasteContent(meta.id);
-			const key = await importKey(keyFragment);
 			plaintext = await decrypt(content, key);
 			state = 'revealed';
 		} catch {
 			error = 'Failed to decrypt. The key may be wrong or the data may be corrupted.';
 			state = 'error';
 		}
+	}
+
+	function submitPassword() {
+		if (!password) return;
+		passwordError = '';
+		reveal();
 	}
 
 	async function copyContent() {
@@ -118,6 +141,50 @@
 				>
 					Back to Capsule
 				</a>
+			</div>
+		{:else if state === 'password'}
+			<div class="flex flex-col gap-6">
+				<div>
+					<h1 class="text-3xl font-bold font-heading tracking-tight">Password required</h1>
+					<p class="mt-2 text-muted-foreground">
+						This capsule is password-protected. Enter the password to decrypt it.
+					</p>
+				</div>
+
+				<div class="flex flex-wrap gap-3 text-sm text-muted-foreground">
+					{#if meta?.syntax}
+						<span class="rounded-md bg-secondary px-2 py-1">{meta.syntax}</span>
+					{/if}
+					{#if meta?.created_at}
+						<span class="rounded-md bg-secondary px-2 py-1">Sealed {timeAgo(meta.created_at)}</span>
+					{/if}
+					<span class="rounded-md bg-amber-500/10 px-2 py-1 text-amber-400">Password protected</span>
+				</div>
+
+				<form
+					onsubmit={(e: Event) => { e.preventDefault(); submitPassword(); }}
+					class="flex flex-col gap-4"
+				>
+					<input
+						type="password"
+						bind:value={password}
+						placeholder="Enter password..."
+						class="w-full rounded-lg border border-input bg-card px-4 py-3 text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+					/>
+
+					{#if passwordError}
+						<p class="text-sm text-red-400">{passwordError}</p>
+					{/if}
+
+					<button
+						type="submit"
+						disabled={!password}
+						class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						<iconify-icon icon="solar:lock-keyhole-unlocked-bold" width="16" class="mr-2"></iconify-icon>
+						Unlock capsule
+					</button>
+				</form>
 			</div>
 		{:else if state === 'ready' || state === 'revealing'}
 			<div class="flex flex-col gap-6">

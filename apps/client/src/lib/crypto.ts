@@ -1,3 +1,5 @@
+const PBKDF2_ITERATIONS = 600_000;
+
 export async function generateKey(): Promise<CryptoKey> {
 	return crypto.subtle.generateKey(
 		{ name: 'AES-GCM', length: 256 },
@@ -52,6 +54,78 @@ export async function decrypt(data: string, key: CryptoKey): Promise<string> {
 	);
 
 	return new TextDecoder().decode(decrypted);
+}
+
+async function deriveWrappingKey(password: string, salt: Uint8Array): Promise<CryptoKey> {
+	const encoded = new TextEncoder().encode(password);
+	const baseKey = await crypto.subtle.importKey('raw', encoded, 'PBKDF2', false, [
+		'deriveKey',
+	]);
+
+	return crypto.subtle.deriveKey(
+		{
+			name: 'PBKDF2',
+			salt,
+			iterations: PBKDF2_ITERATIONS,
+			hash: 'SHA-256',
+		},
+		baseKey,
+		{ name: 'AES-GCM', length: 256 },
+		false,
+		['encrypt', 'decrypt']
+	);
+}
+
+export async function wrapContentKey(
+	contentKey: CryptoKey,
+	password: string
+): Promise<{ encryptedKey: string; salt: string; iv: string }> {
+	const salt = crypto.getRandomValues(new Uint8Array(32));
+	const iv = crypto.getRandomValues(new Uint8Array(12));
+	const wrappingKey = await deriveWrappingKey(password, salt);
+
+	const rawKey = await crypto.subtle.exportKey('raw', contentKey);
+	const wrapped = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, wrappingKey, rawKey);
+
+	return {
+		encryptedKey: toBase64Url(new Uint8Array(wrapped)),
+		salt: toBase64Url(salt),
+		iv: toBase64Url(iv),
+	};
+}
+
+export async function unwrapContentKey(
+	encryptedKey: string,
+	salt: string,
+	iv: string,
+	password: string
+): Promise<CryptoKey> {
+	const wrappingKey = await deriveWrappingKey(password, fromBase64Url(salt));
+	const rawKey = await crypto.subtle.decrypt(
+		{ name: 'AES-GCM', iv: fromBase64Url(iv) },
+		wrappingKey,
+		fromBase64Url(encryptedKey)
+	);
+
+	return crypto.subtle.importKey(
+		'raw',
+		rawKey,
+		{ name: 'AES-GCM', length: 256 },
+		false,
+		['decrypt']
+	);
+}
+
+export function buildPasswordFragment(encryptedKey: string, salt: string, iv: string): string {
+	return `${encryptedKey}.${salt}.${iv}`;
+}
+
+export function parsePasswordFragment(
+	fragment: string
+): { encryptedKey: string; salt: string; iv: string } | null {
+	const parts = fragment.split('.');
+	if (parts.length !== 3) return null;
+	return { encryptedKey: parts[0], salt: parts[1], iv: parts[2] };
 }
 
 function toBase64Url(bytes: Uint8Array): string {
