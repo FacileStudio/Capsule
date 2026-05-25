@@ -1,0 +1,58 @@
+services:
+  capsule-db:
+    container_name: capsule-db
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: capsule
+      POSTGRES_PASSWORD: capsule-internal-db
+      POSTGRES_DB: capsule
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U capsule"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  capsule-api:
+    container_name: capsule-api
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      network: host
+    expose:
+      - "4000"
+    environment:
+      DATABASE_URL: postgres://capsule:capsule-internal-db@capsule-db:5432/capsule?sslmode=disable
+      PORT: "4000"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      capsule-db:
+        condition: service_healthy
+
+  capsule-client:
+    container_name: capsule-client
+    build:
+      context: apps/client
+      dockerfile: Dockerfile
+      network: host
+    expose:
+      - "3000"
+    environment:
+      API_URL: http://capsule-api:4000
+      ORIGIN: ${ORIGIN:-http://localhost:3000}
+    depends_on:
+      capsule-api:
+        condition: service_healthy
+
+volumes:
+  db_data:
+    name: capsule_db_data

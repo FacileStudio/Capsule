@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build
+build/
+.svelte-kit/
+dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+/apps/api/bin/
+/apps/api/tmp/
+
+# Bun
+bun.lockb
