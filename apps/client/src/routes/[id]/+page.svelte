@@ -74,129 +74,110 @@
 	<meta name="description" content="Someone sent you an encrypted capsule." />
 </svelte:head>
 
-<div class="flex min-h-screen flex-col bg-background text-foreground">
-	<header class="border-b border-border">
-		<div class="mx-auto flex max-w-2xl items-center gap-3 px-6 py-4">
-			<a href="/" class="flex items-center gap-3 transition-opacity hover:opacity-80">
-				<iconify-icon icon="solar:pill-bold-duotone" width="28" class="text-foreground"></iconify-icon>
-				<span class="text-2xl font-bold font-heading tracking-tight">Capsule</span>
-			</a>
+{#if state === 'loading'}
+	<div class="flex flex-1 items-center justify-center">
+		<iconify-icon icon="solar:refresh-bold" width="24" class="animate-spin text-muted-foreground"></iconify-icon>
+	</div>
+{:else if state === 'empty'}
+	<div class="flex flex-col items-center gap-4 py-12 text-center sm:py-20">
+		<div class="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+			<iconify-icon icon="solar:pill-bold-duotone" width="32" class="text-muted-foreground"></iconify-icon>
 		</div>
-	</header>
+		<h1 class="text-xl font-bold font-heading sm:text-2xl">This capsule is empty</h1>
+		<p class="max-w-sm text-sm text-muted-foreground sm:text-base">
+			It was already opened, expired, or never existed.
+		</p>
+		<a
+			href="/"
+			class="mt-4 inline-flex h-12 items-center justify-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:h-10"
+		>
+			Seal a new capsule
+		</a>
+	</div>
+{:else if state === 'error'}
+	<div class="flex flex-col items-center gap-4 py-12 text-center sm:py-20">
+		<div class="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
+			<iconify-icon icon="solar:danger-triangle-bold" width="32" class="text-red-400"></iconify-icon>
+		</div>
+		<h1 class="text-xl font-bold font-heading sm:text-2xl">Something went wrong</h1>
+		<p class="max-w-sm text-sm text-muted-foreground sm:text-base">{error}</p>
+		<a
+			href="/"
+			class="mt-4 inline-flex h-12 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground sm:h-10"
+		>
+			Back to Capsule
+		</a>
+	</div>
+{:else if state === 'ready' || state === 'revealing'}
+	<div class="flex flex-col gap-5 sm:gap-6">
+		<div>
+			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">A capsule for you</h1>
+			<p class="mt-2 text-sm text-muted-foreground sm:text-base">
+				{#if meta?.burn_after_read}
+					This capsule will self-destruct after you open it.
+				{:else}
+					Someone sent you an encrypted capsule.
+				{/if}
+			</p>
+		</div>
 
-	<main class="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-12">
-		{#if state === 'loading'}
-			<div class="flex flex-1 items-center justify-center">
-				<iconify-icon icon="solar:refresh-bold" width="24" class="animate-spin text-muted-foreground"></iconify-icon>
-			</div>
-		{:else if state === 'empty'}
-			<div class="flex flex-col items-center gap-4 py-20 text-center">
-				<div class="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-					<iconify-icon icon="solar:pill-bold-duotone" width="32" class="text-muted-foreground"></iconify-icon>
-				</div>
-				<h1 class="text-2xl font-bold font-heading">This capsule is empty</h1>
-				<p class="max-w-sm text-muted-foreground">
-					It was already opened, expired, or never existed.
+		<div class="flex flex-wrap gap-2 text-sm text-muted-foreground sm:gap-3">
+			{#if meta?.syntax}
+				<span class="rounded-md bg-secondary px-2 py-1">{meta.syntax}</span>
+			{/if}
+			{#if meta?.created_at}
+				<span class="rounded-md bg-secondary px-2 py-1">Sealed {timeAgo(meta.created_at)}</span>
+			{/if}
+			{#if meta?.burn_after_read}
+				<span class="rounded-md bg-red-500/10 px-2 py-1 text-red-400">Burns after opening</span>
+			{/if}
+		</div>
+
+		<button
+			onclick={reveal}
+			disabled={state === 'revealing'}
+			class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+		>
+			{#if state === 'revealing'}
+				<iconify-icon icon="solar:refresh-bold" width="16" class="mr-2 animate-spin"></iconify-icon>
+				Opening...
+			{:else}
+				<iconify-icon icon="solar:lock-keyhole-unlocked-bold" width="16" class="mr-2"></iconify-icon>
+				Open capsule
+			{/if}
+		</button>
+	</div>
+{:else if state === 'revealed'}
+	<div class="flex flex-col gap-5 sm:gap-6">
+		<div>
+			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">Capsule opened</h1>
+			{#if meta?.burn_after_read}
+				<p class="mt-2 text-sm text-red-400">
+					Content destroyed from server. This is the only time you'll see it.
 				</p>
-				<a
-					href="/"
-					class="mt-4 inline-flex h-10 items-center justify-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-				>
-					Seal a new capsule
-				</a>
-			</div>
-		{:else if state === 'error'}
-			<div class="flex flex-col items-center gap-4 py-20 text-center">
-				<div class="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
-					<iconify-icon icon="solar:danger-triangle-bold" width="32" class="text-red-400"></iconify-icon>
-				</div>
-				<h1 class="text-2xl font-bold font-heading">Something went wrong</h1>
-				<p class="max-w-sm text-muted-foreground">{error}</p>
-				<a
-					href="/"
-					class="mt-4 inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-				>
-					Back to Capsule
-				</a>
-			</div>
-		{:else if state === 'ready' || state === 'revealing'}
-			<div class="flex flex-col gap-6">
-				<div>
-					<h1 class="text-3xl font-bold font-heading tracking-tight">A capsule for you</h1>
-					<p class="mt-2 text-muted-foreground">
-						{#if meta?.burn_after_read}
-							This capsule will self-destruct after you open it.
-						{:else}
-							Someone sent you an encrypted capsule.
-						{/if}
-					</p>
-				</div>
-
-				<div class="flex flex-wrap gap-3 text-sm text-muted-foreground">
-					{#if meta?.syntax}
-						<span class="rounded-md bg-secondary px-2 py-1">{meta.syntax}</span>
-					{/if}
-					{#if meta?.created_at}
-						<span class="rounded-md bg-secondary px-2 py-1">Sealed {timeAgo(meta.created_at)}</span>
-					{/if}
-					{#if meta?.burn_after_read}
-						<span class="rounded-md bg-red-500/10 px-2 py-1 text-red-400">Burns after opening</span>
-					{/if}
-				</div>
-
-				<button
-					onclick={reveal}
-					disabled={state === 'revealing'}
-					class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-				>
-					{#if state === 'revealing'}
-						<iconify-icon icon="solar:refresh-bold" width="16" class="mr-2 animate-spin"></iconify-icon>
-						Opening...
-					{:else}
-						<iconify-icon icon="solar:lock-keyhole-unlocked-bold" width="16" class="mr-2"></iconify-icon>
-						Open capsule
-					{/if}
-				</button>
-			</div>
-		{:else if state === 'revealed'}
-			<div class="flex flex-col gap-6">
-				<div>
-					<h1 class="text-3xl font-bold font-heading tracking-tight">Capsule opened</h1>
-					{#if meta?.burn_after_read}
-						<p class="mt-2 text-sm text-red-400">
-							Content destroyed from server. This is the only time you'll see it.
-						</p>
-					{/if}
-				</div>
-
-				<div class="relative">
-					<pre class="w-full overflow-x-auto rounded-lg border border-input bg-card p-4 font-mono text-sm text-card-foreground whitespace-pre-wrap break-words">{plaintext}</pre>
-					<button
-						onclick={copyContent}
-						class="absolute right-3 top-3 inline-flex items-center justify-center rounded-md bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
-					>
-						{#if copied}
-							Copied
-						{:else}
-							Copy
-						{/if}
-					</button>
-				</div>
-
-				<a
-					href="/"
-					class="inline-flex h-10 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-				>
-					<iconify-icon icon="solar:pill-bold-duotone" width="16" class="mr-2"></iconify-icon>
-					Seal a new capsule
-				</a>
-			</div>
-		{/if}
-	</main>
-
-	<footer class="border-t border-border text-center">
-		<div class="mx-auto max-w-2xl px-6 py-6 text-sm text-muted-foreground">
-			&copy; {new Date().getFullYear()} Capsule by <a href="https://facile.studio" class="font-semibold underline hover:cursor-pointer">Facile.</a>
+			{/if}
 		</div>
-	</footer>
-</div>
+
+		<div class="relative">
+			<pre class="w-full overflow-x-auto rounded-lg border border-input bg-card p-3 pr-16 font-mono text-sm text-card-foreground whitespace-pre-wrap break-words sm:p-4 sm:pr-20">{plaintext}</pre>
+			<button
+				onclick={copyContent}
+				class="absolute right-2 top-2 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80 sm:right-3 sm:top-3 sm:min-h-0 sm:min-w-0"
+			>
+				{#if copied}
+					Copied
+				{:else}
+					Copy
+				{/if}
+			</button>
+		</div>
+
+		<a
+			href="/"
+			class="inline-flex h-12 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground sm:h-10"
+		>
+			<iconify-icon icon="solar:pill-bold-duotone" width="16" class="mr-2"></iconify-icon>
+			Seal a new capsule
+		</a>
+	</div>
+{/if}
