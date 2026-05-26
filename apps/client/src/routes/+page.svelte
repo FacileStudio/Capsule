@@ -190,19 +190,28 @@
 			<p class="text-sm text-red-400">{error}</p>
 		{/if}
 
-		<button
-			onclick={seal}
-			disabled={!content.trim() || (usePassword && !password) || state === 'sealing'}
-			class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed sm:h-11"
-		>
-			{#if state === 'sealing'}
-				<iconify-icon icon="solar:refresh-bold" width="16" class="mr-2 animate-spin"></iconify-icon>
-				Sealing...
-			{:else}
-				<iconify-icon icon="solar:pill-bold-duotone" width="16" class="mr-2"></iconify-icon>
-				Seal capsule
-			{/if}
-		</button>
+		<div class="flex flex-col gap-3 sm:flex-row">
+			<button
+				onclick={seal}
+				disabled={!content.trim() || (usePassword && !password) || state === 'sealing'}
+				class="inline-flex h-12 flex-1 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed sm:h-11"
+			>
+				{#if state === 'sealing'}
+					<iconify-icon icon="solar:refresh-bold" width="16" class="mr-2 animate-spin"></iconify-icon>
+					Sealing...
+				{:else}
+					<iconify-icon icon="solar:pill-bold-duotone" width="16" class="mr-2"></iconify-icon>
+					Seal capsule
+				{/if}
+			</button>
+			<a
+				href="/revoke"
+				class="inline-flex h-12 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground sm:h-11"
+			>
+				<iconify-icon icon="solar:fire-bold" width="16" class="mr-2"></iconify-icon>
+				Revoke
+			</a>
+		</div>
 	</div>
 {:else if state === 'sealed'}
 	<div class="flex flex-col gap-5 sm:gap-6">
