@@ -15,8 +15,11 @@
 	let error = $state('');
 
 	let capsuleUrl = $state('');
+	let capsuleId = $state('');
 	let deleteToken = $state('');
 	let copied = $state(false);
+	let revoking = $state(false);
+	let revoked = $state(false);
 
 	const expiryOptions = [
 		{ value: '1h', label: '1 hour' },
@@ -60,6 +63,7 @@
 
 			const origin = page.url.origin;
 			capsuleUrl = `${origin}/${result.id}#${fragment}`;
+			capsuleId = result.id;
 			deleteToken = result.delete_token;
 			state = 'sealed';
 		} catch (err) {
@@ -74,15 +78,31 @@
 		setTimeout(() => (copied = false), 2000);
 	}
 
+	async function revoke() {
+		if (revoking || revoked) return;
+		revoking = true;
+		try {
+			await backend.deletePaste(capsuleId, deleteToken);
+			revoked = true;
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'Failed to revoke capsule';
+		} finally {
+			revoking = false;
+		}
+	}
+
 	function reset() {
 		state = 'idle';
 		content = '';
 		usePassword = false;
 		password = '';
 		capsuleUrl = '';
+		capsuleId = '';
 		deleteToken = '';
 		error = '';
 		copied = false;
+		revoking = false;
+		revoked = false;
 	}
 </script>
 
@@ -218,11 +238,36 @@
 		</div>
 
 		<div class="rounded-lg border border-border bg-card p-4">
-			<p class="text-xs text-muted-foreground">
-				Delete token (save this to revoke the capsule before it's opened):
-			</p>
-			<code class="mt-1 block break-all text-xs text-muted-foreground/70">{deleteToken}</code>
+			{#if revoked}
+				<div class="flex items-center gap-2 text-sm text-red-400">
+					<iconify-icon icon="solar:fire-bold" width="16"></iconify-icon>
+					Capsule revoked
+				</div>
+			{:else}
+				<div class="flex items-center justify-between gap-3">
+					<div class="min-w-0 flex-1">
+						<p class="text-xs text-muted-foreground">Delete token</p>
+						<code class="mt-1 block truncate text-xs text-muted-foreground/70">{deleteToken}</code>
+					</div>
+					<button
+						onclick={revoke}
+						disabled={revoking}
+						class="inline-flex h-9 shrink-0 items-center justify-center rounded-md border border-red-500/30 bg-red-500/10 px-3 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
+					>
+						{#if revoking}
+							Revoking...
+						{:else}
+							<iconify-icon icon="solar:fire-bold" width="14" class="mr-1.5"></iconify-icon>
+							Revoke
+						{/if}
+					</button>
+				</div>
+			{/if}
 		</div>
+
+		{#if error}
+			<p class="text-sm text-red-400">{error}</p>
+		{/if}
 
 		<button
 			onclick={reset}

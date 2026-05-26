@@ -76,7 +76,7 @@ export const backend = {
 	deletePaste(id: string, deleteToken: string) {
 		return apiFetch<void>(`/pastes/${id}`, {
 			method: 'DELETE',
-			body: JSON.stringify({ delete_token: deleteToken }),
+			headers: { 'X-Delete-Token': deleteToken },
 		});
 	},
 };
