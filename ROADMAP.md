@@ -29,8 +29,8 @@ _Make Capsule a tool developers reach for instinctively._
 - [x] **CLI (`capsule`)** — `capsule seal`, `capsule reveal`, `capsule revoke`.
   Go binary, AES-256-GCM native (`crypto/aes` + `crypto/cipher`), pipe-friendly.
   Ship via GitHub Releases + Homebrew tap. → [FacileStudio/capsule-cli](https://github.com/FacileStudio/capsule-cli)
-- [ ] **API Documentation** — OpenAPI 3.1 spec from Go handlers. Serve Scalar
-  or Swagger UI at `/docs`. Include `curl` examples for every endpoint.
+- [x] **API Documentation** — OpenAPI 3.1 spec from Go handlers. Serve Scalar
+  at `/docs`. Includes `curl` examples for every endpoint.
 - [ ] **Self-Host Guide** — One-command deploy templates for Fly.io, Railway,
   Coolify, and bare `docker compose up`. Document every env var, TLS, and
   PostgreSQL requirements. _(docker-compose.yml exists, README has basics)_

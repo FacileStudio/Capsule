@@ -16,6 +16,7 @@ import (
 	"github.com/FacileStudio/Capsule/apps/api/internal/httpjson"
 	"github.com/FacileStudio/Capsule/apps/api/internal/logger"
 	"github.com/FacileStudio/Capsule/apps/api/internal/middleware"
+	"github.com/FacileStudio/Capsule/apps/api/modules/docs"
 	"github.com/FacileStudio/Capsule/apps/api/modules/pastes"
 	"github.com/FacileStudio/Capsule/apps/api/schemas"
 
@@ -82,6 +83,7 @@ func main() {
 	})
 
 	pastes.RegisterRoutes(router, pasteService, createLimiter)
+	docs.RegisterRoutes(router)
 
 	addr := ":" + appEnv.Port
 	server := &http.Server{
