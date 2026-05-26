@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { importKey, decrypt, unwrapContentKey, parsePasswordFragment } from '$lib/crypto';
 	import { backend, type PasteMeta } from '$lib/backend';
+	import { highlight } from '$lib/highlight';
 
 	type State = 'loading' | 'ready' | 'password' | 'revealing' | 'revealed' | 'empty' | 'error';
 
@@ -14,6 +15,7 @@
 	let keyFragment = $state('');
 	let password = $state('');
 	let passwordError = $state('');
+	let highlightedHtml = $state('');
 
 	onMount(async () => {
 		const id = page.params.id;
@@ -62,6 +64,12 @@
 			const { content } = await backend.getPasteContent(meta.id);
 			plaintext = await decrypt(content, key);
 			state = 'revealed';
+
+			if (meta?.syntax && meta.syntax !== 'plaintext') {
+				highlight(plaintext, meta.syntax).then((html) => {
+					if (html) highlightedHtml = html;
+				});
+			}
 		} catch {
 			error = 'Failed to decrypt. The key may be wrong or the data may be corrupted.';
 			state = 'error';
@@ -226,7 +234,13 @@
 		</div>
 
 		<div class="relative">
-			<pre class="w-full overflow-x-auto rounded-lg border border-input bg-card p-3 pr-16 font-mono text-sm text-card-foreground whitespace-pre-wrap break-words sm:p-4 sm:pr-20">{plaintext}</pre>
+			{#if highlightedHtml}
+				<div class="w-full overflow-x-auto rounded-lg bg-secondary/50 p-3 pr-16 font-mono text-sm sm:p-4 sm:pr-20 [&_pre]:!bg-transparent [&_pre]:!m-0 [&_pre]:!p-0 [&_code]:!bg-transparent">
+					{@html highlightedHtml}
+				</div>
+			{:else}
+				<pre class="w-full overflow-x-auto rounded-lg border border-input bg-card p-3 pr-16 font-mono text-sm text-card-foreground whitespace-pre-wrap break-words sm:p-4 sm:pr-20">{plaintext}</pre>
+			{/if}
 			<button
 				onclick={copyContent}
 				class="absolute right-2 top-2 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80 sm:right-3 sm:top-3 sm:min-h-0 sm:min-w-0"
