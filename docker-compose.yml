@@ -28,6 +28,9 @@ services:
       DATABASE_URL: postgres://capsule:capsule-internal-db@capsule-db:5432/capsule?sslmode=disable
       PORT: "4000"
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Journal log shipping (optional — per-app key from Journal's Keys page; Capsule is not on journal's docker network, so use the public URL https://journal.facile.studio/api)
+      JOURNAL_URL: ${JOURNAL_URL:-}
+      JOURNAL_TOKEN: ${JOURNAL_TOKEN:-}
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:4000/health || exit 1"]
       interval: 10s

@@ -13,6 +13,8 @@ type Config struct {
 	LogLevel       string
 	MaxPasteSize   int
 	AllowedOrigins []string
+	JournalURL     string
+	JournalToken   string
 }
 
 func Load() (Config, error) {
@@ -43,6 +45,9 @@ func Load() (Config, error) {
 			env.AllowedOrigins = append(env.AllowedOrigins, trimmed)
 		}
 	}
+
+	env.JournalURL = os.Getenv("JOURNAL_URL")
+	env.JournalToken = os.Getenv("JOURNAL_TOKEN")
 
 	return env, nil
 }
