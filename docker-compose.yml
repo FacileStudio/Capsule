@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
+      dockerfile: Dockerfile
     expose:
       - "4000"
     networks:
@@ -31,17 +31,15 @@ services:
     labels:
       traefik.enable: "true"
       traefik.docker.network: dokploy-network
-      traefik.http.routers.capsule-api-web.rule: "Host(`capsule.facile.studio`) && PathPrefix(`/api`)"
-      traefik.http.routers.capsule-api-web.entrypoints: web
-      traefik.http.routers.capsule-api-web.middlewares: redirect-to-https@file
-      traefik.http.routers.capsule-api-web.service: capsule-api-svc
-      traefik.http.routers.capsule-api-secure.rule: "Host(`capsule.facile.studio`) && PathPrefix(`/api`)"
-      traefik.http.routers.capsule-api-secure.entrypoints: websecure
-      traefik.http.routers.capsule-api-secure.tls.certresolver: letsencrypt
-      traefik.http.routers.capsule-api-secure.middlewares: capsule-strip-api
-      traefik.http.routers.capsule-api-secure.service: capsule-api-svc
-      traefik.http.middlewares.capsule-strip-api.stripprefix.prefixes: /api
-      traefik.http.services.capsule-api-svc.loadbalancer.server.port: "4000"
+      traefik.http.routers.capsule-web.rule: "Host(`capsule.facile.studio`)"
+      traefik.http.routers.capsule-web.entrypoints: web
+      traefik.http.routers.capsule-web.middlewares: redirect-to-https@file
+      traefik.http.routers.capsule-web.service: capsule-svc
+      traefik.http.routers.capsule-secure.rule: "Host(`capsule.facile.studio`)"
+      traefik.http.routers.capsule-secure.entrypoints: websecure
+      traefik.http.routers.capsule-secure.tls.certresolver: letsencrypt
+      traefik.http.routers.capsule-secure.service: capsule-svc
+      traefik.http.services.capsule-svc.loadbalancer.server.port: "4000"
     environment:
       DATABASE_URL: postgres://capsule:capsule-internal-db@capsule-db:5432/capsule?sslmode=disable
       PORT: "4000"
@@ -59,20 +57,6 @@ services:
       capsule-db:
         condition: service_healthy
 
-  capsule-client:
-    container_name: capsule-client
-    restart: unless-stopped
-    build:
-      context: apps/client
-      dockerfile: Dockerfile
-    expose:
-      - "3000"
-    environment:
-      API_URL: http://capsule-api:4000
-      ORIGIN: ${ORIGIN:-http://localhost:3000}
-    depends_on:
-      capsule-api:
-        condition: service_healthy
 
 volumes:
   db_data:
