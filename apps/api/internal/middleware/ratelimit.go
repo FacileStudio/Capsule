@@ -7,8 +7,8 @@ import (
 )
 
 type visitor struct {
-	count    int
-	resetAt  time.Time
+	count   int
+	resetAt time.Time
 }
 
 type RateLimiter struct {
