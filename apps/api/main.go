@@ -25,6 +25,8 @@ import (
 	"github.com/FacileStudio/tronc/httpx"
 	"github.com/FacileStudio/tronc/logger"
 	troncmiddleware "github.com/FacileStudio/tronc/middleware"
+	"github.com/FacileStudio/tronc/spa"
+	"github.com/go-chi/chi/v5"
 )
 
 func main() {
@@ -91,8 +93,16 @@ func main() {
 	})
 	health.Mount(router, health.DB(sqlDB))
 
-	pastes.RegisterRoutes(router, pasteService, createLimiter)
+	router.Route("/api", func(r chi.Router) {
+		pastes.RegisterRoutes(r, pasteService, createLimiter)
+	})
 	docs.RegisterRoutes(router)
+
+	clientDir := spa.DirFromEnv()
+	if spa.Available(clientDir) {
+		router.Handle("/*", spa.Handler(spa.Config{Dir: clientDir}))
+		appLogger.Info("serving client", slog.String("dir", clientDir))
+	}
 
 	addr := ":" + strconv.Itoa(appEnv.Port)
 	server := &http.Server{
