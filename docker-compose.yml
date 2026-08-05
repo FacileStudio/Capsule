@@ -2,6 +2,7 @@ services:
   capsule-db:
     container_name: capsule-db
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_USER: capsule
       POSTGRES_PASSWORD: capsule-internal-db
@@ -18,6 +19,7 @@ services:
 
   capsule-api:
     container_name: capsule-api
+    restart: unless-stopped
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -43,6 +45,7 @@ services:
 
   capsule-client:
     container_name: capsule-client
+    restart: unless-stopped
     build:
       context: apps/client
       dockerfile: Dockerfile
