@@ -7,37 +7,50 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/FacileStudio/Capsule/apps/api/internal/cleanup"
 	"github.com/FacileStudio/Capsule/apps/api/internal/database"
 	"github.com/FacileStudio/Capsule/apps/api/internal/env"
-	"github.com/FacileStudio/Capsule/apps/api/internal/httpjson"
-	"github.com/FacileStudio/Capsule/apps/api/internal/logger"
 	"github.com/FacileStudio/Capsule/apps/api/internal/middleware"
 	"github.com/FacileStudio/Capsule/apps/api/modules/docs"
 	"github.com/FacileStudio/Capsule/apps/api/modules/pastes"
 	"github.com/FacileStudio/Capsule/apps/api/schemas"
 
 	"github.com/FacileStudio/Journal/sdk/journal"
-	"github.com/go-chi/chi/v5"
-	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/FacileStudio/tronc/health"
+	"github.com/FacileStudio/tronc/healthcheck"
+	"github.com/FacileStudio/tronc/httpx"
+	"github.com/FacileStudio/tronc/logger"
+	troncmiddleware "github.com/FacileStudio/tronc/middleware"
 )
 
 func main() {
-	appEnv, err := env.Load()
-	appLogger := logger.New("info")
-	if err != nil {
-		appLogger.Error("failed to load config", slog.Any("error", err))
+	if healthcheck.Handle(os.Args) {
 		return
 	}
-	appLogger = logger.New(appEnv.LogLevel)
 
-	if appEnv.JournalURL != "" && appEnv.JournalToken != "" {
-		journalClient := journal.New(journal.Config{URL: appEnv.JournalURL, Token: appEnv.JournalToken})
+	appEnv, err := env.Load()
+	if err != nil {
+		logger.New(logger.Config{}).Error("failed to load config", slog.Any("error", err))
+		return
+	}
+
+	var journalClient *journal.Client
+	appLogger := logger.New(logger.Config{
+		Level: appEnv.LogLevel,
+		Wrap: func(handler slog.Handler) slog.Handler {
+			if appEnv.JournalURL == "" || appEnv.JournalToken == "" {
+				return handler
+			}
+			journalClient = journal.New(journal.Config{URL: appEnv.JournalURL, Token: appEnv.JournalToken})
+			return journal.NewHandler(journalClient, handler)
+		},
+	})
+	if journalClient != nil {
 		defer journalClient.Close()
-		appLogger = slog.New(journal.NewHandler(journalClient, appLogger.Handler()))
 	}
 
 	db, err := database.Open(appEnv.DatabaseURL)
@@ -69,30 +82,19 @@ func main() {
 	pasteService := pastes.NewService(db, appEnv.MaxPasteSize)
 	createLimiter := middleware.NewRateLimiter(30, time.Minute)
 
-	router := chi.NewRouter()
-	router.Use(chimiddleware.RequestID)
-	router.Use(chimiddleware.RealIP)
-	router.Use(middleware.CORS(appEnv.AllowedOrigins))
-	router.Use(middleware.RequestLogger(appLogger))
-	router.Use(chimiddleware.Recoverer)
-
-	router.Get("/health", func(w http.ResponseWriter, request *http.Request) {
-		httpjson.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	router := httpx.NewRouter(httpx.Config{
+		Logger: appLogger,
+		CORS: troncmiddleware.CORSConfig{
+			AllowedOrigins: appEnv.CORSAllowedOrigins,
+			AllowedHeaders: append(troncmiddleware.DefaultAllowedHeaders, "X-Delete-Token"),
+		},
 	})
-	router.Get("/ready", func(w http.ResponseWriter, request *http.Request) {
-		readinessContext, cancel := context.WithTimeout(request.Context(), 2*time.Second)
-		defer cancel()
-		if err := sqlDB.PingContext(readinessContext); err != nil {
-			httpjson.WriteJSON(w, http.StatusServiceUnavailable, map[string]string{"status": "not_ready"})
-			return
-		}
-		httpjson.WriteJSON(w, http.StatusOK, map[string]string{"status": "ready"})
-	})
+	health.Mount(router, health.DB(sqlDB))
 
 	pastes.RegisterRoutes(router, pasteService, createLimiter)
 	docs.RegisterRoutes(router)
 
-	addr := ":" + appEnv.Port
+	addr := ":" + strconv.Itoa(appEnv.Port)
 	server := &http.Server{
 		Addr:              addr,
 		Handler:           router,

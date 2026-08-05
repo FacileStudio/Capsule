@@ -4,11 +4,11 @@ Zero-knowledge, end-to-end encrypted paste tool. Secrets self-destruct after rea
 
 ## Tech Stack
 
-- **API**: Go 1.24, Chi router, GORM, PostgreSQL 16
+- **API**: Go 1.24, Chi router, GORM, PostgreSQL 16, [`tronc`](https://github.com/FacileStudio/tronc) as the app chassis
 - **Client**: SvelteKit 5 (Svelte 5 runes), Tailwind CSS 4, Vite 7, adapter-node
 - **Encryption**: AES-256-GCM via Web Crypto API (client-side only)
 - **Runtime**: Bun (client), Docker Compose for full stack
-- **CI**: GitHub Actions (go vet/build/test, svelte-check, docker compose validation)
+- **Gate**: `sh scripts/check.sh` via a pre-push hook. GitHub Actions is gone suite-wide
 
 ## Project Structure
 
@@ -19,11 +19,8 @@ apps/
     internal/
       cleanup/           # Background expired-paste cleanup (has tests)
       database/          # GORM database connection
-      env/               # Config from env vars
-      errors/            # Shared error types
-      httpjson/          # JSON response helpers
-      logger/            # Structured logging (slog)
-      middleware/         # CORS, request logging, rate limiting
+      env/               # Capsule-only config, wrapping tronc/env
+      middleware/        # Rate limiting (the rest comes from tronc)
     modules/
       docs/              # OpenAPI spec + Scalar UI at /docs
       pastes/            # Core paste CRUD: handler, service, router, types (has tests)
@@ -76,11 +73,12 @@ docker compose down      # Stop and remove containers
 
 | Variable | Default | Description |
 |---|---|---|
-| `DATABASE_URL` | `postgres://postgres:postgres@localhost:5432/capsule?sslmode=disable` | PostgreSQL connection string |
-| `PORT` | `4000` | API server port |
+| `DATABASE_URL` | **required** | PostgreSQL connection string. No default since the tronc adoption — an app that boots against a database that isn't there just 500s later |
+| `APP_ENV` | `development` | `development`, `staging`, `production`. Never gates security behaviour |
+| `PORT` | `8080` | API server port. Compose and Dokploy set `4000` |
 | `LOG_LEVEL` | `info` | `debug`, `info`, `warn`, `error` |
 | `MAX_PASTE_SIZE` | `1048576` | Max paste size in bytes (default 1MB) |
-| `ALLOWED_ORIGINS` | `*` | Comma-separated CORS origins |
+| `CORS_ALLOWED_ORIGINS` | *(none — deny)* | Comma-separated CORS origins. Falls back to `ALLOWED_ORIGINS`. Unset denies every cross-origin caller, which is correct here: the client proxies server-side |
 | `API_URL` | `http://localhost:4000` | Backend URL (used by client proxy) |
 | `ORIGIN` | `http://localhost:3000` | Client origin (used by SvelteKit) |
 
@@ -91,4 +89,7 @@ docker compose down      # Stop and remove containers
 - API tests use SQLite in-memory for unit tests and PostgreSQL for integration tests.
 - Rate limiting on paste creation: 30 requests per minute.
 - Background cleanup goroutine runs on startup to purge expired pastes.
-- The client proxies API requests through SvelteKit's server routes (`/api/[...path]`) to avoid CORS in dev.
+- The client proxies API requests through SvelteKit's server routes (`/api/[...path]`) to avoid CORS in dev. The API is `expose`d, never published, so it is never called cross-origin.
+- The error envelope, JSON helpers, logger, request logging, CORS, panic recovery, `/health` and `/ready` all come from `tronc`. Do not reintroduce local copies — fix them upstream.
+- `/health` and `/ready` answer at both `/` and `/api`, so the same probe works through the edge.
+- The container healthcheck re-executes the binary: `["CMD", "/app/api", "healthcheck"]`.
