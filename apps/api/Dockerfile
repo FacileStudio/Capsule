@@ -10,16 +10,15 @@ RUN go mod download
 
 COPY apps/api ./
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH:-amd64} go build -o bin/api .
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH:-amd64} \
+    go build -trimpath -ldflags="-s -w" -o bin/api .
 
-FROM alpine:3.20
+FROM gcr.io/distroless/static-debian12:nonroot
 
-RUN apk add --no-cache wget
-
-WORKDIR /app
-
-COPY --from=build /repo/apps/api/bin/api /app/api
+COPY --from=build /repo/apps/api/bin/api /api
 
 EXPOSE 4000
 
-ENTRYPOINT ["/app/api"]
+USER nonroot:nonroot
+
+ENTRYPOINT ["/api"]

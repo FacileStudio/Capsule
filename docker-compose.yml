@@ -50,7 +50,7 @@ services:
       JOURNAL_URL: ${JOURNAL_URL:-}
       JOURNAL_TOKEN: ${JOURNAL_TOKEN:-}
     healthcheck:
-      test: ["CMD", "/app/api", "healthcheck"]
+      test: ["CMD", "/api", "healthcheck"]
       interval: 10s
       timeout: 5s
       retries: 3
