@@ -25,6 +25,23 @@ services:
       dockerfile: apps/api/Dockerfile
     expose:
       - "4000"
+    networks:
+      - default
+      - dokploy-network
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: dokploy-network
+      traefik.http.routers.capsule-api-web.rule: "Host(`capsule.facile.studio`) && PathPrefix(`/api`)"
+      traefik.http.routers.capsule-api-web.entrypoints: web
+      traefik.http.routers.capsule-api-web.middlewares: redirect-to-https@file
+      traefik.http.routers.capsule-api-web.service: capsule-api-svc
+      traefik.http.routers.capsule-api-secure.rule: "Host(`capsule.facile.studio`) && PathPrefix(`/api`)"
+      traefik.http.routers.capsule-api-secure.entrypoints: websecure
+      traefik.http.routers.capsule-api-secure.tls.certresolver: letsencrypt
+      traefik.http.routers.capsule-api-secure.middlewares: capsule-strip-api
+      traefik.http.routers.capsule-api-secure.service: capsule-api-svc
+      traefik.http.middlewares.capsule-strip-api.stripprefix.prefixes: /api
+      traefik.http.services.capsule-api-svc.loadbalancer.server.port: "4000"
     environment:
       DATABASE_URL: postgres://capsule:capsule-internal-db@capsule-db:5432/capsule?sslmode=disable
       PORT: "4000"
@@ -60,3 +77,7 @@ services:
 volumes:
   db_data:
     name: capsule_db_data
+
+networks:
+  dokploy-network:
+    external: true
