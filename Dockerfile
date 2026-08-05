@@ -25,6 +25,10 @@ FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=api-build /repo/apps/api/bin/api /api
 COPY --from=client-build /client/build /client
 
+# The :nonroot base sets WorkingDir=/home/nonroot, so a relative ./client would
+# resolve there and the SPA would silently not be served. Be explicit.
+ENV CLIENT_DIR=/client
+
 EXPOSE 4000
 
 USER nonroot:nonroot
