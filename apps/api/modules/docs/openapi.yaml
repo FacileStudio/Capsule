@@ -24,9 +24,9 @@ info:
     name: MIT
 
 servers:
-  - url: https://capsule.facile.studio
+  - url: https://capsule.facile.studio/api
     description: Production
-  - url: http://localhost:4000
+  - url: http://localhost:4000/api
     description: Local development
 
 tags:

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -27,6 +28,7 @@ import (
 	troncmiddleware "github.com/FacileStudio/tronc/middleware"
 	"github.com/FacileStudio/tronc/spa"
 	"github.com/go-chi/chi/v5"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -81,27 +83,10 @@ func main() {
 	defer cleanupCancel()
 	go cleanup.Start(cleanupCtx, db, appLogger)
 
-	pasteService := pastes.NewService(db, appEnv.MaxPasteSize)
-	createLimiter := middleware.NewRateLimiter(30, time.Minute)
-
-	router := httpx.NewRouter(httpx.Config{
-		Logger: appLogger,
-		CORS: troncmiddleware.CORSConfig{
-			AllowedOrigins: appEnv.CORSAllowedOrigins,
-			AllowedHeaders: append(troncmiddleware.DefaultAllowedHeaders, "X-Delete-Token"),
-		},
-	})
-	health.Mount(router, health.DB(sqlDB))
-
-	router.Route("/api", func(r chi.Router) {
-		pastes.RegisterRoutes(r, pasteService, createLimiter)
-	})
-	docs.RegisterRoutes(router)
-
-	clientDir := spa.DirFromEnv()
-	if spa.Available(clientDir) {
-		router.Handle("/*", spa.Handler(spa.Config{Dir: clientDir}))
-		appLogger.Info("serving client", slog.String("dir", clientDir))
+	router, err := buildRouter(db, sqlDB, appEnv, appLogger)
+	if err != nil {
+		appLogger.Error("failed to build the router", slog.Any("error", err))
+		return
 	}
 
 	addr := ":" + strconv.Itoa(appEnv.Port)
@@ -138,4 +123,33 @@ func main() {
 		}
 		appLogger.Info("server stopped")
 	}
+}
+
+func buildRouter(db *gorm.DB, sqlDB *sql.DB, appEnv env.Config, appLogger *slog.Logger) (chi.Router, error) {
+	pasteService := pastes.NewService(db, appEnv.MaxPasteSize)
+	createLimiter := middleware.NewRateLimiter(30, time.Minute)
+
+	router := httpx.NewRouter(httpx.Config{
+		Logger: appLogger,
+		CORS: troncmiddleware.CORSConfig{
+			AllowedOrigins: appEnv.CORSAllowedOrigins,
+			AllowedHeaders: append(troncmiddleware.DefaultAllowedHeaders, "X-Delete-Token"),
+		},
+	})
+	health.Mount(router, health.DB(sqlDB))
+
+	router.Route("/api", func(r chi.Router) {
+		pastes.RegisterRoutes(r, pasteService, createLimiter)
+	})
+	if err := docs.RegisterRoutes(router); err != nil {
+		return nil, err
+	}
+
+	clientDir := spa.DirFromEnv()
+	if spa.Available(clientDir) {
+		router.Handle("/*", spa.Handler(spa.Config{Dir: clientDir}))
+		appLogger.Info("serving client", slog.String("dir", clientDir))
+	}
+
+	return router, nil
 }
