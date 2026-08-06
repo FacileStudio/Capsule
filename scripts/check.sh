@@ -70,10 +70,21 @@ for dir in $GO_MODULES; do
     "$GO" vet ./... || s=1
     "$GO" test ./... || s=1
 
+    # Postgres is the only database in this suite, tests included. A test on
+    # SQLite builds a different schema from the GORM struct tags and then
+    # passes, proving nothing about the Postgres DDL that actually ships — and
+    # it cannot run what does ship: SELECT ... FOR UPDATE, pg_trgm, LATERAL.
+    drivers="$(grep -nE 'gorm\.io/driver/(sqlite|mysql|sqlserver|clickhouse)|mattn/go-sqlite3|modernc\.org/sqlite' go.mod || true)"
+    if [ -n "$drivers" ]; then
+      echo "non-Postgres database driver in go.mod; use github.com/FacileStudio/tronc/testdb (see Wiki/MIGRATIONS.md):"
+      echo "$drivers"
+      s=1
+    fi
+
     # The schema is owned by migrations/, not by the models. AutoMigrate is
     # unordered, has no down path and silently no-ops on a rename, which is how
     # the production schema became unreproducible in the first place. Test files
-    # are exempt: unit tests build a throwaway SQLite schema from the structs.
+    # are exempt only so the guard predates the last repo's conversion.
     strays="$(grep -rln 'AutoMigrate' --include='*.go' . 2>/dev/null | grep -v '_test\.go$' | grep -v '^\./vendor/' || true)"
     if [ -n "$strays" ]; then
       echo "AutoMigrate is back in non-test code; schema changes belong in migrations/ (see Wiki/MIGRATIONS.md):"

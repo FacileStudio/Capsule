@@ -1,6 +1,7 @@
 package cleanup
 
 import (
+	"github.com/FacileStudio/Capsule/apps/api/internal/testsupport"
 	"log/slog"
 	"os"
 	"testing"
@@ -8,23 +9,12 @@ import (
 
 	"github.com/FacileStudio/Capsule/apps/api/schemas"
 
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 func setupTestDB(t *testing.T) *gorm.DB {
 	t.Helper()
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
-	if err != nil {
-		t.Fatalf("open test db: %v", err)
-	}
-	if err := db.AutoMigrate(&schemas.Paste{}); err != nil {
-		t.Fatalf("migrate: %v", err)
-	}
-	return db
+	return testsupport.DB(t)
 }
 
 func testLogger() *slog.Logger {

@@ -14,6 +14,13 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// mustRouter is setupRouter for the cases that only need the router.
+func mustRouter(t *testing.T) chi.Router {
+	t.Helper()
+	r, _ := setupRouter(t)
+	return r
+}
+
 func setupRouter(t *testing.T) (chi.Router, *Service) {
 	t.Helper()
 	db := setupTestDB(t)
@@ -161,18 +168,8 @@ func TestHandlerGetMetaNotFound(t *testing.T) {
 	}
 }
 
-func setupPostgresRouter(t *testing.T) chi.Router {
-	t.Helper()
-	db := setupPostgresDB(t)
-	svc := NewService(db, 1024)
-	limiter := middleware.NewRateLimiter(100, time.Minute)
-	r := chi.NewRouter()
-	RegisterRoutes(r, svc, limiter)
-	return r
-}
-
 func TestHandlerGetContent(t *testing.T) {
-	r := setupPostgresRouter(t)
+	r := mustRouter(t)
 
 	createRR := doRequest(r, "POST", "/pastes", map[string]any{
 		"content":         "reveal me",
@@ -193,7 +190,7 @@ func TestHandlerGetContent(t *testing.T) {
 }
 
 func TestHandlerGetContentBurnAfterRead(t *testing.T) {
-	r := setupPostgresRouter(t)
+	r := mustRouter(t)
 
 	createRR := doRequest(r, "POST", "/pastes", map[string]any{
 		"content":         "burn me",
@@ -214,7 +211,7 @@ func TestHandlerGetContentBurnAfterRead(t *testing.T) {
 }
 
 func TestHandlerGetContentNotFound(t *testing.T) {
-	r := setupPostgresRouter(t)
+	r := mustRouter(t)
 
 	rr := doRequest(r, "POST", "/pastes/cap_0000000000000000/content", nil, nil)
 	if rr.Code != http.StatusNotFound {

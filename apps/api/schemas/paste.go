@@ -3,9 +3,13 @@ package schemas
 import "time"
 
 type Paste struct {
-	ID            string     `gorm:"primaryKey;type:varchar(24)" json:"id"`
-	Content       string     `gorm:"type:text;not null" json:"-"`
-	BurnAfterRead bool       `gorm:"not null;default:true" json:"burn_after_read"`
+	ID      string `gorm:"primaryKey;type:varchar(24)" json:"id"`
+	Content string `gorm:"type:text;not null" json:"-"`
+	// No `default:` here on purpose. GORM omits a zero-valued field from the
+	// INSERT when the tag declares a default, so `default:true` silently turned
+	// every BurnAfterRead=false paste into a burning one. The column keeps its
+	// default in migrations/, which is where the schema now lives.
+	BurnAfterRead bool       `gorm:"not null" json:"burn_after_read"`
 	ExpiresAt     *time.Time `json:"expires_at"`
 	MaxViews      *int       `json:"max_views"`
 	ViewCount     int        `gorm:"not null;default:0" json:"view_count"`

@@ -1,53 +1,18 @@
 package pastes
 
 import (
-	"os"
+	"github.com/FacileStudio/Capsule/apps/api/internal/testsupport"
+	"github.com/FacileStudio/Capsule/apps/api/schemas"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/FacileStudio/Capsule/apps/api/schemas"
-
-	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 func setupTestDB(t *testing.T) *gorm.DB {
 	t.Helper()
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
-	if err != nil {
-		t.Fatalf("open test db: %v", err)
-	}
-	if err := db.AutoMigrate(&schemas.Paste{}); err != nil {
-		t.Fatalf("migrate: %v", err)
-	}
-	return db
-}
-
-func setupPostgresDB(t *testing.T) *gorm.DB {
-	t.Helper()
-	dsn := os.Getenv("TEST_DATABASE_URL")
-	if dsn == "" {
-		t.Skip("TEST_DATABASE_URL not set, skipping Postgres-specific test")
-	}
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
-	if err != nil {
-		t.Fatalf("open postgres test db: %v", err)
-	}
-	db.Exec("DROP TABLE IF EXISTS pastes")
-	if err := db.AutoMigrate(&schemas.Paste{}); err != nil {
-		t.Fatalf("migrate: %v", err)
-	}
-	t.Cleanup(func() {
-		db.Exec("DROP TABLE IF EXISTS pastes")
-	})
-	return db
+	return testsupport.DB(t)
 }
 
 func boolPtr(v bool) *bool { return &v }
@@ -317,7 +282,7 @@ func TestGetMetaExpired(t *testing.T) {
 }
 
 func TestGetContentBurnAfterRead(t *testing.T) {
-	db := setupPostgresDB(t)
+	db := setupTestDB(t)
 	svc := NewService(db, 1024)
 
 	resp, _ := svc.Create(CreateRequest{Content: "one-time secret", BurnAfterRead: boolPtr(true)})
@@ -337,7 +302,7 @@ func TestGetContentBurnAfterRead(t *testing.T) {
 }
 
 func TestGetContentNoBurn(t *testing.T) {
-	db := setupPostgresDB(t)
+	db := setupTestDB(t)
 	svc := NewService(db, 1024)
 
 	resp, _ := svc.Create(CreateRequest{Content: "reusable", BurnAfterRead: boolPtr(false)})
@@ -360,7 +325,7 @@ func TestGetContentNoBurn(t *testing.T) {
 }
 
 func TestGetContentMaxViews(t *testing.T) {
-	db := setupPostgresDB(t)
+	db := setupTestDB(t)
 	svc := NewService(db, 1024)
 
 	resp, _ := svc.Create(CreateRequest{
@@ -392,7 +357,7 @@ func TestGetContentMaxViews(t *testing.T) {
 }
 
 func TestGetContentNotFound(t *testing.T) {
-	db := setupPostgresDB(t)
+	db := setupTestDB(t)
 	svc := NewService(db, 1024)
 
 	_, err := svc.GetContent("cap_doesnotexist1234")
@@ -402,7 +367,7 @@ func TestGetContentNotFound(t *testing.T) {
 }
 
 func TestGetContentExpired(t *testing.T) {
-	db := setupPostgresDB(t)
+	db := setupTestDB(t)
 	svc := NewService(db, 1024)
 
 	resp, _ := svc.Create(CreateRequest{Content: "expired content", BurnAfterRead: boolPtr(false)})

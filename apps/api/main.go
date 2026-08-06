@@ -3,9 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
-	"embed"
 	"errors"
-	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
@@ -18,6 +16,7 @@ import (
 	"github.com/FacileStudio/Capsule/apps/api/internal/database"
 	"github.com/FacileStudio/Capsule/apps/api/internal/env"
 	"github.com/FacileStudio/Capsule/apps/api/internal/middleware"
+	"github.com/FacileStudio/Capsule/apps/api/migrations"
 	"github.com/FacileStudio/Capsule/apps/api/modules/docs"
 	"github.com/FacileStudio/Capsule/apps/api/modules/pastes"
 
@@ -32,9 +31,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
 )
-
-//go:embed migrations/*.sql
-var migrationsFS embed.FS
 
 func main() {
 	if healthcheck.Handle(os.Args) {
@@ -91,12 +87,7 @@ func run() int {
 		}
 	}()
 
-	migrations, err := fs.Sub(migrationsFS, "migrations")
-	if err != nil {
-		appLogger.Error("failed to open embedded migrations", slog.Any("error", err))
-		return 1
-	}
-	migrateConfig := migrate.Config{DB: sqlDB, FS: migrations, Logger: appLogger}
+	migrateConfig := migrate.Config{DB: sqlDB, FS: migrations.FS, Logger: appLogger}
 
 	// `docker run <image> migrate status` — the image is ENTRYPOINT-only, and
 	// distroless has no shell to run anything else through.
