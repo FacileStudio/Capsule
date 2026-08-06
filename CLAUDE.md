@@ -4,7 +4,7 @@ Zero-knowledge, end-to-end encrypted paste tool. Secrets self-destruct after rea
 
 ## Tech Stack
 
-- **API**: Go 1.24, Chi router, GORM, PostgreSQL 16, [`tronc`](https://github.com/FacileStudio/tronc) as the app chassis
+- **API**: Go 1.25, Chi router, GORM, PostgreSQL 16, [`tronc`](https://github.com/FacileStudio/tronc) as the app chassis, [`tronc/migrate`](https://github.com/FacileStudio/tronc/tree/main/migrate) for schema
 - **Client**: SvelteKit 5 (Svelte 5 runes), Tailwind CSS 4, Vite 7, adapter-node
 - **Encryption**: AES-256-GCM via Web Crypto API (client-side only)
 - **Runtime**: Bun (client), Docker Compose for full stack
@@ -24,7 +24,8 @@ apps/
     modules/
       docs/              # OpenAPI spec + Scalar UI at /docs
       pastes/            # Core paste CRUD: handler, service, router, types (has tests)
-    schemas/             # GORM models + migrations
+    migrations/          # Ordered SQL, embedded and applied at boot. Owns the schema
+    schemas/             # GORM models (the schema is migrations/, not these)
   client/                # SvelteKit frontend
     src/
       lib/
@@ -93,3 +94,5 @@ docker compose down      # Stop and remove containers
 - The error envelope, JSON helpers, logger, request logging, CORS, panic recovery, `/health` and `/ready` all come from `tronc`. Do not reintroduce local copies — fix them upstream.
 - `/health` and `/ready` answer at both `/` and `/api`, so the same probe works through the edge.
 - The container healthcheck re-executes the binary: `["CMD", "/app/api", "healthcheck"]`.
+- The schema lives in `apps/api/migrations/`, applied at boot by `tronc/migrate`. Do not reintroduce `AutoMigrate` outside tests — `scripts/check.sh` fails on it. Adding a model field without a migration means the column does not exist and the query fails at runtime.
+- Production was baselined (version 1 recorded as applied, never run) because its schema predates migrations. A fresh database runs `00001_baseline.sql` for real.

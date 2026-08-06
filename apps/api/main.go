@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
+	"embed"
 	"errors"
+	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
@@ -18,7 +20,6 @@ import (
 	"github.com/FacileStudio/Capsule/apps/api/internal/middleware"
 	"github.com/FacileStudio/Capsule/apps/api/modules/docs"
 	"github.com/FacileStudio/Capsule/apps/api/modules/pastes"
-	"github.com/FacileStudio/Capsule/apps/api/schemas"
 
 	"github.com/FacileStudio/Journal/sdk/journal"
 	"github.com/FacileStudio/tronc/health"
@@ -26,20 +27,34 @@ import (
 	"github.com/FacileStudio/tronc/httpx"
 	"github.com/FacileStudio/tronc/logger"
 	troncmiddleware "github.com/FacileStudio/tronc/middleware"
+	"github.com/FacileStudio/tronc/migrate"
 	"github.com/FacileStudio/tronc/spa"
 	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
 )
+
+//go:embed migrations/*.sql
+var migrationsFS embed.FS
 
 func main() {
 	if healthcheck.Handle(os.Args) {
 		return
 	}
 
+	os.Exit(run())
+}
+
+// run returns the process exit code. Every failure below used to return from
+// main, which exits 0 — so a failed migration or an unreachable database looked
+// to Docker, Dokploy and any supervisor like a clean shutdown.
+func run() int {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
 	appEnv, err := env.Load()
 	if err != nil {
 		logger.New(logger.Config{}).Error("failed to load config", slog.Any("error", err))
-		return
+		return 1
 	}
 
 	var journalClient *journal.Client
@@ -60,24 +75,43 @@ func main() {
 	db, err := database.Open(appEnv.DatabaseURL)
 	if err != nil {
 		appLogger.Error("failed to open database", slog.Any("error", err))
-		return
+		return 1
 	}
 
-	if err := schemas.Migrate(db); err != nil {
-		appLogger.Error("failed to run migrations", slog.Any("error", err))
-		return
-	}
-
+	// The *sql.DB is taken before migrating rather than after: the migration
+	// runner works at that layer, and so does the readiness check.
 	sqlDB, err := db.DB()
 	if err != nil {
 		appLogger.Error("failed to access database handle", slog.Any("error", err))
-		return
+		return 1
 	}
 	defer func() {
 		if err := sqlDB.Close(); err != nil {
 			appLogger.Error("failed to close database", slog.Any("error", err))
 		}
 	}()
+
+	migrations, err := fs.Sub(migrationsFS, "migrations")
+	if err != nil {
+		appLogger.Error("failed to open embedded migrations", slog.Any("error", err))
+		return 1
+	}
+	migrateConfig := migrate.Config{DB: sqlDB, FS: migrations, Logger: appLogger}
+
+	// `docker run <image> migrate status` — the image is ENTRYPOINT-only, and
+	// distroless has no shell to run anything else through.
+	if handled, err := migrate.Command(ctx, os.Args, migrateConfig); handled {
+		if err != nil {
+			appLogger.Error("migrate", slog.Any("error", err))
+			return 1
+		}
+		return 0
+	}
+
+	if err := migrate.Run(ctx, migrateConfig); err != nil {
+		appLogger.Error("failed to run migrations", slog.Any("error", err))
+		return 1
+	}
 
 	cleanupCtx, cleanupCancel := context.WithCancel(context.Background())
 	defer cleanupCancel()
@@ -86,7 +120,7 @@ func main() {
 	router, err := buildRouter(db, sqlDB, appEnv, appLogger)
 	if err != nil {
 		appLogger.Error("failed to build the router", slog.Any("error", err))
-		return
+		return 1
 	}
 
 	addr := ":" + strconv.Itoa(appEnv.Port)
@@ -103,26 +137,25 @@ func main() {
 		serverErrCh <- server.ListenAndServe()
 	}()
 
-	shutdownSignal, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
 	appLogger.Info("server starting", slog.String("addr", addr))
 	select {
 	case err := <-serverErrCh:
 		if !errors.Is(err, http.ErrServerClosed) {
 			appLogger.Error("server stopped", slog.Any("error", err))
+			return 1
 		}
-	case <-shutdownSignal.Done():
+	case <-ctx.Done():
 		appLogger.Info("server shutting down")
 		cleanupCancel()
 		shutdownContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if err := server.Shutdown(shutdownContext); err != nil {
 			appLogger.Error("server shutdown failed", slog.Any("error", err))
-			return
+			return 1
 		}
 		appLogger.Info("server stopped")
 	}
+	return 0
 }
 
 func buildRouter(db *gorm.DB, sqlDB *sql.DB, appEnv env.Config, appLogger *slog.Logger) (chi.Router, error) {
