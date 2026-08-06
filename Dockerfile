@@ -5,7 +5,10 @@ RUN bun install --frozen-lockfile
 COPY apps/client/ .
 RUN bun run build
 
-FROM golang:1.24-alpine AS api-build
+# 1.25 is not cosmetic: goose, via tronc/migrate, declares go 1.25.7. The
+# builder used to be 1.24 while go.mod already said 1.25, which only worked
+# because the toolchain silently downloaded a newer one mid-build.
+FROM golang:1.25-alpine AS api-build
 
 ARG TARGETOS=linux
 ARG TARGETARCH

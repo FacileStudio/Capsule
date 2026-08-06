@@ -26,7 +26,7 @@ Live at [capsule.facile.studio](https://capsule.facile.studio).
 
 | Layer | Tech |
 |---|---|
-| API | Go 1.24, Chi v5, GORM, PostgreSQL 16, [tronc](https://github.com/FacileStudio/tronc) v0.6.0 |
+| API | Go 1.25, Chi v5, GORM, PostgreSQL 16, [tronc](https://github.com/FacileStudio/tronc) v0.9.0 + [tronc/migrate](https://github.com/FacileStudio/tronc/tree/main/migrate) v0.1.0 |
 | Client | SvelteKit 2 (Svelte 5 runes), Tailwind CSS 4, Shiki, `adapter-static` |
 | Crypto | Web Crypto API — AES-256-GCM, PBKDF2-SHA256 for password mode. Browser only |
 | Deploy | Docker Compose, single distroless container behind Traefik |
@@ -69,7 +69,7 @@ Full reference: [docs/configuration.md](docs/configuration.md).
 ```
 apps/
   api/       Go backend — modules/pastes (the whole domain), modules/docs,
-             internal/ (env, cleanup, database, middleware), schemas/
+             internal/ (env, cleanup, database, middleware), migrations/, schemas/
   client/    SvelteKit SPA — lib/crypto.ts is the entire crypto surface,
              built by adapter-static and served by the API binary
 docs/        Architecture, configuration, development, deployment, API

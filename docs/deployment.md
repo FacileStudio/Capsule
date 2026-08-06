@@ -86,14 +86,30 @@ adding.
 
 ## Migrations
 
-There is no migration step. `schemas.Migrate` runs GORM `AutoMigrate` over the single `Paste`
-model at every boot.
+Ordered SQL migrations in `apps/api/migrations/`, embedded into the binary and applied at boot
+by [`tronc/migrate`](https://github.com/FacileStudio/tronc/tree/main/migrate). `AutoMigrate` is
+gone from the boot path, and `scripts/check.sh` fails if it comes back outside a test.
 
-- Adding a struct field adds a column. Removing one leaves the column behind, unread.
-- Two instances booting at once both migrate. Deploy one at a time.
+- **The schema is owned by `migrations/`, not by the models.** Adding a struct field without a
+  migration means the column does not exist, and the query that touches it fails at runtime
+  rather than at boot. That is the trade for a schema that can be rebuilt from scratch.
+- A failed migration now stops the container with exit 1. It previously logged and exited **0**,
+  which every supervisor read as a clean shutdown.
+- Two instances booting at once are safe: the runner holds a Postgres advisory lock. Long
+  migrations still need `healthcheck.start_period` to exceed their worst case, or Docker kills
+  the container mid-run.
 - Rolling back the image rolls back the binary and the SPA together, since they ship in the
-  same image. The database does not roll back, which is safe as long as changes stay
-  additive.
+  same image. The database does not roll back — roll forward with a new migration.
+
+Operate it through the binary; the image is `ENTRYPOINT`-only and distroless has no shell:
+
+```sh
+docker run <image> migrate status
+docker run <image> migrate version
+```
+
+Production was **baselined**, not migrated: its schema already existed, so version 1 is recorded
+as applied without being run. See `Wiki/MIGRATIONS.md` in the Facile wiki for the recipe.
 
 ## Scaling, and why you should not
 
