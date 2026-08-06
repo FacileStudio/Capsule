@@ -6,7 +6,7 @@ require (
 	github.com/FacileStudio/Journal/sdk/journal v0.0.0-20260708221941-db985ad2b1ba
 	github.com/FacileStudio/tronc v0.9.0
 	github.com/FacileStudio/tronc/migrate v0.1.0
-	github.com/FacileStudio/tronc/testdb v0.1.0
+	github.com/FacileStudio/tronc/testdb v0.1.1
 	github.com/go-chi/chi/v5 v5.2.3
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/postgres v1.6.0
