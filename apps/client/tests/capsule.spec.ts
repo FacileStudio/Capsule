@@ -43,7 +43,7 @@ test.describe('create page', () => {
 
 	test('burn after read checkbox exists and is checked by default', async ({ page }) => {
 		await page.goto('/');
-		const checkbox = page.locator('input[type="checkbox"]');
+		const checkbox = page.getByRole('checkbox', { name: 'Burn after opening' });
 		await expect(checkbox).toBeChecked();
 	});
 });
@@ -77,8 +77,11 @@ test.describe('sealed state', () => {
 		await page.getByRole('button', { name: /seal capsule/i }).click();
 
 		await expect(page.locator('h1')).toContainText('Capsule sealed', { timeout: 10_000 });
-		await expect(page.locator('code')).toBeVisible();
-		const token = await page.locator('code').textContent();
+		// The token now lives in a muse SecretField: masked until revealed, and copyable.
+		const field = page.locator('output');
+		await expect(field).toBeVisible();
+		await page.getByRole('button', { name: /reveal secret/i }).click();
+		const token = await field.textContent();
 		expect(token).toBeTruthy();
 		expect(token!.length).toBeGreaterThan(10);
 	});
@@ -114,7 +117,7 @@ test.describe('full create → reveal flow', () => {
 		const secret = 'E2E test secret ' + Date.now();
 		await page.locator('textarea').fill(secret);
 
-		const burnCheckbox = page.locator('input[type="checkbox"]');
+		const burnCheckbox = page.getByRole('checkbox', { name: 'Burn after opening' });
 		if (await burnCheckbox.isChecked()) {
 			await burnCheckbox.uncheck();
 		}

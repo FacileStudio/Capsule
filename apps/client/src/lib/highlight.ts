@@ -1,4 +1,5 @@
 import type { HighlighterCore } from 'shiki';
+import { isDark } from './theme.svelte';
 
 let highlighter: HighlighterCore | null = null;
 
@@ -46,10 +47,6 @@ async function getHighlighter(): Promise<HighlighterCore> {
 	});
 
 	return highlighter;
-}
-
-function isDark(): boolean {
-	return document.documentElement.classList.contains('dark');
 }
 
 export async function highlight(code: string, lang: string): Promise<string> {

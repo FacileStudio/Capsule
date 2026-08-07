@@ -5,14 +5,17 @@
 		<link rel="icon" href="%sveltekit.assets%/favicon.ico" type="image/x-icon" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<script>
+			/*
+			 * Pre-paint theme, mirroring $lib/theme.svelte.ts. Both classes are written and
+			 * "system" writes neither: muse's tokens flip on prefers-color-scheme scoped to
+			 * `:root:not(.light)`, so `.light` is the only thing that lets someone force
+			 * light on a dark OS, and a script that only ever adds `.dark` strands them.
+			 */
 			(function () {
 				var t = localStorage.getItem('capsule-theme');
-				if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) {
-					document.documentElement.classList.add('dark');
-				}
+				if (t === 'dark' || t === 'light') document.documentElement.classList.add(t);
 			})();
 		</script>
-		<script type="module" src="https://cdn.jsdelivr.net/npm/iconify-icon@2.2.0/dist/iconify-icon.min.js"></script>
 		<script defer src="https://vision.facile.studio/s.js"></script>
 		%sveltekit.head%
 	</head>

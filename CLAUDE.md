@@ -5,7 +5,8 @@ Zero-knowledge, end-to-end encrypted paste tool. Secrets self-destruct after rea
 ## Tech Stack
 
 - **API**: Go 1.25, Chi router, GORM, PostgreSQL 16, [`tronc`](https://github.com/FacileStudio/tronc) as the app chassis, [`tronc/migrate`](https://github.com/FacileStudio/tronc/tree/main/migrate) for schema
-- **Client**: SvelteKit 5 (Svelte 5 runes), Tailwind CSS 4, Vite 7, adapter-node
+- **Client**: SvelteKit 5 (Svelte 5 runes), Tailwind CSS 4, Vite 7, adapter-static (the Go binary serves the build)
+- **Design system**: [`@facile/muse`](https://github.com/FacileStudio/muse), pinned to a tag. It owns the palette, the Goga faces, dark mode and the base layer
 - **Encryption**: AES-256-GCM via Web Crypto API (client-side only)
 - **Runtime**: Bun (client), Docker Compose for full stack
 - **Gate**: `sh scripts/check.sh` via a pre-push hook. GitHub Actions is gone suite-wide
@@ -32,6 +33,7 @@ apps/
         crypto.ts        # AES-256-GCM encrypt/decrypt (has unit test)
         backend.ts       # API client
         highlight.ts     # Shiki syntax highlighting
+        theme.svelte.ts  # Theme store — writes `.dark`/`.light` on <html>, mirrored by app.html
         components/      # Svelte components (ThemeToggle, etc.)
       routes/
         (app)/           # Main pages: create, reveal ([id]), revoke
@@ -87,6 +89,9 @@ docker compose down      # Stop and remove containers
 
 - The server never sees plaintext. Encryption/decryption happens exclusively in the browser via Web Crypto API. The URL fragment carries the decryption key (never sent to server).
 - Svelte 5 runes API (`$state`, `$props`, `$derived`, `$effect`) is enforced via vite plugin config.
+- UI comes from muse: reach for its components and `fc-*` tokens before hand-rolling markup, and read its `CHARTE.md` first. `app.css` imports `@facile/muse/styles` and must not `@import 'tailwindcss'` a second time — tokens.css already does. The `@theme inline` block there only aliases the suite's semantic names onto `fc-*`; no colour is declared locally.
+- `optimizeDeps.exclude: ['@facile/muse']` in `vite.config.ts` is load-bearing: muse ships uncompiled `.svelte.ts`, and without it `vite dev` refuses to start while `bun run build` and `bun run check` stay green.
+- The theme writes **both** `.dark` and `.light` on `<html>` (`system` writes neither). muse flips its tokens from `prefers-color-scheme` scoped to `:root:not(.light)`, so only the `.light` class can force light on a dark OS.
 - API tests use SQLite in-memory for unit tests and PostgreSQL for integration tests.
 - Rate limiting on paste creation: 30 requests per minute.
 - Background cleanup goroutine runs on startup to purge expired pastes.
