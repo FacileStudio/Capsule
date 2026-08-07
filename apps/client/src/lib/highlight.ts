@@ -21,7 +21,7 @@ async function getHighlighter(): Promise<HighlighterCore> {
 	if (highlighter) return highlighter;
 
 	const { createHighlighterCore } = await import('shiki/core');
-	const { createJavaScriptRegExpEngine } = await import('shiki/engine/javascript');
+	const { createJavaScriptRegexEngine } = await import('shiki/engine/javascript');
 
 	highlighter = await createHighlighterCore({
 		themes: [
@@ -42,7 +42,7 @@ async function getHighlighter(): Promise<HighlighterCore> {
 			import('shiki/langs/css.mjs'),
 			import('shiki/langs/markdown.mjs')
 		],
-		engine: createJavaScriptRegExpEngine()
+		engine: createJavaScriptRegexEngine()
 	});
 
 	return highlighter;

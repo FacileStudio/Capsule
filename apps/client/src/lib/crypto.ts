@@ -56,7 +56,7 @@ export async function decrypt(data: string, key: CryptoKey): Promise<string> {
 	return new TextDecoder().decode(decrypted);
 }
 
-async function deriveWrappingKey(password: string, salt: Uint8Array): Promise<CryptoKey> {
+async function deriveWrappingKey(password: string, salt: Uint8Array<ArrayBuffer>): Promise<CryptoKey> {
 	const encoded = new TextEncoder().encode(password);
 	const baseKey = await crypto.subtle.importKey('raw', encoded, 'PBKDF2', false, [
 		'deriveKey',
@@ -133,7 +133,11 @@ function toBase64Url(bytes: Uint8Array): string {
 	return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-function fromBase64Url(str: string): Uint8Array {
+// Uint8Array is generic over its backing buffer since TypeScript 5.7, and the
+// bare form widens to ArrayBufferLike — which includes SharedArrayBuffer and so
+// is not a BufferSource. Every WebCrypto call here takes the result, so the
+// annotation belongs at the source rather than at each call site.
+function fromBase64Url(str: string): Uint8Array<ArrayBuffer> {
 	const padded = str.replace(/-/g, '+').replace(/_/g, '/');
 	const binary = atob(padded);
 	return Uint8Array.from(binary, (c) => c.charCodeAt(0));

@@ -3,7 +3,7 @@
 
 	type State = 'idle' | 'revoking' | 'revoked' | 'error';
 
-	let state: State = $state('idle');
+	let phase: State = $state('idle');
 	let capsuleUrl = $state('');
 	let deleteToken = $state('');
 	let error = $state('');
@@ -24,20 +24,20 @@
 		const id = extractId(capsuleUrl);
 		if (!id || !deleteToken.trim()) return;
 
-		state = 'revoking';
+		phase = 'revoking';
 		error = '';
 
 		try {
 			await backend.deletePaste(id, deleteToken.trim());
-			state = 'revoked';
+			phase = 'revoked';
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to revoke capsule';
-			state = 'error';
+			phase = 'error';
 		}
 	}
 
 	function reset() {
-		state = 'idle';
+		phase = 'idle';
 		capsuleUrl = '';
 		deleteToken = '';
 		error = '';
@@ -48,7 +48,7 @@
 	<title>Revoke — Capsule</title>
 </svelte:head>
 
-{#if state === 'revoked'}
+{#if phase === 'revoked'}
 	<div class="flex flex-col gap-5 sm:gap-6">
 		<div>
 			<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
@@ -93,7 +93,7 @@
 					type="text"
 					bind:value={capsuleUrl}
 					placeholder="https://capsule.facile.studio/cap_... or cap_..."
-					disabled={state === 'revoking'}
+					disabled={phase === 'revoking'}
 					class="w-full rounded-lg border border-input bg-card px-4 py-3 font-mono text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
 				/>
 			</div>
@@ -105,7 +105,7 @@
 					type="text"
 					bind:value={deleteToken}
 					placeholder="Paste your delete token here..."
-					disabled={state === 'revoking'}
+					disabled={phase === 'revoking'}
 					class="w-full rounded-lg border border-input bg-card px-4 py-3 font-mono text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
 				/>
 			</div>
@@ -117,10 +117,10 @@
 
 		<button
 			onclick={revoke}
-			disabled={!capsuleUrl.trim() || !deleteToken.trim() || state === 'revoking'}
+			disabled={!capsuleUrl.trim() || !deleteToken.trim() || phase === 'revoking'}
 			class="inline-flex h-12 items-center justify-center rounded-md border border-red-500/30 bg-red-500/10 px-6 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed sm:h-11"
 		>
-			{#if state === 'revoking'}
+			{#if phase === 'revoking'}
 				<iconify-icon icon="solar:refresh-bold" width="16" class="mr-2 animate-spin"></iconify-icon>
 				Revoking...
 			{:else}

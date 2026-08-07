@@ -26,6 +26,11 @@ type MetaResponse struct {
 	Syntax      string     `json:"syntax,omitempty"`
 	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`
+
+	// BurnAfterRead lets the reader know, before they open it, that opening
+	// destroys the capsule. The client has always had the warning UI for
+	// this; the field was simply never sent, so the warning never appeared.
+	BurnAfterRead bool `json:"burn_after_read,omitempty"`
 }
 
 type ContentResponse struct {

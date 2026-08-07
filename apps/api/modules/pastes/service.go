@@ -93,13 +93,14 @@ func (s *Service) GetMeta(id string) (*MetaResponse, error) {
 	}
 
 	return &MetaResponse{
-		ID:          paste.ID,
-		Exists:      true,
-		Burned:      paste.Burned,
-		HasPassword: paste.HasPassword,
-		Syntax:      paste.Syntax,
-		ExpiresAt:   paste.ExpiresAt,
-		CreatedAt:   &paste.CreatedAt,
+		ID:            paste.ID,
+		Exists:        true,
+		Burned:        paste.Burned,
+		HasPassword:   paste.HasPassword,
+		Syntax:        paste.Syntax,
+		ExpiresAt:     paste.ExpiresAt,
+		CreatedAt:     &paste.CreatedAt,
+		BurnAfterRead: paste.BurnAfterRead,
 	}, nil
 }
 

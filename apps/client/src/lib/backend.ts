@@ -15,6 +15,7 @@ export type PasteMeta = {
 	syntax: string;
 	expires_at: string | null;
 	created_at: string;
+	burn_after_read: boolean;
 };
 
 export type PasteContent = {
