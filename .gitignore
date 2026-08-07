@@ -28,4 +28,8 @@ Thumbs.db
 # Bun
 bun.lockb
 
+# Playwright
+/apps/client/test-results/
+/apps/client/playwright-report/
+
 # Agent
