@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Alert, Button, Card, Checkbox, Field, Input, SecretField, Select, Spinner, Textarea, icons } from '@facile/muse';
 	import { generateKey, exportKey, encrypt, wrapContentKey, buildPasswordFragment } from '$lib/crypto';
 	import { backend } from '$lib/backend';
 	import { page } from '$app/state';
@@ -112,178 +113,147 @@
 </svelte:head>
 
 {#if phase === 'idle' || phase === 'sealing'}
-	<div class="flex flex-col gap-5 sm:gap-6">
-		<div>
-			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">Seal a capsule</h1>
-			<p class="mt-2 text-sm text-muted-foreground sm:text-base">
+	<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-1">
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Seal a capsule</h1>
+			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				Your content is encrypted in the browser. The server never sees the plaintext.
 			</p>
 		</div>
 
-		<textarea
+		<Textarea
 			bind:value={content}
 			placeholder="Paste your secret here..."
-			rows="8"
+			rows={8}
 			disabled={phase === 'sealing'}
-			class="w-full resize-y rounded-lg border border-input bg-card p-3 font-mono text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:p-4"
-		></textarea>
+			class="font-fc-mono text-fc-sm"
+		/>
 
-		<div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6">
-			<label class="flex min-h-[44px] items-center gap-2 text-sm">
-				<input
-					type="checkbox"
-					bind:checked={burnAfterRead}
-					disabled={phase === 'sealing'}
-					class="h-5 w-5 rounded border-input accent-primary sm:h-4 sm:w-4"
-				/>
-				Burn after opening
-			</label>
-
-			<label class="flex min-h-[44px] items-center gap-2 text-sm">
-				<span class="text-muted-foreground">Expires in</span>
-				<select
-					bind:value={expiresIn}
-					disabled={phase === 'sealing'}
-					class="min-h-[44px] rounded-md border border-input bg-card px-3 py-2 text-sm sm:min-h-0 sm:px-2 sm:py-1"
-				>
+		<div class="grid gap-4 sm:grid-cols-2">
+			<Field label="Expires in">
+				<Select bind:value={expiresIn} disabled={phase === 'sealing'}>
 					{#each expiryOptions as opt}
 						<option value={opt.value}>{opt.label}</option>
 					{/each}
-				</select>
-			</label>
+				</Select>
+			</Field>
 
-			<label class="flex min-h-[44px] items-center gap-2 text-sm">
-				<span class="text-muted-foreground">Syntax</span>
-				<select
-					bind:value={syntax}
-					disabled={phase === 'sealing'}
-					class="min-h-[44px] rounded-md border border-input bg-card px-3 py-2 text-sm sm:min-h-0 sm:px-2 sm:py-1"
-				>
+			<Field label="Syntax">
+				<Select bind:value={syntax} disabled={phase === 'sealing'}>
 					{#each syntaxOptions as s}
 						<option value={s}>{s}</option>
 					{/each}
-				</select>
-			</label>
+				</Select>
+			</Field>
+		</div>
 
-			<label class="flex min-h-[44px] items-center gap-2 text-sm">
-				<input
-					type="checkbox"
-					bind:checked={usePassword}
-					disabled={phase === 'sealing'}
-					class="h-5 w-5 rounded border-input accent-primary sm:h-4 sm:w-4"
-				/>
-				Password protect
-			</label>
+		<div class="flex flex-col gap-3">
+			<!-- The 16px box is by design; the <label> Checkbox renders carries the hit target. -->
+			<Checkbox
+				label="Burn after opening"
+				bind:checked={burnAfterRead}
+				disabled={phase === 'sealing'}
+				class="min-h-11"
+			/>
+			<Checkbox
+				label="Password protect"
+				bind:checked={usePassword}
+				disabled={phase === 'sealing'}
+				class="min-h-11"
+			/>
 		</div>
 
 		{#if usePassword}
-			<input
+			<Input
 				type="password"
 				bind:value={password}
 				placeholder="Enter a password..."
 				disabled={phase === 'sealing'}
-				class="w-full rounded-lg border border-input bg-card px-4 py-3 text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
 			/>
 		{/if}
 
 		{#if error}
-			<p class="text-sm text-red-400">{error}</p>
+			<Alert tone="danger">{error}</Alert>
 		{/if}
 
 		<div class="flex flex-col gap-3 sm:flex-row">
-			<button
+			<Button
+				size="lg"
+				icon={phase === 'sealing' ? undefined : 'solar:pill-bold-duotone'}
 				onclick={seal}
 				disabled={!content.trim() || (usePassword && !password) || phase === 'sealing'}
-				class="inline-flex h-12 flex-1 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed sm:h-11"
+				class="flex-1"
 			>
 				{#if phase === 'sealing'}
-					<iconify-icon icon="solar:refresh-bold" width="16" class="mr-2 animate-spin"></iconify-icon>
+					<Spinner size="sm" label="Sealing" />
 					Sealing...
 				{:else}
-					<iconify-icon icon="solar:pill-bold-duotone" width="16" class="mr-2"></iconify-icon>
 					Seal capsule
 				{/if}
-			</button>
-			<a
-				href="/revoke"
-				class="inline-flex h-12 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground sm:h-11"
-			>
-				<iconify-icon icon="solar:fire-bold" width="16" class="mr-2"></iconify-icon>
-				Revoke
-			</a>
+			</Button>
+			<Button href="/revoke" variant="outline" size="lg" icon={icons.revoke}>Revoke</Button>
 		</div>
 	</div>
 {:else if phase === 'sealed'}
-	<div class="flex flex-col gap-5 sm:gap-6">
-		<div>
-			<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
-				<iconify-icon icon="solar:check-circle-bold" width="28" class="text-green-400"></iconify-icon>
-			</div>
-			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">Capsule sealed</h1>
-			<p class="mt-2 text-sm text-muted-foreground sm:text-base">
+	<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-1">
+			<iconify-icon
+				icon={icons.check}
+				width="28"
+				height="28"
+				class="mb-3 block text-fc-success"
+			></iconify-icon>
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Capsule sealed</h1>
+			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				Share this link{usePassword ? ' and the password' : ''} — {burnAfterRead ? 'the capsule can only be opened once.' : `it expires in ${expiryOptions.find(o => o.value === expiresIn)?.label}.`}
 			</p>
 		</div>
 
-		<div class="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-			<input
-				type="text"
-				readonly
-				value={capsuleUrl}
-				class="w-full rounded-lg border border-input bg-card px-3 py-3 font-mono text-sm text-card-foreground sm:flex-1 sm:px-4"
-			/>
-			<button
-				onclick={copyLink}
-				class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:h-auto"
-			>
-				{#if copied}
-					<iconify-icon icon="solar:check-circle-bold" width="16" class="mr-2"></iconify-icon>
-					Copied
-				{:else}
-					<iconify-icon icon="solar:copy-bold" width="16" class="mr-2"></iconify-icon>
-					Copy link
-				{/if}
-			</button>
+		<div class="flex flex-col gap-2 sm:flex-row">
+			<Input readonly value={capsuleUrl} class="font-fc-mono text-fc-sm sm:flex-1" />
+			<Button size="lg" icon={copied ? icons.check : icons.copy} onclick={copyLink}>
+				{copied ? 'Copied' : 'Copy link'}
+			</Button>
 		</div>
 
-		<div class="rounded-lg border border-border bg-card p-4">
+		<Card class="flex flex-col gap-4">
 			{#if revoked}
-				<div class="flex items-center gap-2 text-sm text-red-400">
-					<iconify-icon icon="solar:fire-bold" width="16"></iconify-icon>
+				<p class="flex items-center gap-2 text-fc-sm text-fc-danger">
+					<iconify-icon icon={icons.revoke} width="16" height="16" class="block"></iconify-icon>
 					Capsule revoked
-				</div>
+				</p>
 			{:else}
-				<div class="flex items-center justify-between gap-3">
-					<div class="min-w-0 flex-1">
-						<p class="text-xs text-muted-foreground">Delete token</p>
-						<code class="mt-1 block truncate text-xs text-muted-foreground/70">{deleteToken}</code>
-					</div>
-					<button
-						onclick={revoke}
-						disabled={revoking}
-						class="inline-flex h-9 shrink-0 items-center justify-center rounded-md border border-red-500/30 bg-red-500/10 px-3 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50"
-					>
-						{#if revoking}
-							Revoking...
-						{:else}
-							<iconify-icon icon="solar:fire-bold" width="14" class="mr-1.5"></iconify-icon>
-							Revoke
-						{/if}
-					</button>
-				</div>
+				<!-- The token is shown once and is the only way to burn this capsule early, so it
+				     gets a copy button. It used to be `truncate`d text: unreadable and unselectable. -->
+				<SecretField
+					bind:value={deleteToken}
+					label="Delete token"
+					helper="Copy it now — it is not stored anywhere you can read it back."
+				/>
+				<Button
+					variant="danger"
+					icon={icons.remove}
+					onclick={revoke}
+					disabled={revoking}
+					class="w-fit"
+				>
+					{revoking ? 'Revoking...' : 'Revoke'}
+				</Button>
 			{/if}
-		</div>
+		</Card>
 
 		{#if error}
-			<p class="text-sm text-red-400">{error}</p>
+			<Alert tone="danger">{error}</Alert>
 		{/if}
 
-		<button
+		<Button
+			variant="outline"
+			size="lg"
+			icon="solar:pill-bold-duotone"
 			onclick={reset}
-			class="inline-flex h-12 items-center justify-center rounded-md border border-border bg-background px-6 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground sm:h-11"
+			class="w-fit"
 		>
-			<iconify-icon icon="solar:pill-bold-duotone" width="16" class="mr-2"></iconify-icon>
 			Seal another capsule
-		</button>
+		</Button>
 	</div>
 {/if}

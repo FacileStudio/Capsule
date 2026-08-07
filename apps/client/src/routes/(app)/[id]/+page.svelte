@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { Alert, Badge, Button, Input, Spinner, icons } from '@facile/muse';
 	import { page } from '$app/state';
 	import { importKey, decrypt, unwrapContentKey, parsePasswordFragment } from '$lib/crypto';
 	import { backend, type PasteMeta } from '$lib/backend';
@@ -111,89 +112,80 @@
 	<meta name="description" content="Someone sent you an encrypted capsule." />
 </svelte:head>
 
+{#snippet meterBar()}
+	<div class="flex flex-wrap gap-2">
+		{#if meta?.syntax}
+			<Badge>{meta.syntax}</Badge>
+		{/if}
+		{#if meta?.created_at}
+			<Badge>Sealed {timeAgo(meta.created_at)}</Badge>
+		{/if}
+		{#if meta?.has_password}
+			<Badge tone="warning">Password protected</Badge>
+		{/if}
+		{#if meta?.burn_after_read}
+			<Badge tone="danger">Burns after opening</Badge>
+		{/if}
+	</div>
+{/snippet}
+
 {#if phase === 'loading'}
 	<div class="flex flex-1 items-center justify-center">
-		<iconify-icon icon="solar:refresh-bold" width="24" class="animate-spin text-muted-foreground"></iconify-icon>
+		<Spinner />
 	</div>
 {:else if phase === 'empty'}
+	<!-- Hand-built rather than `EmptyState`: that component is a Card for a list with nothing
+	     in it, and this is the whole page — the title has to be the page's own <h1>. -->
 	<div class="flex flex-col items-center gap-4 py-12 text-center sm:py-20">
-		<div class="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-			<iconify-icon icon="solar:pill-bold-duotone" width="32" class="text-muted-foreground"></iconify-icon>
+		<iconify-icon icon="solar:pill-bold-duotone" width="28" height="28" class="block text-fc-fg-muted"></iconify-icon>
+		<div class="flex flex-col gap-1">
+			<h1 class="text-fc-xl font-semibold tracking-tight sm:text-fc-2xl">This capsule is empty</h1>
+			<p class="mx-auto max-w-sm text-fc-sm text-fc-fg-muted">
+				It was already opened, expired, or never existed.
+			</p>
 		</div>
-		<h1 class="text-xl font-bold font-heading sm:text-2xl">This capsule is empty</h1>
-		<p class="max-w-sm text-sm text-muted-foreground sm:text-base">
-			It was already opened, expired, or never existed.
-		</p>
-		<a
-			href="/"
-			class="mt-4 inline-flex h-12 items-center justify-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:h-10"
-		>
-			Seal a new capsule
-		</a>
+		<Button href="/" size="lg" icon="solar:pill-bold-duotone">Seal a new capsule</Button>
 	</div>
 {:else if phase === 'error'}
 	<div class="flex flex-col items-center gap-4 py-12 text-center sm:py-20">
-		<div class="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
-			<iconify-icon icon="solar:danger-triangle-bold" width="32" class="text-red-400"></iconify-icon>
+		<iconify-icon icon={icons.warning} width="28" height="28" class="block text-fc-danger"></iconify-icon>
+		<div class="flex flex-col gap-1">
+			<h1 class="text-fc-xl font-semibold tracking-tight sm:text-fc-2xl">Something went wrong</h1>
+			<p class="mx-auto max-w-sm text-fc-sm text-fc-fg-muted">{error}</p>
 		</div>
-		<h1 class="text-xl font-bold font-heading sm:text-2xl">Something went wrong</h1>
-		<p class="max-w-sm text-sm text-muted-foreground sm:text-base">{error}</p>
-		<a
-			href="/"
-			class="mt-4 inline-flex h-12 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground sm:h-10"
-		>
-			Back to Capsule
-		</a>
+		<Button href="/" variant="outline" size="lg">Back to Capsule</Button>
 	</div>
 {:else if phase === 'password'}
-	<div class="flex flex-col gap-5 sm:gap-6">
-		<div>
-			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">Password required</h1>
-			<p class="mt-2 text-sm text-muted-foreground sm:text-base">
+	<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-1">
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Password required</h1>
+			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				This capsule is password-protected. Enter the password to decrypt it.
 			</p>
 		</div>
 
-		<div class="flex flex-wrap gap-2 text-sm text-muted-foreground sm:gap-3">
-			{#if meta?.syntax}
-				<span class="rounded-md bg-secondary px-2 py-1">{meta.syntax}</span>
-			{/if}
-			{#if meta?.created_at}
-				<span class="rounded-md bg-secondary px-2 py-1">Sealed {timeAgo(meta.created_at)}</span>
-			{/if}
-			<span class="rounded-md bg-amber-500/10 px-2 py-1 text-amber-400">Password protected</span>
-		</div>
+		{@render meterBar()}
 
 		<form
 			onsubmit={(e: Event) => { e.preventDefault(); submitPassword(); }}
 			class="flex flex-col gap-4"
 		>
-			<input
-				type="password"
-				bind:value={password}
-				placeholder="Enter password..."
-				class="w-full rounded-lg border border-input bg-card px-4 py-3 text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-			/>
+			<Input type="password" bind:value={password} placeholder="Enter password..." />
 
 			{#if passwordError}
-				<p class="text-sm text-red-400">{passwordError}</p>
+				<Alert tone="danger">{passwordError}</Alert>
 			{/if}
 
-			<button
-				type="submit"
-				disabled={!password}
-				class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed sm:h-11"
-			>
-				<iconify-icon icon="solar:lock-keyhole-unlocked-bold" width="16" class="mr-2"></iconify-icon>
+			<Button type="submit" size="lg" icon={icons.key} disabled={!password} class="w-fit">
 				Unlock capsule
-			</button>
+			</Button>
 		</form>
 	</div>
 {:else if phase === 'ready' || phase === 'revealing'}
-	<div class="flex flex-col gap-5 sm:gap-6">
-		<div>
-			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">A capsule for you</h1>
-			<p class="mt-2 text-sm text-muted-foreground sm:text-base">
+	<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-1">
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">A capsule for you</h1>
+			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				{#if meta?.burn_after_read}
 					This capsule will self-destruct after you open it.
 				{:else}
@@ -202,38 +194,29 @@
 			</p>
 		</div>
 
-		<div class="flex flex-wrap gap-2 text-sm text-muted-foreground sm:gap-3">
-			{#if meta?.syntax}
-				<span class="rounded-md bg-secondary px-2 py-1">{meta.syntax}</span>
-			{/if}
-			{#if meta?.created_at}
-				<span class="rounded-md bg-secondary px-2 py-1">Sealed {timeAgo(meta.created_at)}</span>
-			{/if}
-			{#if meta?.burn_after_read}
-				<span class="rounded-md bg-red-500/10 px-2 py-1 text-red-400">Burns after opening</span>
-			{/if}
-		</div>
+		{@render meterBar()}
 
-		<button
+		<Button
+			size="lg"
+			icon={phase === 'revealing' ? undefined : icons.key}
 			onclick={reveal}
 			disabled={phase === 'revealing'}
-			class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed sm:h-11"
+			class="w-fit"
 		>
 			{#if phase === 'revealing'}
-				<iconify-icon icon="solar:refresh-bold" width="16" class="mr-2 animate-spin"></iconify-icon>
+				<Spinner size="sm" label="Opening" />
 				Opening...
 			{:else}
-				<iconify-icon icon="solar:lock-keyhole-unlocked-bold" width="16" class="mr-2"></iconify-icon>
 				Open capsule
 			{/if}
-		</button>
+		</Button>
 	</div>
 {:else if phase === 'revealed'}
-	<div class="flex flex-col gap-5 sm:gap-6">
-		<div>
-			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">Capsule opened</h1>
+	<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-1">
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Capsule opened</h1>
 			{#if meta?.burn_after_read}
-				<p class="mt-2 text-sm text-red-400">
+				<p class="text-fc-sm text-fc-danger">
 					Content destroyed from server. This is the only time you'll see it.
 				</p>
 			{/if}
@@ -241,30 +224,21 @@
 
 		<div class="relative">
 			{#if highlightedHtml}
-				<div class="w-full overflow-x-auto rounded-lg bg-secondary/50 p-3 pr-16 font-mono text-sm sm:p-4 sm:pr-20 [&_pre]:!bg-transparent [&_pre]:!m-0 [&_pre]:!p-0 [&_code]:!bg-transparent">
+				<div class="w-full overflow-x-auto rounded-fc-md bg-fc-component p-4 pr-16 font-fc-mono text-fc-sm sm:pr-24 [&_pre]:!bg-transparent [&_pre]:!m-0 [&_pre]:!p-0 [&_code]:!bg-transparent">
 					{@html highlightedHtml}
 				</div>
 			{:else}
-				<pre class="w-full overflow-x-auto rounded-lg border border-input bg-card p-3 pr-16 font-mono text-sm text-card-foreground whitespace-pre-wrap break-words sm:p-4 sm:pr-20">{plaintext}</pre>
+				<pre class="w-full overflow-x-auto rounded-fc-md bg-fc-component p-4 pr-16 font-fc-mono text-fc-sm text-fc-fg whitespace-pre-wrap break-words sm:pr-24">{plaintext}</pre>
 			{/if}
-			<button
-				onclick={copyContent}
-				class="absolute right-2 top-2 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary/80 sm:right-3 sm:top-3 sm:min-h-0 sm:min-w-0"
-			>
-				{#if copied}
-					Copied
-				{:else}
-					Copy
-				{/if}
-			</button>
+			<div class="absolute right-2 top-2 sm:right-3 sm:top-3">
+				<Button variant="outline" size="sm" icon={copied ? icons.check : icons.copy} onclick={copyContent}>
+					{copied ? 'Copied' : 'Copy'}
+				</Button>
+			</div>
 		</div>
 
-		<a
-			href="/"
-			class="inline-flex h-12 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground sm:h-10"
-		>
-			<iconify-icon icon="solar:pill-bold-duotone" width="16" class="mr-2"></iconify-icon>
+		<Button href="/" variant="outline" size="lg" icon="solar:pill-bold-duotone" class="w-fit">
 			Seal a new capsule
-		</a>
+		</Button>
 	</div>
 {/if}

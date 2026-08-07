@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Alert, Button, Field, Input, Spinner, icons } from '@facile/muse';
 	import { backend } from '$lib/backend';
 
 	type State = 'idle' | 'revoking' | 'revoked' | 'error';
@@ -49,92 +50,72 @@
 </svelte:head>
 
 {#if phase === 'revoked'}
-	<div class="flex flex-col gap-5 sm:gap-6">
-		<div>
-			<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
-				<iconify-icon icon="solar:fire-bold" width="28" class="text-red-400"></iconify-icon>
-			</div>
-			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">Capsule revoked</h1>
-			<p class="mt-2 text-sm text-muted-foreground sm:text-base">
+	<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-1">
+			<iconify-icon icon={icons.remove} width="28" height="28" class="mb-3 block text-fc-danger"></iconify-icon>
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Capsule revoked</h1>
+			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				The capsule has been burned. Its content is permanently gone.
 			</p>
 		</div>
 
-		<div class="flex gap-3">
-			<button
-				onclick={reset}
-				class="inline-flex h-12 items-center justify-center rounded-md border border-border bg-background px-5 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground sm:h-10"
-			>
-				Revoke another
-			</button>
-			<a
-				href="/"
-				class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:h-10"
-			>
-				<iconify-icon icon="solar:pill-bold-duotone" width="16" class="mr-2"></iconify-icon>
-				Seal a capsule
-			</a>
+		<div class="flex flex-col gap-3 sm:flex-row">
+			<Button variant="outline" size="lg" onclick={reset} class="sm:w-fit">Revoke another</Button>
+			<Button href="/" size="lg" icon="solar:pill-bold-duotone" class="sm:w-fit">Seal a capsule</Button>
 		</div>
 	</div>
 {:else}
-	<div class="flex flex-col gap-5 sm:gap-6">
-		<div>
-			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">Revoke a capsule</h1>
-			<p class="mt-2 text-sm text-muted-foreground sm:text-base">
+	<div class="flex flex-col gap-6">
+		<div class="flex flex-col gap-1">
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Revoke a capsule</h1>
+			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				Burn a capsule before it's opened. You'll need the capsule URL or ID and the delete token you received when sealing.
 			</p>
 		</div>
 
 		<div class="flex flex-col gap-4">
-			<div class="flex flex-col gap-1.5">
-				<label for="capsule-url" class="text-sm font-medium">Capsule URL or ID</label>
-				<input
-					id="capsule-url"
-					type="text"
+			<Field label="Capsule URL or ID">
+				<Input
 					bind:value={capsuleUrl}
 					placeholder="https://capsule.facile.studio/cap_... or cap_..."
 					disabled={phase === 'revoking'}
-					class="w-full rounded-lg border border-input bg-card px-4 py-3 font-mono text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+					class="font-fc-mono text-fc-sm"
 				/>
-			</div>
+			</Field>
 
-			<div class="flex flex-col gap-1.5">
-				<label for="delete-token" class="text-sm font-medium">Delete token</label>
-				<input
-					id="delete-token"
-					type="text"
+			<Field label="Delete token">
+				<Input
 					bind:value={deleteToken}
 					placeholder="Paste your delete token here..."
 					disabled={phase === 'revoking'}
-					class="w-full rounded-lg border border-input bg-card px-4 py-3 font-mono text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+					class="font-fc-mono text-fc-sm"
 				/>
-			</div>
+			</Field>
 		</div>
 
 		{#if error}
-			<p class="text-sm text-red-400">{error}</p>
+			<Alert tone="danger">{error}</Alert>
 		{/if}
 
-		<button
-			onclick={revoke}
-			disabled={!capsuleUrl.trim() || !deleteToken.trim() || phase === 'revoking'}
-			class="inline-flex h-12 items-center justify-center rounded-md border border-red-500/30 bg-red-500/10 px-6 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed sm:h-11"
-		>
-			{#if phase === 'revoking'}
-				<iconify-icon icon="solar:refresh-bold" width="16" class="mr-2 animate-spin"></iconify-icon>
-				Revoking...
-			{:else}
-				<iconify-icon icon="solar:fire-bold" width="16" class="mr-2"></iconify-icon>
-				Revoke capsule
-			{/if}
-		</button>
-
-		<a
-			href="/"
-			class="inline-flex h-12 items-center justify-center rounded-md border border-border bg-background px-6 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground sm:h-11"
-		>
-			<iconify-icon icon="solar:pill-bold-duotone" width="16" class="mr-2"></iconify-icon>
-			Seal a capsule
-		</a>
+		<div class="flex flex-col gap-3 sm:flex-row">
+			<Button
+				variant="danger"
+				size="lg"
+				icon={phase === 'revoking' ? undefined : icons.remove}
+				onclick={revoke}
+				disabled={!capsuleUrl.trim() || !deleteToken.trim() || phase === 'revoking'}
+				class="sm:w-fit"
+			>
+				{#if phase === 'revoking'}
+					<Spinner size="sm" label="Revoking" />
+					Revoking...
+				{:else}
+					Revoke capsule
+				{/if}
+			</Button>
+			<Button href="/" variant="outline" size="lg" icon="solar:pill-bold-duotone" class="sm:w-fit">
+				Seal a capsule
+			</Button>
+		</div>
 	</div>
 {/if}
