@@ -62,7 +62,8 @@ bun dev                  # Dev server (port 5173)
 bun run build            # Production build
 bun run check            # Svelte type checking
 bun run test             # Vitest unit tests
-bun run test:e2e         # Playwright E2E tests (starts dev server automatically)
+bun run test:e2e         # Playwright E2E — needs a real API, see below
+PLAYWRIGHT_BASE_URL=https://capsule.facile.studio bun run test:e2e   # run against a deployment
 ```
 
 ### Full Stack
@@ -92,7 +93,8 @@ docker compose down      # Stop and remove containers
 - UI comes from muse: reach for its components and `fc-*` tokens before hand-rolling markup, and read its `CHARTE.md` first. `app.css` imports `@facile/muse/styles` and must not `@import 'tailwindcss'` a second time — tokens.css already does. The `@theme inline` block there only aliases the suite's semantic names onto `fc-*`; no colour is declared locally.
 - `optimizeDeps.exclude: ['@facile/muse']` in `vite.config.ts` is load-bearing: muse ships uncompiled `.svelte.ts`, and without it `vite dev` refuses to start while `bun run build` and `bun run check` stay green.
 - The theme writes **both** `.dark` and `.light` on `<html>` (`system` writes neither). muse flips its tokens from `prefers-color-scheme` scoped to `:root:not(.light)`, so only the `.light` class can force light on a dark OS.
-- API tests use SQLite in-memory for unit tests and PostgreSQL for integration tests.
+- API tests need PostgreSQL. **Without `TEST_DATABASE_URL` the database-backed tests skip and `go test` still prints `ok` and exits 0** — 35 of 41 tests, as of 2026-08-07. `sh scripts/check.sh` passing is therefore not evidence the API is tested; export `TEST_DATABASE_URL` to actually run them.
+- The client pages call `/api` and there is **no dev proxy**, so `vite dev` has no backend and the sealing E2E tests cannot pass locally. Point the suite at a real deployment instead: `PLAYWRIGHT_BASE_URL=https://capsule.facile.studio bun run test:e2e`. Setting that variable also suppresses the dev-server boot in `playwright.config.ts`. The consequence to keep in mind: run that way, E2E validates the *deployed* build, not your working tree — so it is a post-deploy check, not a pre-deploy one.
 - Rate limiting on paste creation: 30 requests per minute.
 - Background cleanup goroutine runs on startup to purge expired pastes.
 - The client proxies API requests through SvelteKit's server routes (`/api/[...path]`) to avoid CORS in dev. The API is `expose`d, never published, so it is never called cross-origin.
