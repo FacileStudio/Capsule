@@ -5,7 +5,7 @@
 
 	type State = 'idle' | 'sealing' | 'sealed';
 
-	let state: State = $state('idle');
+	let phase: State = $state('idle');
 	let content = $state('');
 	let burnAfterRead = $state(true);
 	let expiresIn = $state('24h');
@@ -37,7 +37,7 @@
 		if (!content.trim()) return;
 		if (usePassword && !password) return;
 		error = '';
-		state = 'sealing';
+		phase = 'sealing';
 
 		try {
 			const key = await generateKey();
@@ -65,10 +65,10 @@
 			capsuleUrl = `${origin}/${result.id}#${fragment}`;
 			capsuleId = result.id;
 			deleteToken = result.delete_token;
-			state = 'sealed';
+			phase = 'sealed';
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to seal capsule';
-			state = 'idle';
+			phase = 'idle';
 		}
 	}
 
@@ -92,7 +92,7 @@
 	}
 
 	function reset() {
-		state = 'idle';
+		phase = 'idle';
 		content = '';
 		usePassword = false;
 		password = '';
@@ -111,7 +111,7 @@
 	<meta name="description" content="Share secrets that self-destruct. End-to-end encrypted, zero knowledge." />
 </svelte:head>
 
-{#if state === 'idle' || state === 'sealing'}
+{#if phase === 'idle' || phase === 'sealing'}
 	<div class="flex flex-col gap-5 sm:gap-6">
 		<div>
 			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">Seal a capsule</h1>
@@ -124,7 +124,7 @@
 			bind:value={content}
 			placeholder="Paste your secret here..."
 			rows="8"
-			disabled={state === 'sealing'}
+			disabled={phase === 'sealing'}
 			class="w-full resize-y rounded-lg border border-input bg-card p-3 font-mono text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:p-4"
 		></textarea>
 
@@ -133,7 +133,7 @@
 				<input
 					type="checkbox"
 					bind:checked={burnAfterRead}
-					disabled={state === 'sealing'}
+					disabled={phase === 'sealing'}
 					class="h-5 w-5 rounded border-input accent-primary sm:h-4 sm:w-4"
 				/>
 				Burn after opening
@@ -143,7 +143,7 @@
 				<span class="text-muted-foreground">Expires in</span>
 				<select
 					bind:value={expiresIn}
-					disabled={state === 'sealing'}
+					disabled={phase === 'sealing'}
 					class="min-h-[44px] rounded-md border border-input bg-card px-3 py-2 text-sm sm:min-h-0 sm:px-2 sm:py-1"
 				>
 					{#each expiryOptions as opt}
@@ -156,7 +156,7 @@
 				<span class="text-muted-foreground">Syntax</span>
 				<select
 					bind:value={syntax}
-					disabled={state === 'sealing'}
+					disabled={phase === 'sealing'}
 					class="min-h-[44px] rounded-md border border-input bg-card px-3 py-2 text-sm sm:min-h-0 sm:px-2 sm:py-1"
 				>
 					{#each syntaxOptions as s}
@@ -169,7 +169,7 @@
 				<input
 					type="checkbox"
 					bind:checked={usePassword}
-					disabled={state === 'sealing'}
+					disabled={phase === 'sealing'}
 					class="h-5 w-5 rounded border-input accent-primary sm:h-4 sm:w-4"
 				/>
 				Password protect
@@ -181,7 +181,7 @@
 				type="password"
 				bind:value={password}
 				placeholder="Enter a password..."
-				disabled={state === 'sealing'}
+				disabled={phase === 'sealing'}
 				class="w-full rounded-lg border border-input bg-card px-4 py-3 text-sm text-card-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
 			/>
 		{/if}
@@ -193,10 +193,10 @@
 		<div class="flex flex-col gap-3 sm:flex-row">
 			<button
 				onclick={seal}
-				disabled={!content.trim() || (usePassword && !password) || state === 'sealing'}
+				disabled={!content.trim() || (usePassword && !password) || phase === 'sealing'}
 				class="inline-flex h-12 flex-1 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed sm:h-11"
 			>
-				{#if state === 'sealing'}
+				{#if phase === 'sealing'}
 					<iconify-icon icon="solar:refresh-bold" width="16" class="mr-2 animate-spin"></iconify-icon>
 					Sealing...
 				{:else}
@@ -213,7 +213,7 @@
 			</a>
 		</div>
 	</div>
-{:else if state === 'sealed'}
+{:else if phase === 'sealed'}
 	<div class="flex flex-col gap-5 sm:gap-6">
 		<div>
 			<div class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">

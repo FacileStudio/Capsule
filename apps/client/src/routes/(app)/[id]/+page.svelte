@@ -7,7 +7,7 @@
 
 	type State = 'loading' | 'ready' | 'password' | 'revealing' | 'revealed' | 'empty' | 'error';
 
-	let state: State = $state('loading');
+	let phase: State = $state('loading');
 	let meta: PasteMeta | null = $state(null);
 	let plaintext = $state('');
 	let error = $state('');
@@ -21,28 +21,34 @@
 		const id = page.params.id;
 		keyFragment = window.location.hash.slice(1);
 
+		if (!id) {
+			error = 'No capsule id in the URL.';
+			phase = 'error';
+			return;
+		}
+
 		if (!keyFragment) {
 			error = 'No decryption key found in URL. The link may be incomplete.';
-			state = 'error';
+			phase = 'error';
 			return;
 		}
 
 		try {
 			const result = await backend.getPasteMeta(id);
 			if (!result.exists) {
-				state = 'empty';
+				phase = 'empty';
 				return;
 			}
 			meta = result;
-			state = result.has_password ? 'password' : 'ready';
+			phase = result.has_password ? 'password' : 'ready';
 		} catch {
-			state = 'empty';
+			phase = 'empty';
 		}
 	});
 
 	async function reveal() {
 		if (!meta) return;
-		state = 'revealing';
+		phase = 'revealing';
 
 		try {
 			let key: CryptoKey;
@@ -54,7 +60,7 @@
 					key = await unwrapContentKey(parsed.encryptedKey, parsed.salt, parsed.iv, password);
 				} catch {
 					passwordError = 'Wrong password or corrupted link.';
-					state = 'password';
+					phase = 'password';
 					return;
 				}
 			} else {
@@ -63,7 +69,7 @@
 
 			const { content } = await backend.getPasteContent(meta.id);
 			plaintext = await decrypt(content, key);
-			state = 'revealed';
+			phase = 'revealed';
 
 			if (meta?.syntax && meta.syntax !== 'plaintext') {
 				highlight(plaintext, meta.syntax).then((html) => {
@@ -72,7 +78,7 @@
 			}
 		} catch {
 			error = 'Failed to decrypt. The key may be wrong or the data may be corrupted.';
-			state = 'error';
+			phase = 'error';
 		}
 	}
 
@@ -105,11 +111,11 @@
 	<meta name="description" content="Someone sent you an encrypted capsule." />
 </svelte:head>
 
-{#if state === 'loading'}
+{#if phase === 'loading'}
 	<div class="flex flex-1 items-center justify-center">
 		<iconify-icon icon="solar:refresh-bold" width="24" class="animate-spin text-muted-foreground"></iconify-icon>
 	</div>
-{:else if state === 'empty'}
+{:else if phase === 'empty'}
 	<div class="flex flex-col items-center gap-4 py-12 text-center sm:py-20">
 		<div class="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
 			<iconify-icon icon="solar:pill-bold-duotone" width="32" class="text-muted-foreground"></iconify-icon>
@@ -125,7 +131,7 @@
 			Seal a new capsule
 		</a>
 	</div>
-{:else if state === 'error'}
+{:else if phase === 'error'}
 	<div class="flex flex-col items-center gap-4 py-12 text-center sm:py-20">
 		<div class="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
 			<iconify-icon icon="solar:danger-triangle-bold" width="32" class="text-red-400"></iconify-icon>
@@ -139,7 +145,7 @@
 			Back to Capsule
 		</a>
 	</div>
-{:else if state === 'password'}
+{:else if phase === 'password'}
 	<div class="flex flex-col gap-5 sm:gap-6">
 		<div>
 			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">Password required</h1>
@@ -183,7 +189,7 @@
 			</button>
 		</form>
 	</div>
-{:else if state === 'ready' || state === 'revealing'}
+{:else if phase === 'ready' || phase === 'revealing'}
 	<div class="flex flex-col gap-5 sm:gap-6">
 		<div>
 			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">A capsule for you</h1>
@@ -210,10 +216,10 @@
 
 		<button
 			onclick={reveal}
-			disabled={state === 'revealing'}
+			disabled={phase === 'revealing'}
 			class="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed sm:h-11"
 		>
-			{#if state === 'revealing'}
+			{#if phase === 'revealing'}
 				<iconify-icon icon="solar:refresh-bold" width="16" class="mr-2 animate-spin"></iconify-icon>
 				Opening...
 			{:else}
@@ -222,7 +228,7 @@
 			{/if}
 		</button>
 	</div>
-{:else if state === 'revealed'}
+{:else if phase === 'revealed'}
 	<div class="flex flex-col gap-5 sm:gap-6">
 		<div>
 			<h1 class="text-2xl font-bold font-heading tracking-tight sm:text-3xl">Capsule opened</h1>
