@@ -154,7 +154,15 @@ func buildRouter(db *gorm.DB, sqlDB *sql.DB, appEnv env.Config, appLogger *slog.
 	createLimiter := middleware.NewRateLimiter(30, time.Minute)
 
 	router := httpx.NewRouter(httpx.Config{
-		Logger: appLogger,
+		// Behind Traefik and Cloudflare, RemoteAddr is only the
+		// visitor if both are trusted: Traefik replaces the forwarded
+		// chain rather than extending it, so the visitor survives in
+		// Cf-Connecting-Ip alone. TRUSTED_PROXIES=private,cloudflare
+		// fills all three.
+		TrustedProxies: appEnv.TrustedProxies,
+		CDNProxies:     appEnv.CDNProxies,
+		CDNHeader:      appEnv.CDNHeader,
+		Logger:         appLogger,
 		CORS: troncmiddleware.CORSConfig{
 			AllowedOrigins: appEnv.CORSAllowedOrigins,
 			AllowedHeaders: append(troncmiddleware.DefaultAllowedHeaders, "X-Delete-Token"),
