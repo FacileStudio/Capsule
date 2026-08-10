@@ -2,7 +2,6 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.ico" type="image/x-icon" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<script>
 			/*
@@ -17,7 +16,41 @@
 			})();
 		</script>
 		<script defer src="https://vision.facile.studio/s.js"></script>
+
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
+		<link rel="alternate icon" href="%sveltekit.assets%/favicon.ico" sizes="any" />
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
+		<link rel="manifest" href="%sveltekit.assets%/site.webmanifest" />
+
+		<meta name="color-scheme" content="light dark" />
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Capsule" />
+		<meta property="og:url" content="https://capsule.facile.studio/" />
+		<meta property="og:title" content="Capsule — Encrypted paste" />
+		<meta
+			property="og:description"
+			content="Self-hosted encrypted paste. Write a secret, get a link, and the content burns after it is read. The server only ever stores ciphertext."
+		/>
+		<meta property="og:image" content="https://capsule.facile.studio/og-image.png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="Capsule — Encrypted paste" />
+		<meta
+			name="twitter:description"
+			content="Self-hosted encrypted paste. Write a secret, get a link, and the content burns after it is read. The server only ever stores ciphertext."
+		/>
+		<meta name="twitter:image" content="https://capsule.facile.studio/og-image.png" />
 		%sveltekit.head%
+
+		<title>Capsule — Encrypted paste</title>
+		<meta
+			name="description"
+			content="Self-hosted encrypted paste. Write a secret, get a link, and the content burns after it is read. The server only ever stores ciphertext."
+		/>
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<div style="display: contents">%sveltekit.body%</div>
