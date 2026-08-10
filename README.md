@@ -51,6 +51,20 @@ cd apps/client && bun run dev                # :5173
 
 `DATABASE_URL` is required — the API refuses to start without it.
 
+## Command line
+
+[`capsule`](https://github.com/FacileStudio/capsule-cli) drives Capsule from a terminal. It
+installs through [facile](https://github.com/FacileStudio/facile), the suite installer,
+which fetches a prebuilt binary and puts `~/.local/bin` on your PATH:
+
+```sh
+curl -fsSL https://get.facile.studio | bash
+facile install capsule
+```
+
+Capsule is zero-knowledge and has no account, so there is nothing to sign
+into.
+
 ## Configuration
 
 | Variable | What it does |
