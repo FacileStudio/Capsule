@@ -44,6 +44,7 @@ services:
       DATABASE_URL: postgres://capsule:capsule-internal-db@capsule-db:5432/capsule?sslmode=disable
       PORT: "4000"
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-}
       # Journal log shipping (optional — per-app key from Journal's Keys page; Capsule is not on journal's docker network, so use the public URL https://journal.facile.studio/api)
       JOURNAL_URL: ${JOURNAL_URL:-}
       JOURNAL_TOKEN: ${JOURNAL_TOKEN:-}
