@@ -53,6 +53,10 @@ func DB(t *testing.T) *gorm.DB {
 	return shared
 }
 
+// runMigrations applies schema changes to this package's private schema. The
+// advisory lock is scoped to the database, not the schema, so a fixed lock id
+// would otherwise make every test package queue on the same default id;
+// lockID derives a per-schema id instead.
 func runMigrations(db *gorm.DB) error {
 	sqlDB, err := db.DB()
 	if err != nil {
@@ -62,8 +66,6 @@ func runMigrations(db *gorm.DB) error {
 		DB:     sqlDB,
 		FS:     migrations.FS,
 		Logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
-		// goose's advisory lock is scoped to the database, not the schema, so
-		// every test package would otherwise queue on the same default id.
 		LockID: lockID(),
 	})
 }

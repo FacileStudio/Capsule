@@ -10,6 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// Start runs the paste-expiry background loop until ctx is cancelled,
+// burning expired pastes on a five-minute tick and purging old burned ones.
 func Start(ctx context.Context, db *gorm.DB, logger *slog.Logger) {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()

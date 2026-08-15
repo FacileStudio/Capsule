@@ -13,11 +13,14 @@ import (
 	"gorm.io/gorm"
 )
 
+// Service implements the paste lifecycle: create, read, revoke and the
+// burn-after-read semantics, bounded by maxPasteSize.
 type Service struct {
 	db           *gorm.DB
 	maxPasteSize int
 }
 
+// NewService builds a paste service bound to the database.
 func NewService(db *gorm.DB, maxPasteSize int) *Service {
 	return &Service{db: db, maxPasteSize: maxPasteSize}
 }

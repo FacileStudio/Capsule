@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// Handler wires the paste module's HTTP handlers onto a Service.
 type Handler struct {
 	service *Service
 }

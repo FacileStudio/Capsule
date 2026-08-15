@@ -43,6 +43,12 @@ func main() {
 // run returns the process exit code. Every failure below used to return from
 // main, which exits 0 — so a failed migration or an unreachable database looked
 // to Docker, Dokploy and any supervisor like a clean shutdown.
+// run wires the process: configuration, database, migrations and the router,
+// then serves until a signal arrives. The *sql.DB is taken before migrating
+// rather than after — the migration runner works at that layer, and so does the
+// readiness check. `docker run <image> migrate status` is also served here
+// because the image is ENTRYPOINT-only and distroless has no shell to run
+// anything else through.
 func run() int {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -74,8 +80,6 @@ func run() int {
 		return 1
 	}
 
-	// The *sql.DB is taken before migrating rather than after: the migration
-	// runner works at that layer, and so does the readiness check.
 	sqlDB, err := db.DB()
 	if err != nil {
 		appLogger.Error("failed to access database handle", slog.Any("error", err))
@@ -89,8 +93,6 @@ func run() int {
 
 	migrateConfig := migrate.Config{DB: sqlDB, FS: migrations.FS, Logger: appLogger}
 
-	// `docker run <image> migrate status` — the image is ENTRYPOINT-only, and
-	// distroless has no shell to run anything else through.
 	if handled, err := migrate.Command(ctx, os.Args, migrateConfig); handled {
 		if err != nil {
 			appLogger.Error("migrate", slog.Any("error", err))
@@ -149,16 +151,15 @@ func run() int {
 	return 0
 }
 
+// buildRouter assembles the HTTP tree. Behind Traefik and Cloudflare, RemoteAddr
+// is only the visitor if both are trusted: Traefik replaces the forwarded chain
+// rather than extending it, so the visitor survives in Cf-Connecting-Ip alone,
+// and TRUSTED_PROXIES=private,cloudflare fills all three.
 func buildRouter(db *gorm.DB, sqlDB *sql.DB, appEnv env.Config, appLogger *slog.Logger) (chi.Router, error) {
 	pasteService := pastes.NewService(db, appEnv.MaxPasteSize)
 	createLimiter := middleware.NewRateLimiter(30, time.Minute)
 
 	router := httpx.NewRouter(httpx.Config{
-		// Behind Traefik and Cloudflare, RemoteAddr is only the
-		// visitor if both are trusted: Traefik replaces the forwarded
-		// chain rather than extending it, so the visitor survives in
-		// Cf-Connecting-Ip alone. TRUSTED_PROXIES=private,cloudflare
-		// fills all three.
 		TrustedProxies: appEnv.TrustedProxies,
 		CDNProxies:     appEnv.CDNProxies,
 		CDNHeader:      appEnv.CDNHeader,
