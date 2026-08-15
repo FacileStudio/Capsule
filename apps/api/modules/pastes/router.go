@@ -5,6 +5,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// RegisterRoutes mounts the paste endpoints under /pastes: create, meta, content
+// and revoke. Create is rate-limited by address.
 func RegisterRoutes(router chi.Router, service *Service, createLimiter *middleware.RateLimiter) {
 	handler := newHandler(service)
 

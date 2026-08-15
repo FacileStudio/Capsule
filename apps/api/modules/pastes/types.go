@@ -2,6 +2,7 @@ package pastes
 
 import "time"
 
+// CreateRequest is the body of a paste create operation.
 type CreateRequest struct {
 	Content       string `json:"content"`
 	BurnAfterRead *bool  `json:"burn_after_read"`
@@ -11,6 +12,8 @@ type CreateRequest struct {
 	Syntax        string `json:"syntax"`
 }
 
+// CreateResponse describes a freshly created paste: its id for later reads and
+// the delete token that alone authorises removal.
 type CreateResponse struct {
 	ID          string     `json:"id"`
 	DeleteToken string     `json:"delete_token"`
@@ -18,6 +21,7 @@ type CreateResponse struct {
 	CreatedAt   time.Time  `json:"created_at"`
 }
 
+// MetaResponse describes a paste for the pre-read headshake.
 type MetaResponse struct {
 	ID          string     `json:"id"`
 	Exists      bool       `json:"exists"`
@@ -33,6 +37,7 @@ type MetaResponse struct {
 	BurnAfterRead bool `json:"burn_after_read,omitempty"`
 }
 
+// ContentResponse is the plain content of a paste, whatever its syntax.
 type ContentResponse struct {
 	Content string `json:"content"`
 }

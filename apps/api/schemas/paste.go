@@ -2,6 +2,8 @@ package schemas
 
 import "time"
 
+// Paste is a single encrypted-at-rest capsule: content plus its burn-after-read
+// and view-count controls.
 type Paste struct {
 	ID      string `gorm:"primaryKey;type:varchar(24)" json:"id"`
 	Content string `gorm:"type:text;not null" json:"-"`

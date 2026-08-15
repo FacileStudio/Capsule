@@ -11,6 +11,7 @@ type visitor struct {
 	resetAt time.Time
 }
 
+// RateLimiter is an in-memory per-remote-address sliding-window limiter.
 type RateLimiter struct {
 	mu       sync.Mutex
 	visitors map[string]*visitor
@@ -18,6 +19,8 @@ type RateLimiter struct {
 	window   time.Duration
 }
 
+// NewRateLimiter builds a limiter that allows limit requests per window per
+// address and starts its background cleanup loop.
 func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
 	rl := &RateLimiter{
 		visitors: make(map[string]*visitor),

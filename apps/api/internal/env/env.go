@@ -6,11 +6,15 @@ import (
 	troncenv "github.com/FacileStudio/tronc/env"
 )
 
+// Config is the process configuration: the tronc core plus the Capsule-specific
+// maximum paste size in bytes.
 type Config struct {
 	troncenv.Core
 	MaxPasteSize int
 }
 
+// Load reads the environment and validates it, defaulting MAX_PASTE_SIZE to
+// 1 MiB when unset.
 func Load() (Config, error) {
 	core, err := troncenv.LoadCore()
 	if err != nil {
