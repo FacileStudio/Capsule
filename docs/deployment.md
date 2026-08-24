@@ -109,7 +109,7 @@ docker run <image> migrate version
 ```
 
 Production was **baselined**, not migrated: its schema already existed, so version 1 is recorded
-as applied without being run. See `Wiki/MIGRATIONS.md` in the Facile wiki for the recipe.
+as applied without being run. See `~/.mycelium/memory/standards/migrations.md` for the recipe.
 
 ## Scaling, and why you should not
 
