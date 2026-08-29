@@ -174,9 +174,7 @@ func buildRouter(db *gorm.DB, sqlDB *sql.DB, appEnv env.Config, appLogger *slog.
 	router.Route("/api", func(r chi.Router) {
 		pastes.RegisterRoutes(r, pasteService, createLimiter)
 	})
-	if err := docs.RegisterRoutes(router); err != nil {
-		return nil, err
-	}
+	docs.Mount(router)
 
 	clientDir := spa.DirFromEnv()
 	if spa.Available(clientDir) {

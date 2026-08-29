@@ -11,11 +11,9 @@ possession of its delete token is what authorizes revoking it. Responses are JSO
 { "error": { "code": "not_found", "message": "paste not found" } }
 ```
 
-A live OpenAPI spec is served at `GET /docs/openapi.json`, with a Scalar UI at `GET /docs` —
-the same two paths as every other Facile backend. The spec is hand-written as
-`apps/api/modules/docs/openapi.yaml` and converted to JSON on startup, so the YAML keeps the
-schemas and examples a generated registry cannot express. A test walks the live router and
-fails when a route is missing from it.
+A live OpenAPI 3.1 spec is served at `GET /docs/openapi.json`, with a Scalar UI at `GET /docs` —
+the same two paths as every other Facile backend. A test walks the live router and asserts that
+every route is registered with complete typed request and response schemas.
 
 ## Health
 
