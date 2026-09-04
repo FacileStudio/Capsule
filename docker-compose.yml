@@ -51,7 +51,7 @@ services:
       DATABASE_URL: ...
       PORT: '4000'
       LOG_LEVEL: ${LOG_LEVEL:-info}
-      TRUSTED_PROXIES: ...
+      TRUSTED_PROXIES: 'private,cloudflare'
       JOURNAL_URL: ${JOURNAL_URL:-}
       JOURNAL_TOKEN: ${JOURNAL_TOKEN:-}
     healthcheck:
