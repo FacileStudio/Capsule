@@ -48,7 +48,7 @@ services:
       traefik.http.routers.capsule-secure.service: capsule-api
       traefik.http.services.capsule-api.loadbalancer.server.port: "4000"
     environment:
-      DATABASE_URL: postgres://capsule:...@capsule-db:5432/capsule
+      DATABASE_URL: ${DATABASE_URL:-postgres://capsule:capsule-internal-db@capsule-db:5432/capsule?sslmode=disable}
       PORT: '4000'
       LOG_LEVEL: ${LOG_LEVEL:-info}
       TRUSTED_PROXIES: 'private,cloudflare'
