@@ -62,6 +62,7 @@ func Reference() apiref.Config {
 		Servers:     []string{"/api"},
 		Registry: Registry{
 			Modules: []Module{
+				authModule(),
 				{
 					Name:        "pastes",
 					Description: "Create, read, and revoke encrypted pastes",

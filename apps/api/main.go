@@ -17,6 +17,7 @@ import (
 	"github.com/FacileStudio/Capsule/apps/api/internal/env"
 	"github.com/FacileStudio/Capsule/apps/api/internal/middleware"
 	"github.com/FacileStudio/Capsule/apps/api/migrations"
+	"github.com/FacileStudio/Capsule/apps/api/modules/auth"
 	"github.com/FacileStudio/Capsule/apps/api/modules/docs"
 	"github.com/FacileStudio/Capsule/apps/api/modules/pastes"
 
@@ -110,7 +111,13 @@ func run() int {
 	defer cleanupCancel()
 	go cleanup.Start(cleanupCtx, db, appLogger)
 
-	router, err := buildRouter(db, sqlDB, appEnv, appLogger)
+	kits, err := auth.New(ctx, sqlDB, appEnv, appLogger)
+	if err != nil {
+		appLogger.Error("failed to set up sign-in", slog.Any("error", err))
+		return 1
+	}
+
+	router, err := buildRouter(db, sqlDB, kits, appEnv, appLogger)
 	if err != nil {
 		appLogger.Error("failed to build the router", slog.Any("error", err))
 		return 1
@@ -155,7 +162,7 @@ func run() int {
 // is only the visitor if both are trusted: Traefik replaces the forwarded chain
 // rather than extending it, so the visitor survives in Cf-Connecting-Ip alone,
 // and TRUSTED_PROXIES=private,cloudflare fills all three.
-func buildRouter(db *gorm.DB, sqlDB *sql.DB, appEnv env.Config, appLogger *slog.Logger) (chi.Router, error) {
+func buildRouter(db *gorm.DB, sqlDB *sql.DB, kits *auth.Kits, appEnv env.Config, appLogger *slog.Logger) (chi.Router, error) {
 	pasteService := pastes.NewService(db, appEnv.MaxPasteSize)
 	createLimiter := middleware.NewRateLimiter(30, time.Minute)
 
@@ -172,6 +179,7 @@ func buildRouter(db *gorm.DB, sqlDB *sql.DB, appEnv env.Config, appLogger *slog.
 	health.Mount(router, health.DB(sqlDB))
 
 	router.Route("/api", func(r chi.Router) {
+		auth.RegisterRoutes(r, kits)
 		pastes.RegisterRoutes(r, pasteService, createLimiter)
 	})
 	docs.Mount(router)

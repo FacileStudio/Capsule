@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/FacileStudio/Capsule/apps/api/internal/env"
+	"github.com/FacileStudio/Capsule/apps/api/modules/auth"
 	"github.com/FacileStudio/Capsule/apps/api/modules/docs"
 	"github.com/FacileStudio/tronc/apiref"
 	"github.com/go-chi/chi/v5"
@@ -16,7 +18,11 @@ import (
 func testRouter(t *testing.T) chi.Router {
 	t.Helper()
 	appEnv := env.Config{}
-	router, err := buildRouter(nil, nil, appEnv, slog.Default())
+	kits, err := auth.New(context.Background(), nil, appEnv, slog.Default())
+	if err != nil {
+		t.Fatalf("auth.New: %v", err)
+	}
+	router, err := buildRouter(nil, nil, kits, appEnv, slog.Default())
 	if err != nil {
 		t.Fatalf("buildRouter: %v", err)
 	}
@@ -31,7 +37,7 @@ func TestEveryRouteIsDocumented(t *testing.T) {
 }
 
 func TestRegistryIsComplete(t *testing.T) {
-	if issues := apiref.Incomplete(docs.Reference(), "/pastes/{id}/content"); len(issues) > 0 {
+	if issues := apiref.Incomplete(docs.Reference(), "/pastes/{id}/content", "/auth/oidc", "/auth/logout", "/auth/sync-profile", "/auth/backchannel-logout"); len(issues) > 0 {
 		t.Errorf("incomplete documentation routes: %v", issues)
 	}
 }

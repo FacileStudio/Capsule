@@ -54,6 +54,11 @@ services:
       TRUSTED_PROXIES: 'private,cloudflare'
       JOURNAL_URL: ${JOURNAL_URL:-}
       JOURNAL_TOKEN: ${JOURNAL_TOKEN:-}
+      OIDC_ISSUER: ${OIDC_ISSUER:-}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:-}
+      OIDC_REDIRECT_URL: ${OIDC_REDIRECT_URL:-}
+      OIDC_SUCCESS_URL: ${OIDC_SUCCESS_URL:-}
     healthcheck:
       test: ["CMD", "/api", "healthcheck"]
       interval: 10s
