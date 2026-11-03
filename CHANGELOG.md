@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format is
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
 follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-11-03
+
+### Added
+
+- `OIDC_CLI_AUDIENCE` mounts porte's device exchange at `POST /api/auth/oidc/device/exchange`,
+  so suite CLIs sign in with the browser approval link from Registre's device grant, over SSH
+  too. Set it to `facile-cli`; unset, the route stays absent and answers 404.
+
 ## [0.1.0] - 2026-11-03
 
 First tagged release.
