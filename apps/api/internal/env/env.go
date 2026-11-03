@@ -15,6 +15,11 @@ type OIDCConfig struct {
 	ClientSecret string
 	RedirectURL  string
 	SuccessURL   string
+
+	// CLIAudience is the client id the suite's CLIs hold their device-grant
+	// token under. Setting it mounts porte's device exchange; empty leaves
+	// the route unmounted and answering 404.
+	CLIAudience string
 }
 
 // Config is the process configuration: the tronc core, the Capsule-specific
@@ -75,6 +80,7 @@ func (c *Config) loadOIDC() error {
 		ClientSecret: clientSecret,
 		RedirectURL:  redirectURL,
 		SuccessURL:   successURL,
+		CLIAudience:  troncenv.String("OIDC_CLI_AUDIENCE", ""),
 	}
 	return nil
 }
@@ -93,5 +99,6 @@ func (c Config) Porte() porte.Config {
 	cfg.RedirectURL = c.OIDC.RedirectURL
 	cfg.SuccessURL = c.OIDC.SuccessURL
 	cfg.FailureURL = c.OIDC.SuccessURL
+	cfg.CLIAudience = c.OIDC.CLIAudience
 	return cfg
 }
