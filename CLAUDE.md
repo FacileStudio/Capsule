@@ -4,12 +4,12 @@ Zero-knowledge, end-to-end encrypted paste tool. Secrets self-destruct after rea
 
 ## Tech Stack
 
-- **API**: Go 1.25, Chi router, GORM, PostgreSQL 16, [`tronc`](https://github.com/FacileStudio/tronc) as the app chassis, [`tronc/migrate`](https://github.com/FacileStudio/tronc/tree/main/migrate) for schema
+- **API**: Go 1.26, Chi router, GORM, PostgreSQL 16, [`tronc`](https://github.com/FacileStudio/tronc) as the app chassis, [`tronc/migrate`](https://github.com/FacileStudio/tronc/tree/main/migrate) for schema
 - **Client**: SvelteKit 5 (Svelte 5 runes), Tailwind CSS 4, Vite 7, adapter-static (the Go binary serves the build)
 - **Design system**: [`@facile/muse`](https://github.com/FacileStudio/muse), pinned to a tag. It owns the palette, the Goga faces, dark mode and the base layer
 - **Encryption**: AES-256-GCM via Web Crypto API (client-side only)
 - **Runtime**: Bun (client), Docker Compose for full stack
-- **Gate**: `sh scripts/check.sh` via a pre-push hook. GitHub Actions is gone suite-wide
+- **Gate**: `sh scripts/check.sh` via a pre-push hook. `.github/workflows/ci.yml` runs gofmt, vet, race tests on Postgres, svelte-check, the client tests and filet
 
 ## Project Structure
 
@@ -37,8 +37,6 @@ apps/
         components/      # Svelte components (ThemeToggle, etc.)
       routes/
         (app)/           # Main pages: create, reveal ([id]), revoke
-        api/[...path]/   # Proxy to Go API
-        docs/            # Scalar API docs page
     tests/               # Playwright E2E tests
 docker-compose.yml       # Full stack: postgres + api + client
 ```
@@ -85,6 +83,7 @@ docker compose down      # Stop and remove containers
 | `CORS_ALLOWED_ORIGINS` | *(none — deny)* | Comma-separated CORS origins. Falls back to `ALLOWED_ORIGINS`. Unset denies every cross-origin caller, which is correct here: the client proxies server-side |
 | `API_URL` | `http://localhost:4000` | Backend URL (used by client proxy) |
 | `ORIGIN` | `http://localhost:3000` | Client origin (used by SvelteKit) |
+| `APP_VERSION` | `dev` | Docker build arg, stamped into the binary and served at `GET /version`. Set it in Dokploy at each release |
 
 ## Conventions
 
@@ -95,6 +94,10 @@ docker compose down      # Stop and remove containers
 - The theme writes **both** `.dark` and `.light` on `<html>` (`system` writes neither). muse flips its tokens from `prefers-color-scheme` scoped to `:root:not(.light)`, so only the `.light` class can force light on a dark OS.
 - API tests need PostgreSQL. **Without `TEST_DATABASE_URL` the database-backed tests skip and `go test` still prints `ok` and exits 0** — 35 of 41 tests, as of 2026-08-07. `sh scripts/check.sh` passing is therefore not evidence the API is tested; export `TEST_DATABASE_URL` to actually run them.
 - The client pages call `/api` and there is **no dev proxy**, so `vite dev` has no backend and the sealing E2E tests cannot pass locally. Point the suite at a real deployment instead: `PLAYWRIGHT_BASE_URL=https://capsule.facile.studio bun run test:e2e`. Setting that variable also suppresses the dev-server boot in `playwright.config.ts`. The consequence to keep in mind: run that way, E2E validates the *deployed* build, not your working tree — so it is a post-deploy check, not a pre-deploy one.
+- Sign-in is Registre only, through porte, and exists for the CLI. Pastes stay anonymous: no route under `/api/pastes` needs a session, and a reveal link works without one. The web client has no login page.
+- tronc's security headers are on and the CSP stays report-only. `security.go` adds the client's inline-script hashes and the Vision analytics origin to `script-src`; `connect-src 'self'` holds because every icon is bundled (`src/lib/icons.ts` registers the Capsule mark). Web Crypto and Shiki's regex engine need no `unsafe-eval`. The client's pages answer `Referrer-Policy: no-referrer`; the key lives in the URL fragment, which no Referer carries. Keep it that way: never put the key in a path or query, never `fetch` or log `location.href`.
+- GDPR: `modules/auth/deletions.go` polls Registre's deletions with the app's OIDC client credentials and deletes the person's `porte_users` row (identities, sessions and codes cascade). Pastes hold no personal data. The cursor lives in `deletion_state`. Run it in one replica only.
+- UI strings live in `apps/client/src/lib/i18n/messages/` as `[en, fr, es, de]` rows. es and de are machine translated and need native review. The locale comes from the `fc_locale` cookie, then the browser.
 - Rate limiting on paste creation: 30 requests per minute.
 - Background cleanup goroutine runs on startup to purge expired pastes.
 - The client proxies API requests through SvelteKit's server routes (`/api/[...path]`) to avoid CORS in dev. The API is `expose`d, never published, so it is never called cross-origin.

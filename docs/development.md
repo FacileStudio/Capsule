@@ -7,7 +7,7 @@ pushes.
 
 | Tool | Version | Why |
 |---|---|---|
-| Go | 1.24 | `apps/api/go.mod` declares `go 1.24.0`; `mise.toml` pins the toolchain |
+| Go | 1.26 | `apps/api/go.mod` declares `go 1.26`; `mise.toml` pins the toolchain |
 | Bun | 1.x | Client package manager and build runner |
 | PostgreSQL | 16 | What Compose and production run |
 | mise | any | Task runner for `install`, `check`, `format`, `hooks` |

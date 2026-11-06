@@ -9,8 +9,9 @@ upgrade risks.
 
 1. `oven/bun:1` installs the client dependencies from the lockfile and runs `bun run build`,
    which `adapter-static` turns into a fallback SPA.
-2. `golang:1.24-alpine` downloads modules, then builds a static binary with
-   `CGO_ENABLED=0`, `-trimpath` and `-ldflags="-s -w"`.
+2. `golang:1.26-alpine` downloads modules, then builds a static binary with
+   `CGO_ENABLED=0`, `-trimpath` and `-ldflags="-s -w -X main.version=$APP_VERSION"`. Set the
+   `APP_VERSION` build arg (Dokploy env) at each release; `GET /version` answers it, `dev` otherwise.
 3. `gcr.io/distroless/static-debian12:nonroot` receives the binary at `/api`, the built SPA
    at `/client`, `ENV CLIENT_DIR=/client`, and runs as `nonroot:nonroot`.
 

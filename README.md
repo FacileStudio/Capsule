@@ -26,7 +26,7 @@ Live at [capsule.facile.studio](https://capsule.facile.studio).
 
 | Layer | Tech |
 |---|---|
-| API | Go 1.25, Chi v5, GORM, PostgreSQL 16, [tronc](https://github.com/FacileStudio/tronc) v0.9.0 + [tronc/migrate](https://github.com/FacileStudio/tronc/tree/main/migrate) v0.1.0 |
+| API | Go 1.26, Chi v5, GORM, PostgreSQL 16, [tronc](https://github.com/FacileStudio/tronc) v0.17.1 + [tronc/migrate](https://github.com/FacileStudio/tronc/tree/main/migrate) v0.1.0 |
 | Client | SvelteKit 2 (Svelte 5 runes), Tailwind CSS 4, Shiki, `adapter-static` |
 | Crypto | Web Crypto API — AES-256-GCM, PBKDF2-SHA256 for password mode. Browser only |
 | Deploy | Docker Compose, single distroless container behind Traefik |
@@ -104,3 +104,7 @@ scripts/     check.sh, the repository quality gate
 
 Part of the [Facile Suite](https://facile.studio) — self-hosted tools for creative studios
 and freelancers. One login, zero cloud dependency.
+
+## Credits
+
+Icons are Solar by 480 Design ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), bundled through muse and, for the Capsule mark, in `apps/client/src/lib/icons.ts`.

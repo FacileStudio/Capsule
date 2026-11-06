@@ -1,28 +1,42 @@
 <script lang="ts">
+	import { LandingFooter, LandingHeader, LocaleSwitch } from '@facile/muse';
+	import { page } from '$app/state';
+	import { CAPSULE_ICON } from '$lib/icons';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import { rememberLocale, t } from '$lib/i18n/index.svelte';
 
 	let { children } = $props();
+
+	const path = $derived(page.url.pathname);
+	const links = $derived([
+		{ href: '/', label: t('shell.seal'), active: path === '/' },
+		{ href: '/revoke', label: t('shell.revoke'), active: path === '/revoke' },
+		{ href: '/docs', label: t('shell.api'), external: true }
+	]);
+	const columns = $derived([
+		{ title: 'Capsule', links: links.map(({ href, label, external }) => ({ href, label, external })) },
+		{ title: 'Facile', links: [{ href: 'https://facile.studio', label: t('shell.facile'), external: true }] }
+	]);
 </script>
 
 <div class="flex min-h-[100dvh] flex-col">
-	<header>
-		<div class="mx-auto flex max-w-2xl items-center justify-between px-4 py-4 sm:px-6">
-			<a href="/" class="flex items-center gap-3 transition-opacity hover:opacity-80">
-				<!-- bold-duotone is reserved for brand marks; everything else on the page is linear. -->
-				<iconify-icon icon="solar:pill-bold-duotone" width="24" height="24" class="block"></iconify-icon>
-				<span class="text-fc-xl font-semibold tracking-tight">Capsule</span>
-			</a>
+	<LandingHeader appName="Capsule" icon={CAPSULE_ICON} {links} skipHref="#main">
+		{#snippet actions()}
+			<LocaleSwitch onChange={rememberLocale} />
 			<ThemeToggle />
-		</div>
-	</header>
+		{/snippet}
+	</LandingHeader>
 
-	<main class="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8 sm:px-6 sm:py-12">
+	<main id="main" class="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8 sm:px-6 sm:py-12">
 		{@render children()}
 	</main>
 
-	<footer class="text-center">
-		<div class="mx-auto max-w-2xl px-4 py-6 text-fc-sm text-fc-fg-muted sm:px-6">
-			&copy; {new Date().getFullYear()} Capsule by <a href="https://facile.studio" class="font-medium underline">Facile.</a>
-		</div>
-	</footer>
+	<LandingFooter
+		appName="Capsule"
+		icon={CAPSULE_ICON}
+		tagline={t('shell.tagline')}
+		{columns}
+		legal={{ hideLocaleSwitch: true }}
+		year={new Date().getFullYear()}
+	/>
 </div>

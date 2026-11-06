@@ -3,8 +3,9 @@
 Every environment variable the API actually reads, taken from `apps/api/internal/env/env.go`
 and the `tronc/env` and `tronc/spa` packages it builds on.
 
-Capsule has a small configuration surface on purpose. It has no users, no sessions, no mail,
-no OIDC and no object storage, so there is nothing to configure for any of them.
+Capsule has a small configuration surface on purpose. Pastes are anonymous, there is no mail and
+no object storage. Sign-in (`OIDC_*`) exists only for the CLI and is optional. `APP_VERSION` is a
+Docker build arg, not a runtime variable: it is stamped into the binary and served at `GET /version`.
 
 ## Core
 

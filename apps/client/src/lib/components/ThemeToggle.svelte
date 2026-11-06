@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { IconButton, icons } from '@facile/muse';
+	import { Icon, IconButton, icons } from '@facile/muse';
 	import { setTheme, theme } from '$lib/theme.svelte';
+	import { t } from '$lib/i18n/index.svelte';
 
 	let systemDark = $state(false);
 	let dark = $derived(theme.mode === 'dark' || (theme.mode === 'system' && systemDark));
@@ -18,13 +19,8 @@
 
 <IconButton
 	variant="ghost"
-	aria-label="Toggle theme"
+	aria-label={t('shell.theme')}
 	onclick={() => setTheme(dark ? 'light' : 'dark')}
 >
-	<iconify-icon
-		icon={dark ? icons.sun : icons.moon}
-		width="18"
-		height="18"
-		class="block"
-	></iconify-icon>
+	<Icon icon={dark ? icons.sun : icons.moon} size={18} />
 </IconButton>

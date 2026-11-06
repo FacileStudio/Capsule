@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { Alert, Button, Field, Input, Spinner, icons } from '@facile/muse';
+	import { Alert, Button, Field, Icon, Input, Spinner, icons } from '@facile/muse';
 	import { backend } from '$lib/backend';
+	import { t } from '$lib/i18n/index.svelte';
+	import { CAPSULE_ICON } from '$lib/icons';
 
 	type State = 'idle' | 'revoking' | 'revoked' | 'error';
 
@@ -32,7 +34,7 @@
 			await backend.deletePaste(id, deleteToken.trim());
 			phase = 'revoked';
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to revoke capsule';
+			error = err instanceof Error ? err.message : t('revoke.failed');
 			phase = 'error';
 		}
 	}
@@ -46,35 +48,35 @@
 </script>
 
 <svelte:head>
-	<title>Revoke — Capsule</title>
+	<title>{t('revoke.title')}</title>
 </svelte:head>
 
 {#if phase === 'revoked'}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<iconify-icon icon={icons.remove} width="28" height="28" class="mb-3 block text-fc-danger"></iconify-icon>
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Capsule revoked</h1>
+			<Icon icon={icons.remove} size={28} class="mb-3 text-fc-danger" />
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('revoke.doneHeading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
-				The capsule has been burned. Its content is permanently gone.
+				{t('revoke.doneText')}
 			</p>
 		</div>
 
 		<div class="flex flex-col gap-3 sm:flex-row">
-			<Button variant="outline" size="lg" onclick={reset} class="sm:w-fit">Revoke another</Button>
-			<Button href="/" size="lg" icon="solar:pill-bold-duotone" class="sm:w-fit">Seal a capsule</Button>
+			<Button variant="outline" size="lg" onclick={reset} class="sm:w-fit">{t('revoke.another')}</Button>
+			<Button href="/" size="lg" icon={CAPSULE_ICON} class="sm:w-fit">{t('revoke.seal')}</Button>
 		</div>
 	</div>
 {:else}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Revoke a capsule</h1>
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('revoke.heading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
-				Burn a capsule before it's opened. You'll need the capsule URL or ID and the delete token you received when sealing.
+				{t('revoke.intro')}
 			</p>
 		</div>
 
 		<div class="flex flex-col gap-4">
-			<Field label="Capsule URL or ID">
+			<Field label={t('revoke.urlLabel')}>
 				<Input
 					bind:value={capsuleUrl}
 					placeholder="https://capsule.facile.studio/cap_... or cap_..."
@@ -83,10 +85,10 @@
 				/>
 			</Field>
 
-			<Field label="Delete token">
+			<Field label={t('revoke.tokenLabel')}>
 				<Input
 					bind:value={deleteToken}
-					placeholder="Paste your delete token here..."
+					placeholder={t('revoke.tokenPlaceholder')}
 					disabled={phase === 'revoking'}
 					class="font-fc-mono text-fc-sm"
 				/>
@@ -107,14 +109,14 @@
 				class="sm:w-fit"
 			>
 				{#if phase === 'revoking'}
-					<Spinner size="sm" label="Revoking" />
-					Revoking...
+					<Spinner size="sm" label={t('revoke.revokingLabel')} />
+					{t('revoke.revoking')}
 				{:else}
-					Revoke capsule
+					{t('revoke.submit')}
 				{/if}
 			</Button>
-			<Button href="/" variant="outline" size="lg" icon="solar:pill-bold-duotone" class="sm:w-fit">
-				Seal a capsule
+			<Button href="/" variant="outline" size="lg" icon={CAPSULE_ICON} class="sm:w-fit">
+				{t('revoke.seal')}
 			</Button>
 		</div>
 	</div>

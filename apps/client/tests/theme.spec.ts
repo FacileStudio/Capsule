@@ -61,7 +61,7 @@ test.describe('theme', () => {
 		await page.goto('/');
 		await page.locator('textarea').fill('const apiKey = "theme check";');
 		await page.getByRole('checkbox', { name: 'Burn after opening' }).uncheck();
-		await page.locator('select').last().selectOption('typescript');
+		await page.getByLabel('Syntax').selectOption('typescript');
 		await page.getByRole('button', { name: /seal capsule/i }).click();
 		await expect(page.locator('h1')).toContainText('Capsule sealed', { timeout: 15_000 });
 		const url = await page.locator('input[readonly]').inputValue();
