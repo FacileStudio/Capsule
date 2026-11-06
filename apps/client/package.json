@@ -29,8 +29,7 @@
     "vitest": "^4.1.7"
   },
   "dependencies": {
-    "@facile/muse": "github:FacileStudio/muse#v0.8.0",
-    "iconify-icon": "^3.0.2",
+    "@facile/muse": "github:FacileStudio/muse#v0.12.1",
     "shiki": "^4.1.0"
   }
 }

@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { Alert, Button, Card, Checkbox, Field, Input, SecretField, Select, Spinner, Textarea, icons } from '@facile/muse';
+	import { Alert, Button, Card, Checkbox, Field, Icon, Input, SecretField, Select, Spinner, Textarea, icons } from '@facile/muse';
 	import { generateKey, exportKey, encrypt, wrapContentKey, buildPasswordFragment } from '$lib/crypto';
 	import { backend } from '$lib/backend';
 	import { page } from '$app/state';
+	import { t } from '$lib/i18n/index.svelte';
+	import { CAPSULE_ICON } from '$lib/icons';
 
 	type State = 'idle' | 'sealing' | 'sealed';
 
@@ -22,12 +24,14 @@
 	let revoking = $state(false);
 	let revoked = $state(false);
 
-	const expiryOptions = [
-		{ value: '1h', label: '1 hour' },
-		{ value: '24h', label: '24 hours' },
-		{ value: '7d', label: '7 days' },
-		{ value: '30d', label: '30 days' },
-	];
+	const expiryValues = ['1h', '24h', '7d', '30d'] as const;
+	const expiryOptions = $derived(expiryValues.map((value) => ({ value, label: t(`expiry.${value}`) })));
+	const duration = $derived(expiryOptions.find((o) => o.value === expiresIn)?.label ?? '');
+	const sealedHelp = $derived(
+		burnAfterRead
+			? t(usePassword ? 'sealed.burnOncePassword' : 'sealed.burnOnce')
+			: t(usePassword ? 'sealed.expiresPassword' : 'sealed.expires', { duration })
+	);
 
 	const syntaxOptions = [
 		'plaintext', 'javascript', 'typescript', 'python', 'go', 'rust',
@@ -68,7 +72,7 @@
 			deleteToken = result.delete_token;
 			phase = 'sealed';
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to seal capsule';
+			error = err instanceof Error ? err.message : t('create.sealFailed');
 			phase = 'idle';
 		}
 	}
@@ -86,7 +90,7 @@
 			await backend.deletePaste(capsuleId, deleteToken);
 			revoked = true;
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to revoke capsule';
+			error = err instanceof Error ? err.message : t('revoke.failed');
 		} finally {
 			revoking = false;
 		}
@@ -108,29 +112,29 @@
 </script>
 
 <svelte:head>
-	<title>Capsule — Ephemeral Encrypted Sharing</title>
-	<meta name="description" content="Share secrets that self-destruct. End-to-end encrypted, zero knowledge." />
+	<title>{t('create.title')}</title>
+	<meta name="description" content={t('create.description')} />
 </svelte:head>
 
 {#if phase === 'idle' || phase === 'sealing'}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Seal a capsule</h1>
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('create.heading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
-				Your content is encrypted in the browser. The server never sees the plaintext.
+				{t('create.intro')}
 			</p>
 		</div>
 
 		<Textarea
 			bind:value={content}
-			placeholder="Paste your secret here..."
+			placeholder={t('create.placeholder')}
 			rows={8}
 			disabled={phase === 'sealing'}
 			class="font-fc-mono text-fc-sm"
 		/>
 
 		<div class="grid gap-4 sm:grid-cols-2">
-			<Field label="Expires in">
+			<Field label={t('create.expires')}>
 				<Select bind:value={expiresIn} disabled={phase === 'sealing'}>
 					{#each expiryOptions as opt}
 						<option value={opt.value}>{opt.label}</option>
@@ -138,7 +142,7 @@
 				</Select>
 			</Field>
 
-			<Field label="Syntax">
+			<Field label={t('create.syntax')}>
 				<Select bind:value={syntax} disabled={phase === 'sealing'}>
 					{#each syntaxOptions as s}
 						<option value={s}>{s}</option>
@@ -150,13 +154,13 @@
 		<div class="flex flex-col gap-3">
 			<!-- The 16px box is by design; the <label> Checkbox renders carries the hit target. -->
 			<Checkbox
-				label="Burn after opening"
+				label={t('create.burn')}
 				bind:checked={burnAfterRead}
 				disabled={phase === 'sealing'}
 				class="min-h-11"
 			/>
 			<Checkbox
-				label="Password protect"
+				label={t('create.password')}
 				bind:checked={usePassword}
 				disabled={phase === 'sealing'}
 				class="min-h-11"
@@ -167,7 +171,7 @@
 			<Input
 				type="password"
 				bind:value={password}
-				placeholder="Enter a password..."
+				placeholder={t('create.passwordPlaceholder')}
 				disabled={phase === 'sealing'}
 			/>
 		{/if}
@@ -179,56 +183,51 @@
 		<div class="flex flex-col gap-3 sm:flex-row">
 			<Button
 				size="lg"
-				icon={phase === 'sealing' ? undefined : 'solar:pill-bold-duotone'}
+				icon={phase === 'sealing' ? undefined : CAPSULE_ICON}
 				onclick={seal}
 				disabled={!content.trim() || (usePassword && !password) || phase === 'sealing'}
 				class="flex-1"
 			>
 				{#if phase === 'sealing'}
-					<Spinner size="sm" label="Sealing" />
-					Sealing...
+					<Spinner size="sm" label={t('create.sealingLabel')} />
+					{t('create.sealing')}
 				{:else}
-					Seal capsule
+					{t('create.seal')}
 				{/if}
 			</Button>
-			<Button href="/revoke" variant="outline" size="lg" icon={icons.revoke}>Revoke</Button>
+			<Button href="/revoke" variant="outline" size="lg" icon={icons.revoke}>{t('shell.revoke')}</Button>
 		</div>
 	</div>
 {:else if phase === 'sealed'}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<iconify-icon
-				icon={icons.check}
-				width="28"
-				height="28"
-				class="mb-3 block text-fc-success"
-			></iconify-icon>
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Capsule sealed</h1>
+			<Icon icon={icons.check} size={28} class="mb-3 text-fc-success" />
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('sealed.heading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
-				Share this link{usePassword ? ' and the password' : ''} — {burnAfterRead ? 'the capsule can only be opened once.' : `it expires in ${expiryOptions.find(o => o.value === expiresIn)?.label}.`}
+				{sealedHelp}
 			</p>
 		</div>
 
 		<div class="flex flex-col gap-2 sm:flex-row">
 			<Input readonly value={capsuleUrl} class="font-fc-mono text-fc-sm sm:flex-1" />
 			<Button size="lg" icon={copied ? icons.check : icons.copy} onclick={copyLink}>
-				{copied ? 'Copied' : 'Copy link'}
+				{copied ? t('sealed.copied') : t('sealed.copy')}
 			</Button>
 		</div>
 
 		<Card class="flex flex-col gap-4">
 			{#if revoked}
 				<p class="flex items-center gap-2 text-fc-sm text-fc-danger">
-					<iconify-icon icon={icons.revoke} width="16" height="16" class="block"></iconify-icon>
-					Capsule revoked
+					<Icon icon={icons.revoke} />
+					{t('sealed.revoked')}
 				</p>
 			{:else}
 				<!-- The token is shown once and is the only way to burn this capsule early, so it
 				     gets a copy button. It used to be `truncate`d text: unreadable and unselectable. -->
 				<SecretField
 					bind:value={deleteToken}
-					label="Delete token"
-					helper="Copy it now — it is not stored anywhere you can read it back."
+					label={t('sealed.token')}
+					helper={t('sealed.tokenHelp')}
 				/>
 				<Button
 					variant="danger"
@@ -237,7 +236,7 @@
 					disabled={revoking}
 					class="w-fit"
 				>
-					{revoking ? 'Revoking...' : 'Revoke'}
+					{revoking ? t('sealed.revoking') : t('sealed.revoke')}
 				</Button>
 			{/if}
 		</Card>
@@ -249,11 +248,11 @@
 		<Button
 			variant="outline"
 			size="lg"
-			icon="solar:pill-bold-duotone"
+			icon={CAPSULE_ICON}
 			onclick={reset}
 			class="w-fit"
 		>
-			Seal another capsule
+			{t('sealed.another')}
 		</Button>
 	</div>
 {/if}

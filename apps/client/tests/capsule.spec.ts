@@ -23,7 +23,7 @@ test.describe('create page', () => {
 
 	test('syntax selector has expected options', async ({ page }) => {
 		await page.goto('/');
-		const syntaxSelect = page.locator('select').last();
+		const syntaxSelect = page.getByLabel('Syntax');
 		const options = await syntaxSelect.locator('option').allTextContents();
 		expect(options).toContain('plaintext');
 		expect(options).toContain('javascript');
@@ -33,7 +33,7 @@ test.describe('create page', () => {
 
 	test('expiry selector has expected options', async ({ page }) => {
 		await page.goto('/');
-		const expirySelect = page.locator('select').first();
+		const expirySelect = page.getByLabel('Expires in');
 		const options = await expirySelect.locator('option').allTextContents();
 		expect(options).toContain('1 hour');
 		expect(options).toContain('24 hours');

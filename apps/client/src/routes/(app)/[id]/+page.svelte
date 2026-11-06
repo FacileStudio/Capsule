@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Alert, Badge, Button, Input, Spinner, icons } from '@facile/muse';
+	import { Alert, Badge, Button, Icon, Input, Spinner, icons } from '@facile/muse';
 	import { page } from '$app/state';
 	import { importKey, decrypt, unwrapContentKey, parsePasswordFragment } from '$lib/crypto';
 	import { backend, type PasteMeta } from '$lib/backend';
 	import { highlight } from '$lib/highlight';
+	import { locale, t } from '$lib/i18n/index.svelte';
+	import { CAPSULE_ICON } from '$lib/icons';
+	import { timeAgo } from '$lib/i18n/format';
 
 	type State = 'loading' | 'ready' | 'password' | 'revealing' | 'revealed' | 'empty' | 'error';
 
@@ -23,13 +26,13 @@
 		keyFragment = window.location.hash.slice(1);
 
 		if (!id) {
-			error = 'No capsule id in the URL.';
+			error = t('reveal.noId');
 			phase = 'error';
 			return;
 		}
 
 		if (!keyFragment) {
-			error = 'No decryption key found in URL. The link may be incomplete.';
+			error = t('reveal.noKey');
 			phase = 'error';
 			return;
 		}
@@ -56,11 +59,11 @@
 
 			if (meta.has_password) {
 				const parsed = parsePasswordFragment(keyFragment);
-				if (!parsed) throw new Error('Invalid URL fragment');
+				if (!parsed) throw new Error(t('reveal.badFragment'));
 				try {
 					key = await unwrapContentKey(parsed.encryptedKey, parsed.salt, parsed.iv, password);
 				} catch {
-					passwordError = 'Wrong password or corrupted link.';
+					passwordError = t('reveal.wrongPassword');
 					phase = 'password';
 					return;
 				}
@@ -78,7 +81,7 @@
 				});
 			}
 		} catch {
-			error = 'Failed to decrypt. The key may be wrong or the data may be corrupted.';
+			error = t('reveal.decryptFailed');
 			phase = 'error';
 		}
 	}
@@ -94,22 +97,11 @@
 		copied = true;
 		setTimeout(() => (copied = false), 2000);
 	}
-
-	function timeAgo(dateStr: string): string {
-		const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-		if (seconds < 60) return 'just now';
-		const minutes = Math.floor(seconds / 60);
-		if (minutes < 60) return `${minutes}m ago`;
-		const hours = Math.floor(minutes / 60);
-		if (hours < 24) return `${hours}h ago`;
-		const days = Math.floor(hours / 24);
-		return `${days}d ago`;
-	}
 </script>
 
 <svelte:head>
-	<title>Capsule — Open</title>
-	<meta name="description" content="Someone sent you an encrypted capsule." />
+	<title>{t('reveal.title')}</title>
+	<meta name="description" content={t('reveal.description')} />
 </svelte:head>
 
 {#snippet meterBar()}
@@ -118,13 +110,13 @@
 			<Badge>{meta.syntax}</Badge>
 		{/if}
 		{#if meta?.created_at}
-			<Badge>Sealed {timeAgo(meta.created_at)}</Badge>
+			<Badge>{t('reveal.sealedAgo', { when: timeAgo(meta.created_at, locale()) })}</Badge>
 		{/if}
 		{#if meta?.has_password}
-			<Badge tone="warning">Password protected</Badge>
+			<Badge tone="warning">{t('reveal.badgePassword')}</Badge>
 		{/if}
 		{#if meta?.burn_after_read}
-			<Badge tone="danger">Burns after opening</Badge>
+			<Badge tone="danger">{t('reveal.badgeBurn')}</Badge>
 		{/if}
 	</div>
 {/snippet}
@@ -137,30 +129,30 @@
 	<!-- Hand-built rather than `EmptyState`: that component is a Card for a list with nothing
 	     in it, and this is the whole page — the title has to be the page's own <h1>. -->
 	<div class="flex flex-col items-center gap-4 py-12 text-center sm:py-20">
-		<iconify-icon icon="solar:pill-bold-duotone" width="28" height="28" class="block text-fc-fg-muted"></iconify-icon>
+		<Icon icon={CAPSULE_ICON} size={28} class="text-fc-fg-muted" />
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-xl font-semibold tracking-tight sm:text-fc-2xl">This capsule is empty</h1>
+			<h1 class="text-fc-xl font-semibold tracking-tight sm:text-fc-2xl">{t('reveal.emptyHeading')}</h1>
 			<p class="mx-auto max-w-sm text-fc-sm text-fc-fg-muted">
-				It was already opened, expired, or never existed.
+				{t('reveal.emptyText')}
 			</p>
 		</div>
-		<Button href="/" size="lg" icon="solar:pill-bold-duotone">Seal a new capsule</Button>
+		<Button href="/" size="lg" icon={CAPSULE_ICON}>{t('reveal.sealNew')}</Button>
 	</div>
 {:else if phase === 'error'}
 	<div class="flex flex-col items-center gap-4 py-12 text-center sm:py-20">
-		<iconify-icon icon={icons.warning} width="28" height="28" class="block text-fc-danger"></iconify-icon>
+		<Icon icon={icons.warning} size={28} class="text-fc-danger" />
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-xl font-semibold tracking-tight sm:text-fc-2xl">Something went wrong</h1>
+			<h1 class="text-fc-xl font-semibold tracking-tight sm:text-fc-2xl">{t('reveal.errorHeading')}</h1>
 			<p class="mx-auto max-w-sm text-fc-sm text-fc-fg-muted">{error}</p>
 		</div>
-		<Button href="/" variant="outline" size="lg">Back to Capsule</Button>
+		<Button href="/" variant="outline" size="lg">{t('reveal.back')}</Button>
 	</div>
 {:else if phase === 'password'}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Password required</h1>
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('reveal.passwordHeading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
-				This capsule is password-protected. Enter the password to decrypt it.
+				{t('reveal.passwordText')}
 			</p>
 		</div>
 
@@ -170,26 +162,26 @@
 			onsubmit={(e: Event) => { e.preventDefault(); submitPassword(); }}
 			class="flex flex-col gap-4"
 		>
-			<Input type="password" bind:value={password} placeholder="Enter password..." />
+			<Input type="password" bind:value={password} placeholder={t('reveal.passwordPlaceholder')} />
 
 			{#if passwordError}
 				<Alert tone="danger">{passwordError}</Alert>
 			{/if}
 
 			<Button type="submit" size="lg" icon={icons.key} disabled={!password} class="w-fit">
-				Unlock capsule
+				{t('reveal.unlock')}
 			</Button>
 		</form>
 	</div>
 {:else if phase === 'ready' || phase === 'revealing'}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">A capsule for you</h1>
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('reveal.readyHeading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				{#if meta?.burn_after_read}
-					This capsule will self-destruct after you open it.
+					{t('reveal.readyBurn')}
 				{:else}
-					Someone sent you an encrypted capsule.
+					{t('reveal.description')}
 				{/if}
 			</p>
 		</div>
@@ -204,20 +196,20 @@
 			class="w-fit"
 		>
 			{#if phase === 'revealing'}
-				<Spinner size="sm" label="Opening" />
-				Opening...
+				<Spinner size="sm" label={t('reveal.openingLabel')} />
+				{t('reveal.opening')}
 			{:else}
-				Open capsule
+				{t('reveal.open')}
 			{/if}
 		</Button>
 	</div>
 {:else if phase === 'revealed'}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">Capsule opened</h1>
+			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('reveal.openedHeading')}</h1>
 			{#if meta?.burn_after_read}
 				<p class="text-fc-sm text-fc-danger">
-					Content destroyed from server. This is the only time you'll see it.
+					{t('reveal.destroyed')}
 				</p>
 			{/if}
 		</div>
@@ -232,13 +224,13 @@
 			{/if}
 			<div class="absolute right-2 top-2 sm:right-3 sm:top-3">
 				<Button variant="outline" size="sm" icon={copied ? icons.check : icons.copy} onclick={copyContent}>
-					{copied ? 'Copied' : 'Copy'}
+					{copied ? t('reveal.copied') : t('reveal.copy')}
 				</Button>
 			</div>
 		</div>
 
-		<Button href="/" variant="outline" size="lg" icon="solar:pill-bold-duotone" class="w-fit">
-			Seal a new capsule
+		<Button href="/" variant="outline" size="lg" icon={CAPSULE_ICON} class="w-fit">
+			{t('reveal.sealNew')}
 		</Button>
 	</div>
 {/if}
