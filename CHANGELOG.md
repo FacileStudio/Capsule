@@ -6,6 +6,8 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-06
+
 ### Changed
 
 - porte v0.5.2 to v0.12.0, `porte/directory` v0.3.0 and tronc v0.16.0 to v0.17.1.
