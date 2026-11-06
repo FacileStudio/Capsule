@@ -117,6 +117,8 @@ func run() int {
 		return 1
 	}
 
+	go kits.RunDeletions(ctx)
+
 	router, err := buildRouter(db, sqlDB, kits, appEnv, appLogger)
 	if err != nil {
 		appLogger.Error("failed to build the router", slog.Any("error", err))
@@ -166,7 +168,9 @@ func buildRouter(db *gorm.DB, sqlDB *sql.DB, kits *auth.Kits, appEnv env.Config,
 	pasteService := pastes.NewService(db, appEnv.MaxPasteSize)
 	createLimiter := middleware.NewRateLimiter(30, time.Minute)
 
+	clientDir := spa.DirFromEnv()
 	router := httpx.NewRouter(httpx.Config{
+		Security:       securityConfig(clientDir, appLogger),
 		TrustedProxies: appEnv.TrustedProxies,
 		CDNProxies:     appEnv.CDNProxies,
 		CDNHeader:      appEnv.CDNHeader,
@@ -177,6 +181,7 @@ func buildRouter(db *gorm.DB, sqlDB *sql.DB, kits *auth.Kits, appEnv env.Config,
 		},
 	})
 	health.Mount(router, health.DB(sqlDB))
+	router.Get("/version", versionHandler)
 
 	router.Route("/api", func(r chi.Router) {
 		auth.RegisterRoutes(r, kits)
@@ -184,9 +189,8 @@ func buildRouter(db *gorm.DB, sqlDB *sql.DB, kits *auth.Kits, appEnv env.Config,
 	})
 	docs.Mount(router)
 
-	clientDir := spa.DirFromEnv()
 	if spa.Available(clientDir) {
-		router.Handle("/*", spa.Handler(spa.Config{Dir: clientDir}))
+		router.Handle("/*", noReferrer(spa.Handler(spa.Config{Dir: clientDir})))
 		appLogger.Info("serving client", slog.String("dir", clientDir))
 	}
 

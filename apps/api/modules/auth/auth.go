@@ -11,6 +11,7 @@ import (
 	"log/slog"
 
 	"github.com/FacileStudio/Capsule/apps/api/internal/env"
+	"github.com/FacileStudio/porte/directory"
 	"github.com/FacileStudio/porte/oidc"
 	portepg "github.com/FacileStudio/porte/pg"
 	"github.com/FacileStudio/porte/session"
@@ -21,6 +22,10 @@ import (
 type Kits struct {
 	Sessions *session.Manager
 	OIDC     *oidc.Kit
+
+	// Deletions erases the people Registre erased. It is nil without single
+	// sign-on. Run it in exactly one replica.
+	Deletions *directory.Deletions
 }
 
 // New builds the session manager and runs OIDC discovery. A deployment with no
@@ -44,5 +49,6 @@ func New(ctx context.Context, sqlDB *sql.DB, appEnv env.Config, logger *slog.Log
 	if err != nil {
 		return nil, err
 	}
-	return &Kits{Sessions: sessions, OIDC: kit}, nil
+	deletions := newDeletions(sqlDB, store, appEnv.OIDC, logger)
+	return &Kits{Sessions: sessions, OIDC: kit, Deletions: deletions}, nil
 }
