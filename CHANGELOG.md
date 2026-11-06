@@ -19,7 +19,7 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   inline-script hashes and the Vision analytics origin in `script-src`. The client pages answer
   `Referrer-Policy: no-referrer`; the decryption key stays in the URL fragment, which browsers
   never send.
-- The Vision analytics script loads `async`, so a slow analytics host cannot hold up the app.
+- The Vision analytics script loads `async` and only on the landing and revoke pages. A reveal page's path is the capsule id, which Vision would record.
 - `mise.toml` pins Go 1.26, matching `go.mod` and the Dockerfile.
 - CI: `.github/workflows/ci.yml` runs gofmt, vet, race tests on Postgres, svelte-check, the
   client tests, the build and filet. It replaces `filet.yml`.

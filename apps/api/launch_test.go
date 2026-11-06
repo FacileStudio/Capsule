@@ -126,3 +126,17 @@ func TestVersionIsServed(t *testing.T) {
 		t.Errorf("GET /version = %d %q, want 200 carrying %q", recorder.Code, recorder.Body.String(), version)
 	}
 }
+
+func TestAnalyticsNeverLoadsOnRevealPages(t *testing.T) {
+	page, err := os.ReadFile(filepath.Join("..", "client", "src", "app.html"))
+	if err != nil {
+		t.Fatalf("read app.html: %v", err)
+	}
+	html := string(page)
+	if strings.Contains(html, `<script async src="`+analyticsOrigin) || strings.Contains(html, `<script defer src="`+analyticsOrigin) {
+		t.Error("app.html loads the analytics script on every page, reveal pages included")
+	}
+	if !strings.Contains(html, "p !== '/' && p !== '/revoke'") {
+		t.Error("app.html does not gate the analytics script to the landing and revoke pages")
+	}
+}
