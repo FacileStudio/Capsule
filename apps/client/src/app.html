@@ -15,7 +15,20 @@
 				if (t === 'dark' || t === 'light') document.documentElement.classList.add(t);
 			})();
 		</script>
-		<script async src="https://vision.facile.studio/s.js"></script>
+		<script>
+			/*
+			 * Vision records the page path. A reveal page's path is the capsule id, which is enough
+			 * to burn a capsule, so the tracker loads on the landing and revoke pages only.
+			 */
+			(function () {
+				var p = location.pathname;
+				if (p !== '/' && p !== '/revoke') return;
+				var s = document.createElement('script');
+				s.async = true;
+				s.src = 'https://vision.facile.studio/s.js';
+				document.head.appendChild(s);
+			})();
+		</script>
 
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
 		<link rel="alternate icon" href="%sveltekit.assets%/favicon.ico" sizes="any" />
