@@ -83,7 +83,6 @@ docker compose down      # Stop and remove containers
 | `CORS_ALLOWED_ORIGINS` | *(none — deny)* | Comma-separated CORS origins. Falls back to `ALLOWED_ORIGINS`. Unset denies every cross-origin caller, which is correct here: the client proxies server-side |
 | `API_URL` | `http://localhost:4000` | Backend URL (used by client proxy) |
 | `ORIGIN` | `http://localhost:3000` | Client origin (used by SvelteKit) |
-| `APP_VERSION` | `dev` | Docker build arg, stamped into the binary and served at `GET /version`. Set it in Dokploy at each release |
 
 ## Conventions
 

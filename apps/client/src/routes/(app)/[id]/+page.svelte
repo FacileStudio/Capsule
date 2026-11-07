@@ -145,7 +145,7 @@
 			<h1 class="text-fc-xl font-semibold tracking-tight sm:text-fc-2xl">{t('reveal.errorHeading')}</h1>
 			<p class="mx-auto max-w-sm text-fc-sm text-fc-fg-muted">{error}</p>
 		</div>
-		<Button href="/" variant="outline" size="lg">{t('reveal.back')}</Button>
+		<Button href="/" variant="secondary" size="lg">{t('reveal.back')}</Button>
 	</div>
 {:else if phase === 'password'}
 	<div class="flex flex-col gap-6">
@@ -223,13 +223,13 @@
 				<pre class="w-full overflow-x-auto rounded-fc-md bg-fc-component p-4 pr-16 font-fc-mono text-fc-sm text-fc-fg whitespace-pre-wrap break-words sm:pr-24">{plaintext}</pre>
 			{/if}
 			<div class="absolute right-2 top-2 sm:right-3 sm:top-3">
-				<Button variant="outline" size="sm" icon={copied ? icons.check : icons.copy} onclick={copyContent}>
+				<Button variant="secondary" size="sm" icon={copied ? icons.check : icons.copy} onclick={copyContent}>
 					{copied ? t('reveal.copied') : t('reveal.copy')}
 				</Button>
 			</div>
 		</div>
 
-		<Button href="/" variant="outline" size="lg" icon={CAPSULE_ICON} class="w-fit">
+		<Button href="/" variant="secondary" size="lg" icon={CAPSULE_ICON} class="w-fit">
 			{t('reveal.sealNew')}
 		</Button>
 	</div>

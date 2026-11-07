@@ -4,8 +4,8 @@ Every environment variable the API actually reads, taken from `apps/api/internal
 and the `tronc/env` and `tronc/spa` packages it builds on.
 
 Capsule has a small configuration surface on purpose. Pastes are anonymous, there is no mail and
-no object storage. Sign-in (`OIDC_*`) exists only for the CLI and is optional. `APP_VERSION` is a
-Docker build arg, not a runtime variable: it is stamped into the binary and served at `GET /version`.
+no object storage. Sign-in (`OIDC_*`) exists only for the CLI and is optional. `GET /version` serves the
+version in `apps/client/package.json`, stamped into the binary at build time.
 
 ## Core
 
