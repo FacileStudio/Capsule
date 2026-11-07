@@ -23,8 +23,8 @@ test.describe('create page', () => {
 
 	test('syntax selector has expected options', async ({ page }) => {
 		await page.goto('/');
-		const syntaxSelect = page.getByLabel('Syntax');
-		const options = await syntaxSelect.locator('option').allTextContents();
+		await page.getByRole('combobox', { name: 'Syntax' }).click();
+		const options = (await page.getByRole('option').allTextContents()).map((text) => text.trim());
 		expect(options).toContain('plaintext');
 		expect(options).toContain('javascript');
 		expect(options).toContain('python');
@@ -33,8 +33,8 @@ test.describe('create page', () => {
 
 	test('expiry selector has expected options', async ({ page }) => {
 		await page.goto('/');
-		const expirySelect = page.getByLabel('Expires in');
-		const options = await expirySelect.locator('option').allTextContents();
+		await page.getByRole('combobox', { name: 'Expires in' }).click();
+		const options = (await page.getByRole('option').allTextContents()).map((text) => text.trim());
 		expect(options).toContain('1 hour');
 		expect(options).toContain('24 hours');
 		expect(options).toContain('7 days');
