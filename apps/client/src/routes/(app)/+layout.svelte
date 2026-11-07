@@ -1,11 +1,33 @@
 <script lang="ts">
-	import { LandingFooter, LandingHeader, LocaleSwitch } from '@facile/muse';
+	import { LandingFooter, LandingHeader, LocaleSwitch, UserMenu } from '@facile/muse';
+	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { CAPSULE_ICON } from '$lib/icons';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import { backend, type SessionUser } from '$lib/backend';
 	import { rememberLocale, t } from '$lib/i18n/index.svelte';
+	import { setTheme, theme, type ThemeMode } from '$lib/theme.svelte';
 
 	let { children } = $props();
+
+	let user = $state<SessionUser | null>(null);
+
+	onMount(async () => {
+		user = await backend.sessionUser().catch(() => null);
+	});
+
+	async function signOut() {
+		await backend.logout().catch(() => undefined);
+		user = null;
+	}
+
+	const menu = $derived({
+		helpHref: 'https://github.com/FacileStudio/Capsule/tree/main/docs',
+		onSignOut: signOut,
+		onLocaleChange: rememberLocale,
+		theme: theme.mode,
+		onThemeChange: (next: string) => setTheme(next as ThemeMode)
+	});
 
 	const path = $derived(page.url.pathname);
 	const links = $derived([
@@ -22,8 +44,17 @@
 <div class="flex min-h-[100dvh] flex-col">
 	<LandingHeader appName="Capsule" icon={CAPSULE_ICON} {links} skipHref="#main">
 		{#snippet actions()}
-			<LocaleSwitch onChange={rememberLocale} />
-			<ThemeToggle />
+			{#if user}
+				<UserMenu
+					class="[&_[role=menu]]:right-4! [&_[role=menu]]:left-auto!"
+					trigger="avatar"
+					user={{ name: user.name?.trim() || user.email, email: user.email, avatar: user.avatar_url }}
+					{...menu}
+				/>
+			{:else}
+				<LocaleSwitch onChange={rememberLocale} />
+				<ThemeToggle />
+			{/if}
 		{/snippet}
 	</LandingHeader>
 

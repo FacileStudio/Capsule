@@ -6,6 +6,16 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `GET /api/auth/session` answers 200 with `{"user": null}` for an anonymous visitor and the name, email and Registre picture for a signed-in one, so the page can decide whether to show the user menu without a failed request.
+- Signed-in people get muse's `UserMenu` (Account, Language, Theme, Help, Sign out) in the header, in place of the language and theme controls. Capsule has no settings page, so the Settings row is hidden.
+
+### Changed
+
+- build(client): bump muse to v0.14.1.
+- Anonymous visitors see the same header and the same seal, reveal and revoke flows as before; the only difference is one extra `GET /api/auth/session` per page load.
+
 ## [0.3.1] - 2026-11-07
 
 ### Changed

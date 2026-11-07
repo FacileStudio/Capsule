@@ -20,6 +20,7 @@ import (
 // Kits is porte, assembled: one session manager over porte's tables and the
 // OIDC kit that issues through it.
 type Kits struct {
+	DB       *sql.DB
 	Sessions *session.Manager
 	OIDC     *oidc.Kit
 
@@ -50,5 +51,5 @@ func New(ctx context.Context, sqlDB *sql.DB, appEnv env.Config, logger *slog.Log
 		return nil, err
 	}
 	deletions := newDeletions(sqlDB, store, appEnv.OIDC, logger)
-	return &Kits{Sessions: sessions, OIDC: kit, Deletions: deletions}, nil
+	return &Kits{DB: sqlDB, Sessions: sessions, OIDC: kit, Deletions: deletions}, nil
 }
