@@ -22,7 +22,7 @@
 	}
 
 	const menu = $derived({
-		subscription: { plan: '', href: 'https://sso.facile.studio/spaces' },
+		subscription: { href: 'https://sso.facile.studio/spaces' },
 		helpHref: 'https://github.com/FacileStudio/Capsule/tree/main/docs',
 		onSignOut: signOut,
 		onLocaleChange: rememberLocale,
