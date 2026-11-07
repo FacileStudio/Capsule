@@ -6,6 +6,8 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-07
+
 ### Added
 
 - `GET /api/auth/session` answers 200 with `{"user": null}` for an anonymous visitor and the name, email and Registre picture for a signed-in one, so the page can decide whether to show the user menu without a failed request.
