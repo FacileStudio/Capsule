@@ -11,6 +11,16 @@ type meResponse struct {
 	Name  string `json:"name,omitempty"`
 }
 
+type sessionUser struct {
+	Email     string `json:"email"`
+	Name      string `json:"name,omitempty"`
+	AvatarURL string `json:"avatar_url,omitempty"`
+}
+
+type sessionResponse struct {
+	User *sessionUser `json:"user"`
+}
+
 func authModule() Module {
 	const session = "session cookie or bearer token required"
 	return Module{
@@ -68,6 +78,14 @@ func authModule() Module {
 				Auth:         session,
 				ResponseBody: meResponse{},
 				Errors:       []Error{{Status: 401, Code: "unauthenticated", Description: "No valid session."}},
+			},
+			{
+				Method:       "GET",
+				Path:         "/auth/session",
+				Summary:      "Get the signed-in user, or null",
+				Description:  "Answers 200 with {\"user\": null} when there is no session, so a browser can tell whether to show the user menu without a failed request.",
+				Auth:         "public",
+				ResponseBody: sessionResponse{},
 			},
 			{
 				Method:      "POST",

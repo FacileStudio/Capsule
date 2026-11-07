@@ -22,6 +22,8 @@ export type PasteContent = {
 	content: string;
 };
 
+export type SessionUser = { email: string; name?: string; avatar_url?: string };
+
 type ApiErrorPayload = {
 	error?: { message?: string };
 };
@@ -50,6 +52,15 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
 }
 
 export const backend = {
+	async sessionUser() {
+		const { user } = await apiFetch<{ user: SessionUser | null }>('/auth/session');
+		return user;
+	},
+
+	logout() {
+		return apiFetch<void>('/auth/logout', { method: 'POST', headers: { 'X-Facile-CSRF': '1' } });
+	},
+
 	createPaste(data: {
 		content: string;
 		burn_after_read: boolean;
