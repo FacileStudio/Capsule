@@ -13,7 +13,6 @@ import (
 	"github.com/FacileStudio/Capsule/apps/api/internal/env"
 	"github.com/FacileStudio/porte/directory"
 	"github.com/FacileStudio/porte/oidc"
-	portepg "github.com/FacileStudio/porte/pg"
 	"github.com/FacileStudio/porte/session"
 )
 
@@ -33,7 +32,11 @@ type Kits struct {
 // OIDC_ISSUER still serves /auth/config, answering oidc_enabled false.
 func New(ctx context.Context, sqlDB *sql.DB, appEnv env.Config, logger *slog.Logger) (*Kits, error) {
 	cfg := appEnv.Porte()
-	store := portepg.New(sqlDB)
+	store, err := newPorteStore(sqlDB)
+	if err != nil {
+		return nil, err
+	}
+	resealInBackground(ctx, store, logger)
 
 	sessions, err := session.New(cfg, session.Deps{Sessions: store.Sessions(), Logger: logger})
 	if err != nil {
