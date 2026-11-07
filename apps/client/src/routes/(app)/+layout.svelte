@@ -22,6 +22,7 @@
 	}
 
 	const menu = $derived({
+		subscription: { plan: '', href: 'https://sso.facile.studio/spaces' },
 		helpHref: 'https://github.com/FacileStudio/Capsule/tree/main/docs',
 		onSignOut: signOut,
 		onLocaleChange: rememberLocale,
@@ -46,7 +47,6 @@
 		{#snippet actions()}
 			{#if user}
 				<UserMenu
-					class="[&_[role=menu]]:right-4! [&_[role=menu]]:left-auto!"
 					trigger="avatar"
 					user={{ name: user.name?.trim() || user.email, email: user.email, avatar: user.avatar_url }}
 					{...menu}
