@@ -25,3 +25,26 @@ func TestHandleSession(t *testing.T) {
 		t.Fatalf("signed in: %d %q", signedIn.Code, signedIn.Body.String())
 	}
 }
+
+func TestCookieSessionMeReadsTheUserRow(t *testing.T) {
+	sqlDB := testSQL(t)
+	var userID int64
+	err := sqlDB.QueryRow(
+		`INSERT INTO porte_users (email, email_verified, name, avatar_url) VALUES ('row@example.test', true, 'Row Name', 'https://img.example.test/a.png') RETURNING id`,
+	).Scan(&userID)
+	if err != nil {
+		t.Fatalf("insert user: %v", err)
+	}
+	request := httptest.NewRequest(http.MethodGet, "/auth/me", nil)
+	request = request.WithContext(porte.WithIdentity(request.Context(), porte.Identity{UserID: userID}))
+	recorder := httptest.NewRecorder()
+	handleMe(sqlDB)(recorder, request)
+	var body sessionUser
+	if err := json.Unmarshal(recorder.Body.Bytes(), &body); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	want := sessionUser{Email: "row@example.test", Name: "Row Name", AvatarURL: "https://img.example.test/a.png"}
+	if body != want {
+		t.Fatalf("me: got %+v, want %+v", body, want)
+	}
+}
