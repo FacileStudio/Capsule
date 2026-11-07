@@ -9,7 +9,7 @@ import (
 var version = "dev"
 
 // versionHandler answers the release the binary was built from. The Dockerfile
-// stamps it from the APP_VERSION build arg.
+// stamps it from apps/client/package.json through scripts/version.sh.
 func versionHandler(w http.ResponseWriter, _ *http.Request) {
 	httpjson.WriteJSON(w, http.StatusOK, map[string]string{"version": version})
 }

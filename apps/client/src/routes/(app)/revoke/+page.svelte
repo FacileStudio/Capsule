@@ -62,7 +62,7 @@
 		</div>
 
 		<div class="flex flex-col gap-3 sm:flex-row">
-			<Button variant="outline" size="lg" onclick={reset} class="sm:w-fit">{t('revoke.another')}</Button>
+			<Button variant="secondary" size="lg" onclick={reset} class="sm:w-fit">{t('revoke.another')}</Button>
 			<Button href="/" size="lg" icon={CAPSULE_ICON} class="sm:w-fit">{t('revoke.seal')}</Button>
 		</div>
 	</div>
@@ -115,7 +115,7 @@
 					{t('revoke.submit')}
 				{/if}
 			</Button>
-			<Button href="/" variant="outline" size="lg" icon={CAPSULE_ICON} class="sm:w-fit">
+			<Button href="/" variant="secondary" size="lg" icon={CAPSULE_ICON} class="sm:w-fit">
 				{t('revoke.seal')}
 			</Button>
 		</div>

@@ -195,7 +195,7 @@
 					{t('create.seal')}
 				{/if}
 			</Button>
-			<Button href="/revoke" variant="outline" size="lg" icon={icons.revoke}>{t('shell.revoke')}</Button>
+			<Button href="/revoke" variant="secondary" size="lg" icon={icons.revoke}>{t('shell.revoke')}</Button>
 		</div>
 	</div>
 {:else if phase === 'sealed'}
@@ -246,7 +246,7 @@
 		{/if}
 
 		<Button
-			variant="outline"
+			variant="secondary"
 			size="lg"
 			icon={CAPSULE_ICON}
 			onclick={reset}
