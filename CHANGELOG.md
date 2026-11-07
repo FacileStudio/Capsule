@@ -6,6 +6,15 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- build(client): bump muse to v0.14.2. The user menu clamps itself inside the viewport, so the class override on `UserMenu` is gone.
+- The user menu gains a Subscription row that opens the plans on Facile (`https://sso.facile.studio/spaces`).
+
+### Fixed
+
+- `GET /auth/me` returned an empty email for cookie sessions. It now reads the name, email and picture from the porte user row, like `GET /auth/session`, and also returns `avatar_url`.
+
 ## [0.4.0] - 2026-11-07
 
 ### Added
