@@ -2,7 +2,9 @@
 	import { onMount } from 'svelte';
 	import { Alert, Badge, Button, Icon, Input, Spinner, icons } from '@facile/muse';
 	import { page } from '$app/state';
-	import { importKey, decrypt, unwrapContentKey, parsePasswordFragment } from '$lib/crypto';
+	import { importKey, decrypt, unwrapContentKey } from '$lib/crypto';
+	import { parsePayload, type CapsuleFile } from '$lib/envelope';
+	import RevealedFile from '$lib/components/RevealedFile.svelte';
 	import { backend, type PasteMeta } from '$lib/backend';
 	import { highlight } from '$lib/highlight';
 	import { locale, t } from '$lib/i18n/index.svelte';
@@ -14,6 +16,7 @@
 	let phase: State = $state('loading');
 	let meta: PasteMeta | null = $state(null);
 	let plaintext = $state('');
+	let revealedFile: CapsuleFile | null = $state(null);
 	let error = $state('');
 	let copied = $state(false);
 	let keyFragment = $state('');
@@ -58,10 +61,9 @@
 			let key: CryptoKey;
 
 			if (meta.has_password) {
-				const parsed = parsePasswordFragment(keyFragment);
-				if (!parsed) throw new Error(t('reveal.badFragment'));
+				if (keyFragment.split('.').length !== 3) throw new Error(t('reveal.badFragment'));
 				try {
-					key = await unwrapContentKey(parsed.encryptedKey, parsed.salt, parsed.iv, password);
+					key = await unwrapContentKey(keyFragment, password);
 				} catch {
 					passwordError = t('reveal.wrongPassword');
 					phase = 'password';
@@ -72,10 +74,13 @@
 			}
 
 			const { content } = await backend.getPasteContent(meta.id);
-			plaintext = await decrypt(content, key);
+			const decrypted = await decrypt(content, key);
+			const payload = parsePayload(decrypted);
+			plaintext = payload.text;
+			revealedFile = payload.file;
 			phase = 'revealed';
 
-			if (meta?.syntax && meta.syntax !== 'plaintext') {
+			if (plaintext && meta?.syntax && meta.syntax !== 'plaintext') {
 				highlight(plaintext, meta.syntax).then((html) => {
 					if (html) highlightedHtml = html;
 				});
@@ -214,20 +219,26 @@
 			{/if}
 		</div>
 
-		<div class="relative">
-			{#if highlightedHtml}
-				<div class="w-full overflow-x-auto rounded-fc-md bg-fc-component p-4 pr-16 font-fc-mono text-fc-sm sm:pr-24 [&_pre]:!bg-transparent [&_pre]:!m-0 [&_pre]:!p-0 [&_code]:!bg-transparent">
-					{@html highlightedHtml}
+		{#if revealedFile}
+			<RevealedFile file={revealedFile} />
+		{/if}
+
+		{#if plaintext || !revealedFile}
+			<div class="relative">
+				{#if highlightedHtml}
+					<div class="w-full overflow-x-auto rounded-fc-md bg-fc-component p-4 pr-16 font-fc-mono text-fc-sm sm:pr-24 [&_pre]:!bg-transparent [&_pre]:!m-0 [&_pre]:!p-0 [&_code]:!bg-transparent">
+						{@html highlightedHtml}
+					</div>
+				{:else}
+					<pre class="w-full overflow-x-auto rounded-fc-md bg-fc-component p-4 pr-16 font-fc-mono text-fc-sm text-fc-fg whitespace-pre-wrap break-words sm:pr-24">{plaintext}</pre>
+				{/if}
+				<div class="absolute right-2 top-2 sm:right-3 sm:top-3">
+					<Button variant="secondary" size="sm" icon={copied ? icons.check : icons.copy} onclick={copyContent}>
+						{copied ? t('reveal.copied') : t('reveal.copy')}
+					</Button>
 				</div>
-			{:else}
-				<pre class="w-full overflow-x-auto rounded-fc-md bg-fc-component p-4 pr-16 font-fc-mono text-fc-sm text-fc-fg whitespace-pre-wrap break-words sm:pr-24">{plaintext}</pre>
-			{/if}
-			<div class="absolute right-2 top-2 sm:right-3 sm:top-3">
-				<Button variant="secondary" size="sm" icon={copied ? icons.check : icons.copy} onclick={copyContent}>
-					{copied ? t('reveal.copied') : t('reveal.copy')}
-				</Button>
 			</div>
-		</div>
+		{/if}
 
 		<Button href="/" variant="secondary" size="lg" icon={CAPSULE_ICON} class="w-fit">
 			{t('reveal.sealNew')}

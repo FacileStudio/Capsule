@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Alert, Button, Card, Checkbox, Field, Icon, Input, SecretField, Select, Spinner, Textarea, icons } from '@facile/muse';
-	import { generateKey, exportKey, encrypt, wrapContentKey, buildPasswordFragment } from '$lib/crypto';
+	import { generateKey, exportKey, encrypt, wrapContentKey } from '$lib/crypto';
+	import { encodeFile, serializePayload } from '$lib/envelope';
+	import FileAttachment from '$lib/components/FileAttachment.svelte';
 	import { backend } from '$lib/backend';
 	import { page } from '$app/state';
 	import { t } from '$lib/i18n/index.svelte';
@@ -10,13 +12,13 @@
 
 	let phase: State = $state('idle');
 	let content = $state('');
+	let attachedFile: File | null = $state(null);
 	let burnAfterRead = $state(true);
 	let expiresIn = $state('24h');
 	let syntax = $state('plaintext');
 	let usePassword = $state(false);
 	let password = $state('');
 	let error = $state('');
-
 	let capsuleUrl = $state('');
 	let capsuleId = $state('');
 	let deleteToken = $state('');
@@ -39,25 +41,19 @@
 	];
 
 	async function seal() {
-		if (!content.trim()) return;
+		if (!content.trim() && !attachedFile) return;
 		if (usePassword && !password) return;
 		error = '';
 		phase = 'sealing';
-
 		try {
+			const encoded = attachedFile ? await encodeFile(attachedFile) : null;
+			const payload = serializePayload(content, encoded);
 			const key = await generateKey();
-			const ciphertext = await encrypt(content, key);
-
-			let fragment: string;
+			const ciphertext = await encrypt(payload, key);
 			const hasPassword = usePassword && password.length > 0;
-
-			if (hasPassword) {
-				const wrapped = await wrapContentKey(key, password);
-				fragment = buildPasswordFragment(wrapped.encryptedKey, wrapped.salt, wrapped.iv);
-			} else {
-				fragment = await exportKey(key);
-			}
-
+			const fragment = hasPassword
+				? (await wrapContentKey(key, password)).fragment
+				: await exportKey(key);
 			const result = await backend.createPaste({
 				content: ciphertext,
 				burn_after_read: burnAfterRead,
@@ -65,9 +61,7 @@
 				has_password: hasPassword,
 				syntax: syntax !== 'plaintext' ? syntax : undefined,
 			});
-
-			const origin = page.url.origin;
-			capsuleUrl = `${origin}/${result.id}#${fragment}`;
+			capsuleUrl = `${page.url.origin}/${result.id}#${fragment}`;
 			capsuleId = result.id;
 			deleteToken = result.delete_token;
 			phase = 'sealed';
@@ -99,6 +93,7 @@
 	function reset() {
 		phase = 'idle';
 		content = '';
+		attachedFile = null;
 		usePassword = false;
 		password = '';
 		capsuleUrl = '';
@@ -120,9 +115,7 @@
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
 			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('create.heading')}</h1>
-			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
-				{t('create.intro')}
-			</p>
+			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">{t('create.intro')}</p>
 		</div>
 
 		<Textarea
@@ -133,6 +126,8 @@
 			class="font-fc-mono text-fc-sm"
 		/>
 
+		<FileAttachment bind:file={attachedFile} disabled={phase === 'sealing'} onError={(msg) => (error = msg)} />
+
 		<div class="grid gap-4 sm:grid-cols-2">
 			<Field label={t('create.expires')}>
 				<Select bind:value={expiresIn} disabled={phase === 'sealing'}>
@@ -141,7 +136,6 @@
 					{/each}
 				</Select>
 			</Field>
-
 			<Field label={t('create.syntax')}>
 				<Select bind:value={syntax} disabled={phase === 'sealing'}>
 					{#each syntaxOptions as s}
@@ -153,27 +147,12 @@
 
 		<div class="flex flex-col gap-3">
 			<!-- The 16px box is by design; the <label> Checkbox renders carries the hit target. -->
-			<Checkbox
-				label={t('create.burn')}
-				bind:checked={burnAfterRead}
-				disabled={phase === 'sealing'}
-				class="min-h-11"
-			/>
-			<Checkbox
-				label={t('create.password')}
-				bind:checked={usePassword}
-				disabled={phase === 'sealing'}
-				class="min-h-11"
-			/>
+			<Checkbox label={t('create.burn')} bind:checked={burnAfterRead} disabled={phase === 'sealing'} class="min-h-11" />
+			<Checkbox label={t('create.password')} bind:checked={usePassword} disabled={phase === 'sealing'} class="min-h-11" />
 		</div>
 
 		{#if usePassword}
-			<Input
-				type="password"
-				bind:value={password}
-				placeholder={t('create.passwordPlaceholder')}
-				disabled={phase === 'sealing'}
-			/>
+			<Input type="password" bind:value={password} placeholder={t('create.passwordPlaceholder')} disabled={phase === 'sealing'} />
 		{/if}
 
 		{#if error}
@@ -185,7 +164,7 @@
 				size="lg"
 				icon={phase === 'sealing' ? undefined : CAPSULE_ICON}
 				onclick={seal}
-				disabled={!content.trim() || (usePassword && !password) || phase === 'sealing'}
+				disabled={(!content.trim() && !attachedFile) || (usePassword && !password) || phase === 'sealing'}
 				class="flex-1"
 			>
 				{#if phase === 'sealing'}
@@ -203,9 +182,7 @@
 		<div class="flex flex-col gap-1">
 			<Icon icon={icons.check} size={28} class="mb-3 text-fc-success" />
 			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('sealed.heading')}</h1>
-			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
-				{sealedHelp}
-			</p>
+			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">{sealedHelp}</p>
 		</div>
 
 		<div class="flex flex-col gap-2 sm:flex-row">
@@ -224,18 +201,8 @@
 			{:else}
 				<!-- The token is shown once and is the only way to burn this capsule early, so it
 				     gets a copy button. It used to be `truncate`d text: unreadable and unselectable. -->
-				<SecretField
-					bind:value={deleteToken}
-					label={t('sealed.token')}
-					helper={t('sealed.tokenHelp')}
-				/>
-				<Button
-					variant="danger"
-					icon={icons.remove}
-					onclick={revoke}
-					disabled={revoking}
-					class="w-fit"
-				>
+				<SecretField bind:value={deleteToken} label={t('sealed.token')} helper={t('sealed.tokenHelp')} />
+				<Button variant="danger" icon={icons.remove} onclick={revoke} disabled={revoking} class="w-fit">
 					{revoking ? t('sealed.revoking') : t('sealed.revoke')}
 				</Button>
 			{/if}
@@ -245,13 +212,7 @@
 			<Alert tone="danger">{error}</Alert>
 		{/if}
 
-		<Button
-			variant="secondary"
-			size="lg"
-			icon={CAPSULE_ICON}
-			onclick={reset}
-			class="w-fit"
-		>
+		<Button variant="secondary" size="lg" icon={CAPSULE_ICON} onclick={reset} class="w-fit">
 			{t('sealed.another')}
 		</Button>
 	</div>

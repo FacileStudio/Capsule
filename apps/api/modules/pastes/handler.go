@@ -18,9 +18,11 @@ func newHandler(service *Service) *Handler {
 	return &Handler{service: service}
 }
 
+const maxCreateBodyBytes int64 = 32 << 20
+
 func (h *Handler) create(w http.ResponseWriter, r *http.Request) {
 	var req CreateRequest
-	if err := httpjson.DecodeJSON(w, r, &req); err != nil {
+	if err := httpjson.DecodeJSONLimit(w, r, &req, maxCreateBodyBytes); err != nil {
 		httpjson.WriteError(w, err)
 		return
 	}

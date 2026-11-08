@@ -27,6 +27,25 @@ export const create = {
 		'Pega tu secreto aquí...',
 		'Fügen Sie Ihr Geheimnis hier ein ...'
 	],
+	'create.fileDrop': [
+		'Drop a file to encrypt (optional)',
+		'Glissez un fichier à chiffrer (optionnel)',
+		'Arrastra un archivo para cifrar (opcional)',
+		'Datei zum Verschlüsseln ablegen (optional)'
+	],
+	'create.fileHint': [
+		'Max 10 MB — encrypted in your browser',
+		'Max 10 Mo — chiffré dans votre navigateur',
+		'Máx. 10 MB — cifrado en tu navegador',
+		'Max. 10 MB — im Browser verschlüsselt'
+	],
+	'create.fileTooLarge': [
+		'File exceeds the 10 MB limit.',
+		'Le fichier dépasse la limite de 10 Mo.',
+		'El archivo supera el límite de 10 MB.',
+		'Die Datei überschreitet das Limit von 10 MB.'
+	],
+	'create.fileRemove': ['Remove file', 'Retirer le fichier', 'Quitar archivo', 'Datei entfernen'],
 	'create.expires': ['Expires in', 'Expire dans', 'Caduca en', 'Läuft ab in'],
 	'create.syntax': ['Syntax', 'Syntaxe', 'Sintaxis', 'Syntax'],
 	'create.burn': [

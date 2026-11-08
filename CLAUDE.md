@@ -79,7 +79,7 @@ docker compose down      # Stop and remove containers
 | `APP_ENV` | `development` | `development`, `staging`, `production`. Never gates security behaviour |
 | `PORT` | `8080` | API server port. Compose and Dokploy set `4000` |
 | `LOG_LEVEL` | `info` | `debug`, `info`, `warn`, `error` |
-| `MAX_PASTE_SIZE` | `1048576` | Max paste size in bytes (default 1MB) |
+| `MAX_PASTE_SIZE` | `16777216` | Max paste size in bytes (default 16MB) |
 | `CORS_ALLOWED_ORIGINS` | *(none — deny)* | Comma-separated CORS origins. Falls back to `ALLOWED_ORIGINS`. Unset denies every cross-origin caller, which is correct here: the client proxies server-side |
 | `API_URL` | `http://localhost:4000` | Backend URL (used by client proxy) |
 | `ORIGIN` | `http://localhost:3000` | Client origin (used by SvelteKit) |

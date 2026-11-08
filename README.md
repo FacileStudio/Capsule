@@ -71,7 +71,7 @@ into.
 |---|---|
 | `DATABASE_URL` | Postgres connection string. Required; no default |
 | `PORT` | HTTP listen port, `8080` by default, `4000` in Compose |
-| `MAX_PASTE_SIZE` | Ciphertext size cap in bytes, `1048576` by default |
+| `MAX_PASTE_SIZE` | Ciphertext size cap in bytes, `16777216` by default |
 | `LOG_LEVEL` | `debug`, `info`, `warn` or `error` |
 | `CLIENT_DIR` | Directory holding the built SPA the binary serves |
 | `CORS_ALLOWED_ORIGINS` | Comma-separated allow-list. Unset denies every cross-origin caller, which is correct here: the SPA is same-origin |

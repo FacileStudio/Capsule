@@ -119,5 +119,6 @@ export const reveal = {
 		'Inhalt auf dem Server gelöscht. Sie sehen ihn nur dieses eine Mal.'
 	],
 	'reveal.copy': ['Copy', 'Copier', 'Copiar', 'Kopieren'],
-	'reveal.copied': ['Copied', 'Copié', 'Copiado', 'Kopiert']
+	'reveal.copied': ['Copied', 'Copié', 'Copiado', 'Kopiert'],
+	'reveal.download': ['Download', 'Télécharger', 'Descargar', 'Herunterladen']
 } satisfies Record<string, Row>;

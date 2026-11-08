@@ -37,12 +37,12 @@ accordingly.
 
 | Variable | Required | Default | What it does |
 |---|---|---|---|
-| `MAX_PASTE_SIZE` | no | `1048576` | Maximum accepted `content` length in bytes. Must be a positive integer or startup fails |
+| `MAX_PASTE_SIZE` | no | `16777216` | Maximum accepted `content` length in bytes. Must be a positive integer or startup fails |
 | `CLIENT_DIR` | no | `./client` | Directory holding the built SPA. Read by `tronc/spa`. The Dockerfile pins `/client` explicitly, because the `:nonroot` distroless base sets `WorkingDir=/home/nonroot` and a relative path would resolve there — the API would answer `/api/*` while every page 404s |
 
 `MAX_PASTE_SIZE` caps the **ciphertext**, not the plaintext. Base64 of `IV || ciphertext ||
-tag` is roughly 4/3 of the plaintext plus 28 bytes, so the default 1 MiB accepts around
-760 KB of text.
+tag` is roughly 4/3 of the plaintext plus 28 bytes, so the default 16 MiB accepts encrypted
+files up to 10 MB alongside text.
 
 ## Compose
 

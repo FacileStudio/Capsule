@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format is
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
 follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-11-08
+
+### Added
+
+- File encryption and sharing: attach a file up to 10 MB via the drag-and-drop zone (alone or alongside text), encrypted in the browser inside a backward-compatible `{"__capsule":1}` envelope.
+- Reveal page renders image, audio and video previews with a download button showing the file name and size.
+
+### Changed
+
+- `MAX_PASTE_SIZE` defaults to 16 MiB (`16777216` bytes) and `POST /api/pastes` accepts bodies up to 32 MiB so encrypted files fit without hitting a 1 MiB body limit.
+
 ## [0.4.4] - 2026-11-07
 
 ### Changed

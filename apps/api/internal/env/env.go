@@ -30,8 +30,10 @@ type Config struct {
 	OIDC         *OIDCConfig
 }
 
+const DefaultMaxPasteSize = 16 << 20
+
 // Load reads the environment and validates it, defaulting MAX_PASTE_SIZE to
-// 1 MiB when unset.
+// 16 MiB when unset.
 func Load() (Config, error) {
 	core, err := troncenv.LoadCore()
 	if err != nil {
@@ -41,7 +43,7 @@ func Load() (Config, error) {
 		return Config{}, fmt.Errorf("PORT must be a valid TCP port")
 	}
 
-	maxPasteSize, err := troncenv.Int("MAX_PASTE_SIZE", 1048576)
+	maxPasteSize, err := troncenv.Int("MAX_PASTE_SIZE", DefaultMaxPasteSize)
 	if err != nil {
 		return Config{}, err
 	}

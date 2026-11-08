@@ -31,7 +31,7 @@ does not encrypt anything and will happily store whatever you send, including pl
 
 | Field | Type | Notes |
 |---|---|---|
-| `content` | string | Required, trimmed, non-empty. Rejected over `MAX_PASTE_SIZE` (default 1048576 bytes) with `resource_exhausted` |
+| `content` | string | Required, trimmed, non-empty. Rejected over `MAX_PASTE_SIZE` (default 16777216 bytes) with `resource_exhausted` |
 | `burn_after_read` | bool | Defaults to `true` when omitted |
 | `expires_in` | string | One of `1h`, `24h`, `7d`, `30d`. Anything else is a 400. Omitted means no expiry |
 | `max_views` | int | Optional alternative to burn-after-read |
