@@ -28,6 +28,10 @@ type Kits struct {
 	// Deletions erases the people Registre erased. It is nil without single
 	// sign-on. Run it in exactly one replica.
 	Deletions *directory.Deletions
+
+	// Invitations configures the user menu's invitation count. It is nil
+	// without single sign-on.
+	Invitations *kit.InvitationsConfig
 }
 
 // New builds the session manager and runs OIDC discovery. A deployment with no
@@ -57,5 +61,11 @@ func New(ctx context.Context, sqlDB *sql.DB, appEnv env.Config, logger *slog.Log
 	}
 	users := newUsers(sqlDB)
 	deletions := newDeletions(sqlDB, store, users, appEnv.OIDC, logger)
-	return &Kits{Sessions: sessions, OIDC: oidcKit, Users: users, Deletions: deletions}, nil
+	return &Kits{
+		Sessions:    sessions,
+		OIDC:        oidcKit,
+		Users:       users,
+		Deletions:   deletions,
+		Invitations: newInvitations(deletions, store, logger),
+	}, nil
 }

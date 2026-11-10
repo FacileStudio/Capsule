@@ -2,9 +2,14 @@
 
 Every HTTP route the Go binary registers, generated from `apps/api/modules/`.
 
-There is **no authentication of any kind** — no users, no sessions, no tokens beyond the
-per-capsule delete token. Possession of a capsule ID is what authorizes reading it, and
-possession of its delete token is what authorizes revoking it. Responses are JSON via
+The paste routes need **no authentication**. Possession of a capsule ID is what authorizes
+reading it, and possession of its delete token is what authorizes revoking it. Sign-in exists
+for the CLI and the user menu only: porte's routes under `/api/auth/*` (Registre single sign-on,
+through `porte/kit`), `GET /api/auth/me` (401 without a session), `GET /api/auth/session` (200
+with `{"user": null}` without one) and, when single sign-on is configured,
+`GET /api/me/invitations`, which answers `{"count", "href"}` for the menu's pending Registre
+invitations and `{"count": 0}` when Registre cannot be read. The full list is at `/docs`.
+Responses are JSON via
 `httpjson.WriteJSON`, and errors share the tronc envelope:
 
 ```json

@@ -4,26 +4,30 @@
 	import { page } from '$app/state';
 	import { CAPSULE_ICON } from '$lib/icons';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-	import { backend, type SessionUser } from '$lib/backend';
+	import { backend, type Invitations, type SessionUser } from '$lib/backend';
 	import { rememberLocale, t } from '$lib/i18n/index.svelte';
 	import { setTheme, theme, type ThemeMode } from '$lib/theme.svelte';
 
 	let { children } = $props();
 
 	let user = $state<SessionUser | null>(null);
+	let invitations = $state<Invitations | null>(null);
 
 	onMount(async () => {
 		user = await backend.sessionUser().catch(() => null);
+		if (user) invitations = await backend.invitations().catch(() => null);
 	});
 
 	async function signOut() {
 		await backend.logout().catch(() => undefined);
 		user = null;
+		invitations = null;
 	}
 
 	const menu = $derived({
 		subscription: { href: 'https://sso.facile.studio/spaces' },
 		helpHref: 'https://github.com/FacileStudio/Capsule/tree/main/docs',
+		invitations,
 		onSignOut: signOut,
 		onLocaleChange: rememberLocale,
 		theme: theme.mode,

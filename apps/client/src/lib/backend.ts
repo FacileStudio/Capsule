@@ -24,6 +24,8 @@ export type PasteContent = {
 
 export type SessionUser = { email: string; name?: string; avatar_url?: string };
 
+export type Invitations = { count: number; href: string };
+
 type ApiErrorPayload = {
 	error?: { message?: string };
 };
@@ -55,6 +57,11 @@ export const backend = {
 	async sessionUser() {
 		const { user } = await apiFetch<{ user: SessionUser | null }>('/auth/session');
 		return user;
+	},
+
+	async invitations(): Promise<Invitations | null> {
+		const answer = await apiFetch<{ count: number; href?: string }>('/me/invitations');
+		return answer.href ? { count: answer.count, href: answer.href } : null;
 	},
 
 	logout() {

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/FacileStudio/porte"
+	"github.com/FacileStudio/porte/kit"
 )
 
 type meResponse struct {
@@ -101,6 +102,14 @@ func authModule() Module {
 				Description: "Called by the identity provider to end the sessions of a user signed out elsewhere.",
 				Auth:        "signed logout token from the identity provider",
 			},
+			invitationsRoute(),
 		},
 	}
+}
+
+func invitationsRoute() Route {
+	route := kit.InvitationsRoute()
+	route.Description += " Mounted only when single sign-on is configured."
+	route.ResponseBody = kit.InvitationsResponse{}
+	return route
 }

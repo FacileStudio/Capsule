@@ -20,15 +20,20 @@ type sessionResponse struct {
 }
 
 // RegisterRoutes mounts porte's routes through the kit, GET /auth/me, which
-// the CLI reads to check a stored token, and GET /auth/session, which the
-// browser reads to know whether to show the user menu.
+// the CLI reads to check a stored token, GET /auth/session, which the browser
+// reads to know whether to show the user menu, and, with single sign-on,
+// GET /me/invitations for the menu's invitation count.
 func RegisterRoutes(router chi.Router, kits *Kits) error {
 	if err := kit.Mount(router, kit.Config{Sessions: kits.Sessions, OIDC: kits.OIDC}); err != nil {
 		return err
 	}
-	router.With(kit.RequireAuth(kits.Sessions, kits.Users)).Get("/auth/me", handleMe)
+	requireAuth := kit.RequireAuth(kits.Sessions, kits.Users)
+	router.With(requireAuth).Get("/auth/me", handleMe)
 	router.With(kits.Sessions.Optional).Get("/auth/session", handleSession(kits.Users))
-	return nil
+	if kits.Invitations == nil {
+		return nil
+	}
+	return kit.MountInvitations(router.With(requireAuth), *kits.Invitations)
 }
 
 func userFrom(identity kit.Identity) *sessionUser {

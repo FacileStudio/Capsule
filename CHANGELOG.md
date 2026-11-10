@@ -6,6 +6,10 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- feat: the user menu shows pending Registre space invitations. `GET /api/me/invitations` (`kit.MountInvitations`, mounted only with single sign-on, behind the session) answers `{"count", "href"}`, and the client passes it to muse's `UserMenu`.
+
 ### Changed
 
 - Licence: Capsule is now licensed under `AGPL-3.0-only` (see `LICENSE`); before this, the repository carried no licence.
