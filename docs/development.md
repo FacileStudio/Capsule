@@ -17,7 +17,7 @@ pushes.
 
 ```sh
 mise run install       # bun install --frozen-lockfile in apps/client
-mise run hooks         # git config core.hooksPath .githooks
+mise run hooks         # lefthook install --reset-hooks-path
 ```
 
 Bring up a database:
@@ -108,10 +108,13 @@ client.
 
 ## The pre-push hook
 
-`.githooks/pre-push` runs `scripts/check.sh --go-only`, not the full gate. Capsule's client
-carries pre-existing `svelte-check` errors, so gating on the full check would block every
-push until those are cleared. Run `sh scripts/check.sh` yourself for the whole picture. When
-the client reaches zero errors, drop the `--go-only`.
+`lefthook.yml` runs two jobs before every push: `sh scripts/check.sh`, the full gate (Go
+modules, then the client, then `filet check`), and `filet gate .`, which adds the douane scan
+(`-fail critical -scope prod`). Both need filet v0.19.0 or later on `PATH`; `filet gate`
+also needs `douane`. `filet gate` detects suites at the root only, and Capsule's Go module and
+client sit under `apps/`, so at the root it runs `check` and `douane`; `scripts/check.sh`
+covers the rest. `mise run hooks` installs the hooks and moves a clone off the old
+`core.hooksPath .githooks`.
 
 Bypass once with `git push --no-verify`.
 

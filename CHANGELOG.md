@@ -12,6 +12,7 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- build: the pre-push hook is a tracked `lefthook.yml` (lefthook 2.1.12, pinned in `mise.toml`) running `scripts/check.sh` and `filet gate .`; `.githooks/` is gone and `mise run hooks` moves a clone off it.
 - ci: filet v0.19.0 (action and binary) with `filet.yml` reduced to `preset: facile` plus the `modules/docs` exception; the findings are identical to the old config. A new douane 0.7.0 job, checksum-verified, fails on a critical production finding.
 - refactor(client): the fetch kernel and theme store come from `@facile/client` v0.1.0. Every non-GET call now carries `X-Facile-CSRF`, which logout had set by hand. The stored `capsule-theme` choice is kept.
 - Licence: Capsule is now licensed under `AGPL-3.0-only` (see `LICENSE`); before this, the repository carried no licence.
