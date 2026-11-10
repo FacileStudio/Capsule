@@ -108,3 +108,7 @@ and freelancers. One login, zero cloud dependency.
 ## Credits
 
 Icons are Solar by 480 Design ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), bundled through muse and, for the Capsule mark, in `apps/client/src/lib/icons.ts`.
+
+## License
+
+Capsule is licensed under the [GNU Affero General Public License v3.0](LICENSE) (`AGPL-3.0-only`). A commercial licence is available from Facile Studio for use that cannot meet the AGPL's terms.
