@@ -6,21 +6,23 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-10
+
 ### Added
 
 - feat: the user menu shows pending Registre space invitations. `GET /api/me/invitations` (`kit.MountInvitations`, mounted only with single sign-on, behind the session) answers `{"count", "href"}`, and the client passes it to muse's `UserMenu`.
 
 ### Changed
 
-- build: the pre-push hook is a tracked `lefthook.yml` (lefthook 2.1.12, pinned in `mise.toml`) running `scripts/check.sh` and `filet gate .`; `.githooks/` is gone and `mise run hooks` moves a clone off it.
-- ci: filet v0.19.0 (action and binary) with `filet.yml` reduced to `preset: facile` plus the `modules/docs` exception; the findings are identical to the old config. A new douane 0.7.0 job, checksum-verified, fails on a critical production finding.
-- refactor(client): the fetch kernel and theme store come from `@facile/client` v0.1.0. Every non-GET call now carries `X-Facile-CSRF`, which logout had set by hand. The stored `capsule-theme` choice is kept.
 - Licence: Capsule is now licensed under `AGPL-3.0-only` (see `LICENSE`); before this, the repository carried no licence.
-- build: Go 1.26.10 (`go` directive), go-jose v4.1.6, chi v5.4.0 and x/text v0.41.0, which clear every production finding douane reports, critical Go standard library ones included.
 - build: tronc v0.17.1 to v0.21.0, porte v0.13.0 to v0.18.0 (`directory` v0.3.0 to v0.4.0), muse v0.16.1 to v0.18.0. Every entry in between is additive.
+- build: Go 1.26.10 (`go` directive), go-jose v4.1.6, chi v5.4.0 and x/text v0.41.0, which clear every production finding douane reports, critical Go standard library ones included.
 - refactor(api): the auth glue is `porte/kit`. `kit.Mount` mounts porte's routes, `kit.RequireAuth` guards `GET /api/auth/me`, and a `kit.Store` over `porte_users` reads the profile and erases accounts. Routes, status codes and bodies are unchanged. Sign-in keeps porte/pg's user store, since Capsule has no `users` table of its own.
 - test(api): a Registre erasure is proven through the directory syncer's own poll: the person's account, identity, sessions, login codes and magic links go, another person's rows and the anonymous pastes stay, and a second poll is a no-op.
 - refactor(api): paste creation is limited by tronc's `middleware.Ratelimit` instead of a hand-written limiter: a bucket of 30 per visitor refilling at 30 per minute, bounded to 50,000 visitors. A client sees the same JSON body, now as `application/json`, and `Retry-After` in seconds instead of a date. The key is the visitor's host, so a new connection no longer gets a fresh budget.
+- refactor(client): the fetch kernel and theme store come from `@facile/client` v0.1.0. Every non-GET call now carries `X-Facile-CSRF`, which logout had set by hand. The stored `capsule-theme` choice is kept.
+- ci: filet v0.19.0 (action and binary) with `filet.yml` reduced to `preset: facile` plus the `modules/docs` exception; the findings are identical to the old config. A new douane 0.7.0 job, checksum-verified, fails on a critical production finding.
+- build: the pre-push hook is a tracked `lefthook.yml` (lefthook 2.1.12, pinned in `mise.toml`) running `scripts/check.sh` and `filet gate .`; `.githooks/` is gone and `mise run hooks` moves a clone off it.
 
 ## [0.5.0] - 2026-11-08
 
