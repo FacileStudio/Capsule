@@ -26,7 +26,7 @@ Live at [capsule.facile.studio](https://capsule.facile.studio).
 
 | Layer | Tech |
 |---|---|
-| API | Go 1.26, Chi v5, GORM, PostgreSQL 16, [tronc](https://github.com/FacileStudio/tronc) v0.17.1 + [tronc/migrate](https://github.com/FacileStudio/tronc/tree/main/migrate) v0.1.0 |
+| API | Go 1.26, Chi v5, GORM, PostgreSQL 16, [tronc](https://github.com/FacileStudio/tronc) v0.21.0 + [tronc/migrate](https://github.com/FacileStudio/tronc/tree/main/migrate) v0.1.0 |
 | Client | SvelteKit 2 (Svelte 5 runes), Tailwind CSS 4, Shiki, `adapter-static` |
 | Crypto | Web Crypto API — AES-256-GCM, PBKDF2-SHA256 for password mode. Browser only |
 | Deploy | Docker Compose, single distroless container behind Traefik |
