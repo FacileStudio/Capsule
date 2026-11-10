@@ -7,10 +7,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
-	"github.com/FacileStudio/Capsule/apps/api/internal/middleware"
-
+	troncmiddleware "github.com/FacileStudio/tronc/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -25,7 +23,7 @@ func setupRouter(t *testing.T) (chi.Router, *Service) {
 	t.Helper()
 	db := setupTestDB(t)
 	svc := NewService(db, 1024)
-	limiter := middleware.NewRateLimiter(5, time.Minute)
+	limiter := troncmiddleware.Ratelimit(troncmiddleware.RatelimitConfig{Limit: 5.0 / 60, Burst: 5})
 
 	r := chi.NewRouter()
 	RegisterRoutes(r, svc, limiter)

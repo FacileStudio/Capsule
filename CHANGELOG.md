@@ -12,6 +12,7 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - build: tronc v0.17.1 to v0.21.0, porte v0.13.0 to v0.18.0 (`directory` v0.3.0 to v0.4.0), muse v0.16.1 to v0.18.0. Every entry in between is additive.
 - refactor(api): the auth glue is `porte/kit`. `kit.Mount` mounts porte's routes, `kit.RequireAuth` guards `GET /api/auth/me`, and a `kit.Store` over `porte_users` reads the profile and erases accounts. Routes, status codes and bodies are unchanged. Sign-in keeps porte/pg's user store, since Capsule has no `users` table of its own.
 - test(api): a Registre erasure is proven through the directory syncer's own poll: the person's account, identity, sessions, login codes and magic links go, another person's rows and the anonymous pastes stay, and a second poll is a no-op.
+- refactor(api): paste creation is limited by tronc's `middleware.Ratelimit` instead of a hand-written limiter: a bucket of 30 per visitor refilling at 30 per minute, bounded to 50,000 visitors. A client sees the same JSON body, now as `application/json`, and `Retry-After` in seconds instead of a date. The key is the visitor's host, so a new connection no longer gets a fresh budget.
 
 ## [0.5.0] - 2026-11-08
 

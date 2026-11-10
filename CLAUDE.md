@@ -21,7 +21,6 @@ apps/
       cleanup/           # Background expired-paste cleanup (has tests)
       database/          # GORM database connection
       env/               # Capsule-only config, wrapping tronc/env
-      middleware/        # Rate limiting (the rest comes from tronc)
     modules/
       docs/              # OpenAPI spec + Scalar UI at /docs
       pastes/            # Core paste CRUD: handler, service, router, types (has tests)
@@ -98,7 +97,7 @@ docker compose down      # Stop and remove containers
 - Auth glue is `porte/kit` (`modules/auth/store.go`): `kit.Mount` mounts porte's routes, `kit.RequireAuth` guards `/auth/me`, and a `kit.Store` over `porte_users` resolves a session to its profile and erases accounts. Sign-in itself still writes through porte/pg's user store, which owns `facile_id` and `email_verified`; never pass the kit store as `oidc.Deps.Users`. Capsule has no `users` table of its own.
 - GDPR: `modules/auth/deletions.go` polls Registre's deletions with the app's OIDC client credentials; `kit.Store.EraseAccount` deletes the person's `porte_users` row (identities, sessions, login codes and magic links cascade), then porte's `EraseIdentity` runs. Pastes carry no owner column and an attachment lives inside its paste's ciphertext, so nothing links a paste to an account and there is no paste to erase by person. The cursor lives in `deletion_state`. Run it in one replica only.
 - UI strings live in `apps/client/src/lib/i18n/messages/` as `[en, fr, es, de]` rows. es and de are machine translated and need native review. The locale comes from the `fc_locale` cookie, then the browser.
-- Rate limiting on paste creation: 30 requests per minute.
+- Rate limiting on paste creation is tronc's `middleware.Ratelimit` (`newCreateLimiter` in `main.go`): 30 per visitor, refilling at 30 per minute, keyed on the host of `RemoteAddr` after tronc's real-IP rewrite. Never key on a forwarded header or `ClientIP`.
 - Background cleanup goroutine runs on startup to purge expired pastes.
 - The client proxies API requests through SvelteKit's server routes (`/api/[...path]`) to avoid CORS in dev. The API is `expose`d, never published, so it is never called cross-origin.
 - The error envelope, JSON helpers, logger, request logging, CORS, panic recovery, `/health` and `/ready` all come from `tronc`. Do not reintroduce local copies — fix them upstream.

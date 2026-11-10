@@ -117,10 +117,12 @@ the header survives a preflight if you ever do open the allow-list.
 
 ## Rate limiting
 
-Only creation is limited: 30 requests per minute, keyed on `r.RemoteAddr`, answered with
-`429` and a `Retry-After` header. Behind Traefik, `RemoteAddr` is the proxy's address rather
-than the caller's, so in the deployed topology this behaves as one global limit shared by
-everyone rather than a per-client one.
+Only creation is limited, by tronc's `middleware.Ratelimit`: a token bucket of 30 per visitor
+that refills at 30 per minute, remembering at most 50,000 visitors. The key is the host of
+`RemoteAddr` as tronc's real-IP middleware rewrote it from the trusted proxies
+(`TRUSTED_PROXIES`, `private,cloudflare` in compose), never a forwarded header read by hand. A
+refusal is `429` with the JSON error envelope (`rate_limited`, `too many requests`) and a
+`Retry-After` in whole seconds.
 
 ## What is never exposed
 

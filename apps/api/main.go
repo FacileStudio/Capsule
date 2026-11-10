@@ -15,15 +15,16 @@ import (
 	"github.com/FacileStudio/Capsule/apps/api/internal/cleanup"
 	"github.com/FacileStudio/Capsule/apps/api/internal/database"
 	"github.com/FacileStudio/Capsule/apps/api/internal/env"
-	"github.com/FacileStudio/Capsule/apps/api/internal/middleware"
 	"github.com/FacileStudio/Capsule/apps/api/migrations"
 	"github.com/FacileStudio/Capsule/apps/api/modules/auth"
 	"github.com/FacileStudio/Capsule/apps/api/modules/docs"
 	"github.com/FacileStudio/Capsule/apps/api/modules/pastes"
 
 	"github.com/FacileStudio/Journal/sdk/journal"
+	troncerrors "github.com/FacileStudio/tronc/errors"
 	"github.com/FacileStudio/tronc/health"
 	"github.com/FacileStudio/tronc/healthcheck"
+	"github.com/FacileStudio/tronc/httpjson"
 	"github.com/FacileStudio/tronc/httpx"
 	"github.com/FacileStudio/tronc/logger"
 	troncmiddleware "github.com/FacileStudio/tronc/middleware"
@@ -160,13 +161,27 @@ func run() int {
 	return 0
 }
 
+// newCreateLimiter limits paste creation to a bucket of 30 per visitor that
+// refills at 30 per minute. The key is the host of RemoteAddr after tronc's
+// real-IP rewrite, and a refusal is the JSON error envelope.
+func newCreateLimiter() func(http.Handler) http.Handler {
+	return troncmiddleware.Ratelimit(troncmiddleware.RatelimitConfig{
+		Limit:   30.0 / 60,
+		Burst:   30,
+		MaxKeys: 50000,
+		OnRefuse: func(w http.ResponseWriter, _ *http.Request) {
+			httpjson.WriteError(w, troncerrors.RateLimited("too many requests"))
+		},
+	})
+}
+
 // buildRouter assembles the HTTP tree. Behind Traefik and Cloudflare, RemoteAddr
 // is only the visitor if both are trusted: Traefik replaces the forwarded chain
 // rather than extending it, so the visitor survives in Cf-Connecting-Ip alone,
 // and TRUSTED_PROXIES=private,cloudflare fills all three.
 func buildRouter(db *gorm.DB, sqlDB *sql.DB, kits *auth.Kits, appEnv env.Config, appLogger *slog.Logger) (chi.Router, error) {
 	pasteService := pastes.NewService(db, appEnv.MaxPasteSize)
-	createLimiter := middleware.NewRateLimiter(30, time.Minute)
+	createLimiter := newCreateLimiter()
 
 	clientDir := spa.DirFromEnv()
 	router := httpx.NewRouter(httpx.Config{
