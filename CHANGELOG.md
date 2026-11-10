@@ -10,6 +10,7 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Licence: Capsule is now licensed under `AGPL-3.0-only` (see `LICENSE`); before this, the repository carried no licence.
 - build: tronc v0.17.1 to v0.21.0, porte v0.13.0 to v0.18.0 (`directory` v0.3.0 to v0.4.0), muse v0.16.1 to v0.18.0. Every entry in between is additive.
+- refactor(api): the auth glue is `porte/kit`. `kit.Mount` mounts porte's routes, `kit.RequireAuth` guards `GET /api/auth/me`, and a `kit.Store` over `porte_users` reads the profile and erases accounts. Routes, status codes and bodies are unchanged. Sign-in keeps porte/pg's user store, since Capsule has no `users` table of its own.
 
 ## [0.5.0] - 2026-11-08
 

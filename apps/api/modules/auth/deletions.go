@@ -8,6 +8,7 @@ import (
 
 	"github.com/FacileStudio/Capsule/apps/api/internal/env"
 	"github.com/FacileStudio/porte/directory"
+	"github.com/FacileStudio/porte/kit"
 	portepg "github.com/FacileStudio/porte/pg"
 )
 
@@ -35,25 +36,11 @@ func (s deletionState) Save(ctx context.Context, state []byte) error {
 	return err
 }
 
-// eraseAccount deletes the account behind an erased Registre identity. Pastes
-// are anonymous and reference no account, so porte's tables are the only
-// personal data Capsule holds; the foreign keys carry the delete to the
-// identity, its sessions, login codes and magic links. A person already gone
-// matches nothing, which makes a repeated notice a no-op.
-func eraseAccount(db *sql.DB) func(ctx context.Context, provider, subject string) error {
-	return func(ctx context.Context, provider, subject string) error {
-		_, err := db.ExecContext(ctx, `
-			DELETE FROM porte_users WHERE id IN (
-				SELECT user_id FROM porte_identities WHERE provider = $1 AND subject = $2)`,
-			provider, subject)
-		return err
-	}
-}
-
 // newDeletions builds the receiver that polls Registre for erased people, with
-// the same client credentials the app signs in with. It returns nil when
-// single sign-on is not configured, since there is no Registre to poll.
-func newDeletions(sqlDB *sql.DB, store *portepg.Store, oidc *env.OIDCConfig, logger *slog.Logger) *directory.Deletions {
+// the same client credentials the app signs in with. The kit store erases the
+// account first, then porte erases its own rows. It returns nil when single
+// sign-on is not configured, since there is no Registre to poll.
+func newDeletions(sqlDB *sql.DB, store *portepg.Store, users *kit.Store, oidc *env.OIDCConfig, logger *slog.Logger) *directory.Deletions {
 	if oidc == nil {
 		return nil
 	}
@@ -63,7 +50,7 @@ func newDeletions(sqlDB *sql.DB, store *portepg.Store, oidc *env.OIDCConfig, log
 			ClientID:     oidc.ClientID,
 			ClientSecret: oidc.ClientSecret,
 		},
-		OnPersonDeleted: eraseAccount(sqlDB),
+		OnPersonDeleted: users.EraseAccount,
 		Erase:           store.EraseIdentity,
 		State:           deletionState{db: sqlDB},
 		Logger:          logger,

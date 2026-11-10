@@ -183,10 +183,14 @@ func buildRouter(db *gorm.DB, sqlDB *sql.DB, kits *auth.Kits, appEnv env.Config,
 	health.Mount(router, health.DB(sqlDB))
 	router.Get("/version", versionHandler)
 
+	var mountErr error
 	router.Route("/api", func(r chi.Router) {
-		auth.RegisterRoutes(r, kits)
+		mountErr = auth.RegisterRoutes(r, kits)
 		pastes.RegisterRoutes(r, pasteService, createLimiter)
 	})
+	if mountErr != nil {
+		return nil, mountErr
+	}
 	docs.Mount(router)
 
 	if spa.Available(clientDir) {

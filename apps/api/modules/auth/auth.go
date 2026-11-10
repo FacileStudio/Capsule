@@ -12,16 +12,18 @@ import (
 
 	"github.com/FacileStudio/Capsule/apps/api/internal/env"
 	"github.com/FacileStudio/porte/directory"
+	"github.com/FacileStudio/porte/kit"
 	"github.com/FacileStudio/porte/oidc"
 	"github.com/FacileStudio/porte/session"
 )
 
-// Kits is porte, assembled: one session manager over porte's tables and the
-// OIDC kit that issues through it.
+// Kits is porte, assembled: one session manager over porte's tables, the
+// OIDC kit that issues through it, and the kit store that resolves and erases
+// accounts.
 type Kits struct {
-	DB       *sql.DB
 	Sessions *session.Manager
 	OIDC     *oidc.Kit
+	Users    *kit.Store
 
 	// Deletions erases the people Registre erased. It is nil without single
 	// sign-on. Run it in exactly one replica.
@@ -43,7 +45,7 @@ func New(ctx context.Context, sqlDB *sql.DB, appEnv env.Config, logger *slog.Log
 		return nil, err
 	}
 
-	kit, err := oidc.New(ctx, cfg, oidc.Deps{
+	oidcKit, err := oidc.New(ctx, cfg, oidc.Deps{
 		Users:      store.Users(),
 		Identities: store.Identities(),
 		Sessions:   sessions,
@@ -53,6 +55,7 @@ func New(ctx context.Context, sqlDB *sql.DB, appEnv env.Config, logger *slog.Log
 	if err != nil {
 		return nil, err
 	}
-	deletions := newDeletions(sqlDB, store, appEnv.OIDC, logger)
-	return &Kits{DB: sqlDB, Sessions: sessions, OIDC: kit, Deletions: deletions}, nil
+	users := newUsers(sqlDB)
+	deletions := newDeletions(sqlDB, store, users, appEnv.OIDC, logger)
+	return &Kits{Sessions: sessions, OIDC: oidcKit, Users: users, Deletions: deletions}, nil
 }

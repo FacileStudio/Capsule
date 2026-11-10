@@ -61,7 +61,7 @@ func TestErasedPersonLosesTheirAccountAndASecondCallIsANoOp(t *testing.T) {
 	seedAccount(t, sqlDB)
 	ctx := context.Background()
 
-	erase := eraseAccount(sqlDB)
+	erase := newUsers(sqlDB).EraseAccount
 	store := portepg.New(sqlDB)
 	for attempt := range 2 {
 		if err := erase(ctx, issuer, subject); err != nil {
