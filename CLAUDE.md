@@ -30,9 +30,9 @@ apps/
     src/
       lib/
         crypto.ts        # AES-256-GCM encrypt/decrypt (has unit test)
-        backend.ts       # API client
+        backend.ts       # API client over @facile/client's createApi (CSRF header, error envelope)
         highlight.ts     # Shiki syntax highlighting
-        theme.svelte.ts  # Theme store — writes `.dark`/`.light` on <html>, mirrored by app.html
+        theme.svelte.ts  # @facile/client theme store under `capsule-theme`, mirrored by app.html
         components/      # Svelte components (ThemeToggle, etc.)
       routes/
         (app)/           # Main pages: create, reveal ([id]), revoke
@@ -88,7 +88,8 @@ docker compose down      # Stop and remove containers
 - The server never sees plaintext. Encryption/decryption happens exclusively in the browser via Web Crypto API. The URL fragment carries the decryption key (never sent to server).
 - Svelte 5 runes API (`$state`, `$props`, `$derived`, `$effect`) is enforced via vite plugin config.
 - UI comes from muse: reach for its components and `fc-*` tokens before hand-rolling markup, and read its `CHARTE.md` first. `app.css` imports `@facile/muse/styles` and must not `@import 'tailwindcss'` a second time — tokens.css already does. The `@theme inline` block there only aliases the suite's semantic names onto `fc-*`; no colour is declared locally.
-- `optimizeDeps.exclude: ['@facile/muse']` in `vite.config.ts` is load-bearing: muse ships uncompiled `.svelte.ts`, and without it `vite dev` refuses to start while `bun run build` and `bun run check` stay green.
+- `optimizeDeps.exclude: ['@facile/muse', '@facile/client']` in `vite.config.ts` is load-bearing: both ship uncompiled `.svelte.ts`, and without it `vite dev` refuses to start while `bun run build` and `bun run check` stay green.
+- The fetch kernel is `@facile/client` (`createApi`), with no `onUnauthorized`: Capsule has no `/login` page, so the suite's `redirectToLogin` would send a 401 to a page that does not exist. No paste route answers 401 anyway.
 - The theme writes **both** `.dark` and `.light` on `<html>` (`system` writes neither). muse flips its tokens from `prefers-color-scheme` scoped to `:root:not(.light)`, so only the `.light` class can force light on a dark OS.
 - API tests need PostgreSQL. **Without `TEST_DATABASE_URL` the database-backed tests skip and `go test` still prints `ok` and exits 0** — 35 of 41 tests, as of 2026-08-07. `sh scripts/check.sh` passing is therefore not evidence the API is tested; export `TEST_DATABASE_URL` to actually run them.
 - The client pages call `/api` and there is **no dev proxy**, so `vite dev` has no backend and the sealing E2E tests cannot pass locally. Point the suite at a real deployment instead: `PLAYWRIGHT_BASE_URL=https://capsule.facile.studio bun run test:e2e`. Setting that variable also suppresses the dev-server boot in `playwright.config.ts`. The consequence to keep in mind: run that way, E2E validates the *deployed* build, not your working tree — so it is a post-deploy check, not a pre-deploy one.

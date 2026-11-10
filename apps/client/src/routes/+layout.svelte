@@ -3,7 +3,7 @@
 	import { browser } from '$app/environment';
 	import { registerAppIcons } from '$lib/icons';
 	import { provideLocale } from '@facile/muse';
-	import { setTheme, theme } from '$lib/theme.svelte';
+	import { theme } from '$lib/theme.svelte';
 	import { bindLocale, localeSource } from '$lib/i18n/index.svelte';
 
 	let { children } = $props();
@@ -14,10 +14,10 @@
 	registerAppIcons();
 
 	/*
-	 * setTheme re-applies what the pre-paint script in app.html already wrote, so the store
+	 * restore re-applies what the pre-paint script in app.html already wrote, so the store
 	 * and the <html> classes cannot disagree.
 	 */
-	if (browser) setTheme(theme.mode);
+	if (browser) theme.restore();
 </script>
 
 {@render children()}

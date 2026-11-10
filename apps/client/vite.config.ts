@@ -10,8 +10,9 @@ export default defineConfig({
 	 * `utils/toast.svelte.ts` dies on its first type annotation and `vite dev` refuses to
 	 * start — while `vite build`, which never runs the optimizer, is perfectly happy.
 	 * Excluding the package leaves it to the svelte plugin, which is what compiles it.
+	 * @facile/client ships `.svelte.ts` source the same way.
 	 */
 	optimizeDeps: {
-		exclude: ['@facile/muse']
+		exclude: ['@facile/muse', '@facile/client']
 	}
 });

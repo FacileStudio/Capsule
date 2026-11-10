@@ -6,7 +6,7 @@
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import { backend, type Invitations, type SessionUser } from '$lib/backend';
 	import { rememberLocale, t } from '$lib/i18n/index.svelte';
-	import { setTheme, theme, type ThemeMode } from '$lib/theme.svelte';
+	import { theme, type ThemeMode } from '$lib/theme.svelte';
 
 	let { children } = $props();
 
@@ -31,7 +31,7 @@
 		onSignOut: signOut,
 		onLocaleChange: rememberLocale,
 		theme: theme.mode,
-		onThemeChange: (next: string) => setTheme(next as ThemeMode)
+		onThemeChange: (next: string) => theme.set(next as ThemeMode)
 	});
 
 	const path = $derived(page.url.pathname);

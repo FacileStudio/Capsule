@@ -1,5 +1,5 @@
 import type { HighlighterCore } from 'shiki';
-import { isDark } from './theme.svelte';
+import { theme } from './theme.svelte';
 
 let highlighter: HighlighterCore | null = null;
 
@@ -62,6 +62,6 @@ export async function highlight(code: string, lang: string): Promise<string> {
 			dark: 'github-dark',
 			light: 'github-light'
 		},
-		defaultColor: isDark() ? 'dark' : 'light'
+		defaultColor: theme.resolved
 	});
 }

@@ -1,4 +1,8 @@
+import { createApi } from '@facile/client';
+
 const backendBaseUrl = '/api';
+
+const apiFetch = createApi({ base: backendBaseUrl });
 
 export type PasteCreated = {
 	id: string;
@@ -26,33 +30,6 @@ export type SessionUser = { email: string; name?: string; avatar_url?: string };
 
 export type Invitations = { count: number; href: string };
 
-type ApiErrorPayload = {
-	error?: { message?: string };
-};
-
-async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-	const headers = new Headers(options.headers);
-	if (!headers.has('Content-Type') && options.body && !(options.body instanceof FormData)) {
-		headers.set('Content-Type', 'application/json');
-	}
-
-	const response = await fetch(`${backendBaseUrl}${path}`, { ...options, headers });
-
-	if (!response.ok) {
-		let payload: ApiErrorPayload | undefined;
-		try {
-			payload = (await response.json()) as ApiErrorPayload;
-		} catch {
-			payload = undefined;
-		}
-		throw new Error(payload?.error?.message || `Request failed with status ${response.status}`);
-	}
-
-	const text = await response.text();
-	if (!text) return {} as T;
-	return JSON.parse(text) as T;
-}
-
 export const backend = {
 	async sessionUser() {
 		const { user } = await apiFetch<{ user: SessionUser | null }>('/auth/session');
@@ -65,7 +42,7 @@ export const backend = {
 	},
 
 	logout() {
-		return apiFetch<void>('/auth/logout', { method: 'POST', headers: { 'X-Facile-CSRF': '1' } });
+		return apiFetch<void>('/auth/logout', { method: 'POST' });
 	},
 
 	createPaste(data: {
