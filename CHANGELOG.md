@@ -12,6 +12,7 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- ci: filet v0.19.0 (action and binary) with `filet.yml` reduced to `preset: facile` plus the `modules/docs` exception; the findings are identical to the old config. A new douane 0.7.0 job, checksum-verified, fails on a critical production finding.
 - refactor(client): the fetch kernel and theme store come from `@facile/client` v0.1.0. Every non-GET call now carries `X-Facile-CSRF`, which logout had set by hand. The stored `capsule-theme` choice is kept.
 - Licence: Capsule is now licensed under `AGPL-3.0-only` (see `LICENSE`); before this, the repository carried no licence.
 - build: Go 1.26.10 (`go` directive), go-jose v4.1.6, chi v5.4.0 and x/text v0.41.0, which clear every production finding douane reports, critical Go standard library ones included.

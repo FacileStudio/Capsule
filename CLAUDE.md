@@ -9,7 +9,7 @@ Zero-knowledge, end-to-end encrypted paste tool. Secrets self-destruct after rea
 - **Design system**: [`@facile/muse`](https://github.com/FacileStudio/muse), pinned to a tag. It owns the palette, the Goga faces, dark mode and the base layer
 - **Encryption**: AES-256-GCM via Web Crypto API (client-side only)
 - **Runtime**: Bun (client), Docker Compose for full stack
-- **Gate**: `sh scripts/check.sh` via a pre-push hook. `.github/workflows/ci.yml` runs gofmt, vet, race tests on Postgres, svelte-check, the client tests and filet
+- **Gate**: `sh scripts/check.sh` via a pre-push hook. `.github/workflows/ci.yml` runs gofmt, vet, race tests on Postgres, svelte-check, the client tests, filet v0.19.0 (`preset: facile` in `filet.yml`) and douane 0.7.0 (`-fail critical -scope prod`). `scripts/check.sh` runs the `filet` on `PATH`, which must be v0.19.0 or later: older ones refuse `preset: facile`
 
 ## Project Structure
 
