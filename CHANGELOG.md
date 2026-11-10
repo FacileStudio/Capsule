@@ -14,6 +14,7 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - refactor(client): the fetch kernel and theme store come from `@facile/client` v0.1.0. Every non-GET call now carries `X-Facile-CSRF`, which logout had set by hand. The stored `capsule-theme` choice is kept.
 - Licence: Capsule is now licensed under `AGPL-3.0-only` (see `LICENSE`); before this, the repository carried no licence.
+- build: Go 1.26.10 (`go` directive), go-jose v4.1.6, chi v5.4.0 and x/text v0.41.0, which clear every production finding douane reports, critical Go standard library ones included.
 - build: tronc v0.17.1 to v0.21.0, porte v0.13.0 to v0.18.0 (`directory` v0.3.0 to v0.4.0), muse v0.16.1 to v0.18.0. Every entry in between is additive.
 - refactor(api): the auth glue is `porte/kit`. `kit.Mount` mounts porte's routes, `kit.RequireAuth` guards `GET /api/auth/me`, and a `kit.Store` over `porte_users` reads the profile and erases accounts. Routes, status codes and bodies are unchanged. Sign-in keeps porte/pg's user store, since Capsule has no `users` table of its own.
 - test(api): a Registre erasure is proven through the directory syncer's own poll: the person's account, identity, sessions, login codes and magic links go, another person's rows and the anonymous pastes stay, and a second poll is a no-op.
