@@ -18,20 +18,27 @@
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "@sveltejs/adapter-static": "^3.0.0",
-    "@sveltejs/kit": "^2.50.2",
+    "@sveltejs/kit": "^2.70.4",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^26.1.2",
-    "svelte": "^5.51.0",
+    "svelte": "^5.57.3",
     "svelte-check": "^4.4.2",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vitest": "^4.1.7"
+    "vite": "^7.3.8",
+    "vitest": "^4.1.12"
   },
   "dependencies": {
     "@facile/client": "github:FacileStudio/facile-client#v0.1.0",
     "@facile/muse": "github:FacileStudio/muse#v0.18.0",
     "shiki": "^4.1.0"
+  },
+  "overrides": {
+    "cookie": "^0.7.2",
+    "devalue": "^5.9.4",
+    "nanoid": "^3.3.20",
+    "postcss": "^8.5.32",
+    "source-map-js": "^1.2.2"
   }
 }
