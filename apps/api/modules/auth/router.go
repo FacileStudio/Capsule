@@ -27,7 +27,7 @@ func RegisterRoutes(router chi.Router, kits *Kits) error {
 	if err := kit.Mount(router, kit.Config{Sessions: kits.Sessions, OIDC: kits.OIDC}); err != nil {
 		return err
 	}
-	requireAuth := kit.RequireAuth(kits.Sessions, kits.Users)
+	requireAuth := kits.RequireAuth()
 	router.With(requireAuth).Get("/auth/me", handleMe)
 	router.With(kits.Sessions.Optional).Get("/auth/session", handleSession(kits.Users))
 	if kits.Invitations == nil {

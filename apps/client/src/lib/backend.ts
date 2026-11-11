@@ -30,6 +30,25 @@ export type SessionUser = { email: string; name?: string; avatar_url?: string };
 
 export type Invitations = { count: number; href: string };
 
+export type PendingCapsule = {
+	id: string;
+	created_at: string;
+	expires_at: string | null;
+	burn_after_read: boolean;
+	has_password: boolean;
+};
+
+export type PendingAction = {
+	id: string;
+	kind: string;
+	client_id: string;
+	summary: string;
+	created_at: string;
+	expires_at: string;
+	state: 'ready' | 'changed' | 'missing';
+	capsule?: PendingCapsule;
+};
+
 export const backend = {
 	async sessionUser() {
 		const { user } = await apiFetch<{ user: SessionUser | null }>('/auth/session');
@@ -67,6 +86,18 @@ export const backend = {
 		return apiFetch<PasteContent>(`/pastes/${id}/content`, {
 			method: 'POST',
 		});
+	},
+
+	listPending() {
+		return apiFetch<{ actions: PendingAction[] }>('/mcp/pending');
+	},
+
+	confirmPending(id: string) {
+		return apiFetch<{ status: string }>(`/mcp/pending/${encodeURIComponent(id)}/confirm`, { method: 'POST' });
+	},
+
+	dismissPending(id: string) {
+		return apiFetch<{ status: string }>(`/mcp/pending/${encodeURIComponent(id)}/dismiss`, { method: 'POST' });
 	},
 
 	deletePaste(id: string, deleteToken: string) {

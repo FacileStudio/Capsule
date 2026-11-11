@@ -6,6 +6,16 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- feat(api): a remote MCP server at `/mcp` on tronc/mcp v0.22.1 and porte/mcpauth v0.2.1, behind Registre tokens bound to `https://capsule.facile.studio/mcp` (`capsule.read`, `capsule.write`), free for every account. The server cannot decrypt, so it exposes metadata and revoke only: `capsule_get_status` (what the reveal page shows before opening) and `capsule_revoke` (with the delete token, always confirmed by the person). A person's first MCP call creates their account. Migration `00004_mcp_actions.sql` adds tronc/mcp's pending action table; it is additive.
+- feat(client): `/pending`, where a signed-in person confirms or dismisses a revoke an MCP client asked for, in en, fr, es and de. Signed out, it sends the person through Registre and back.
+
+### Changed
+
+- build: tronc v0.21.0 to v0.22.1, porte v0.18.0 to v0.18.4, plus porte/mcpauth v0.2.1 and go-sdk v1.8.0.
+- refactor(api): `pastes.TokenMatches` refuses an empty delete token outright; a Registre erasure also deletes the person's pending MCP actions.
+
 ## [0.6.1] - 2026-11-11
 
 ### Security

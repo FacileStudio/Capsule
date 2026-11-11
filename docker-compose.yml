@@ -61,6 +61,9 @@ services:
       OIDC_REDIRECT_URL: ${OIDC_REDIRECT_URL:-}
       OIDC_SUCCESS_URL: ${OIDC_SUCCESS_URL:-}
       OIDC_CLI_AUDIENCE: ${OIDC_CLI_AUDIENCE:-}
+      # The remote MCP server's canonical URI, the resource Registre binds its
+      # tokens to. It needs OIDC_ISSUER; empty leaves /mcp unmounted.
+      MCP_RESOURCE: ${MCP_RESOURCE:-https://capsule.facile.studio/mcp}
     healthcheck:
       test: ["CMD", "/api", "healthcheck"]
       interval: 10s

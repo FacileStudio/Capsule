@@ -40,6 +40,8 @@ accordingly.
 | `MAX_PASTE_SIZE` | no | `16777216` | Maximum accepted `content` length in bytes. Must be a positive integer or startup fails |
 | `CLIENT_DIR` | no | `./client` | Directory holding the built SPA. Read by `tronc/spa`. The Dockerfile pins `/client` explicitly, because the `:nonroot` distroless base sets `WorkingDir=/home/nonroot` and a relative path would resolve there — the API would answer `/api/*` while every page 404s |
 
+| `MCP_RESOURCE` | no | — (compose: `https://capsule.facile.studio/mcp`) | Canonical URI of the remote MCP server, the RFC 8707 resource Registre binds its tokens to. Needs `OIDC_ISSUER`; empty leaves `/mcp` unmounted. The confirmation state is signed with a key derived from `OIDC_CLIENT_SECRET` |
+
 `MAX_PASTE_SIZE` caps the **ciphertext**, not the plaintext. Base64 of `IV || ciphertext ||
 tag` is roughly 4/3 of the plaintext plus 28 bytes, so the default 16 MiB accepts encrypted
 files up to 10 MB alongside text.

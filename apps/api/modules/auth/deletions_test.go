@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -107,6 +108,12 @@ func TestRegistreErasureRemovesEveryRowOfThePersonAndOnlyThem(t *testing.T) {
 	if _, err := sqlDB.Exec(`INSERT INTO pastes (id, content) VALUES ('cap_keep', 'cipher')`); err != nil {
 		t.Fatalf("seed paste: %v", err)
 	}
+	for _, owner := range []int64{erased, kept} {
+		if _, err := sqlDB.Exec(`INSERT INTO mcp_actions (id, user_id, kind, target, digest, expires_at)
+			VALUES ($1, $1, 'revoke_capsule', 'cap_keep', 'd', now() + interval '1 day')`, strconv.FormatInt(owner, 10)); err != nil {
+			t.Fatalf("seed pending action: %v", err)
+		}
+	}
 
 	pollTwice(t, sqlDB, issuer)
 
@@ -122,6 +129,21 @@ func TestRegistreErasureRemovesEveryRowOfThePersonAndOnlyThem(t *testing.T) {
 		if rows != 1 {
 			t.Errorf("%s has %d rows of the other person, want 1", table, rows)
 		}
+	}
+	var pending []string
+	rows, err := sqlDB.Query(`SELECT user_id FROM mcp_actions`)
+	if err != nil {
+		t.Fatalf("pending actions: %v", err)
+	}
+	for rows.Next() {
+		var userID string
+		if err := rows.Scan(&userID); err != nil {
+			t.Fatalf("pending action: %v", err)
+		}
+		pending = append(pending, userID)
+	}
+	if len(pending) != 1 || pending[0] != strconv.FormatInt(kept, 10) {
+		t.Errorf("pending MCP actions left = %v, want only the other person's", pending)
 	}
 	var pastes int
 	if err := sqlDB.QueryRow(`SELECT count(*) FROM pastes`).Scan(&pastes); err != nil || pastes != 1 {

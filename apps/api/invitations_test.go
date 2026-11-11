@@ -48,7 +48,7 @@ func ssoRouter(t *testing.T, issuer string) (chi.Router, *auth.Kits) {
 	if err != nil {
 		t.Fatalf("auth.New: %v", err)
 	}
-	router, err := buildRouter(db, sqlDB, kits, appEnv, slog.New(slog.DiscardHandler))
+	router, err := buildRouter(db, sqlDB, kits, appEnv, slog.New(slog.DiscardHandler), nil)
 	if err != nil {
 		t.Fatalf("buildRouter: %v", err)
 	}
