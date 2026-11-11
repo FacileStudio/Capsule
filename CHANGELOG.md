@@ -6,6 +6,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-11
+
+### Fixed
+
+- fix(brand): favicons, touch and manifest icons, the link preview image and `site.webmanifest` come from muse v0.19.2's brand generator, and `app.html` carries its head block: the catalog title "Capsule · Share a secret that self-destructs", its description, theme colours and Open Graph and Twitter tags. The create page no longer overrides the title and description, so every locale shows the catalog's.
+
 ## [0.7.1] - 2026-11-11
 
 ### Fixed
