@@ -9,8 +9,10 @@ import (
 	"context"
 	"database/sql"
 	"log/slog"
+	"net/http"
 
 	"github.com/FacileStudio/Capsule/apps/api/internal/env"
+	"github.com/FacileStudio/porte"
 	"github.com/FacileStudio/porte/directory"
 	"github.com/FacileStudio/porte/kit"
 	"github.com/FacileStudio/porte/oidc"
@@ -24,6 +26,10 @@ type Kits struct {
 	Sessions *session.Manager
 	OIDC     *oidc.Kit
 	Users    *kit.Store
+
+	// Identities resolves a Registre subject to its account, for the MCP
+	// token verifier.
+	Identities porte.IdentityStore
 
 	// Deletions erases the people Registre erased. It is nil without single
 	// sign-on. Run it in exactly one replica.
@@ -65,7 +71,14 @@ func New(ctx context.Context, sqlDB *sql.DB, appEnv env.Config, logger *slog.Log
 		Sessions:    sessions,
 		OIDC:        oidcKit,
 		Users:       users,
+		Identities:  store.Identities(),
 		Deletions:   deletions,
 		Invitations: newInvitations(deletions, store, logger),
 	}, nil
+}
+
+// RequireAuth is the middleware that admits a signed-in person, resolved to
+// their account as /auth/me resolves them.
+func (k *Kits) RequireAuth() func(http.Handler) http.Handler {
+	return kit.RequireAuth(k.Sessions, k.Users)
 }

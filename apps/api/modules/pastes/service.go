@@ -2,7 +2,6 @@ package pastes
 
 import (
 	"crypto/rand"
-	"crypto/subtle"
 	"encoding/hex"
 	"strings"
 	"time"
@@ -144,26 +143,6 @@ func (s *Service) GetContent(id string) (*ContentResponse, error) {
 	}
 
 	return &ContentResponse{Content: content}, nil
-}
-
-func (s *Service) Revoke(id string, token string) error {
-	var paste schemas.Paste
-	if err := s.db.Where("id = ?", id).First(&paste).Error; err != nil {
-		return errors.NotFound("paste not found")
-	}
-
-	if subtle.ConstantTimeCompare([]byte(paste.DeleteToken), []byte(token)) != 1 {
-		return errors.Forbidden("invalid delete token")
-	}
-
-	if err := s.db.Model(&paste).Updates(map[string]any{
-		"burned":  true,
-		"content": "",
-	}).Error; err != nil {
-		return errors.Internal("failed to revoke paste", err)
-	}
-
-	return nil
 }
 
 func generateID() (string, error) {

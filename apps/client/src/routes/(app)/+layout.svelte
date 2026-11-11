@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { LandingFooter, LandingHeader, LocaleSwitch, UserMenu } from '@facile/muse';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { CAPSULE_ICON } from '$lib/icons';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import { backend, type Invitations, type SessionUser } from '$lib/backend';
 	import { rememberLocale, t } from '$lib/i18n/index.svelte';
+	import { takeReturn } from '$lib/signin';
 	import { theme, type ThemeMode } from '$lib/theme.svelte';
 
 	let { children } = $props();
@@ -15,6 +17,8 @@
 
 	onMount(async () => {
 		user = await backend.sessionUser().catch(() => null);
+		const back = takeReturn();
+		if (user && back) await goto(back);
 		if (user) invitations = await backend.invitations().catch(() => null);
 	});
 

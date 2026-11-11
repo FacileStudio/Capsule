@@ -1,6 +1,7 @@
 package env
 
 import (
+	"crypto/sha256"
 	"fmt"
 
 	"github.com/FacileStudio/porte"
@@ -20,6 +21,20 @@ type OIDCConfig struct {
 	// token under. Setting it mounts porte's device exchange; empty leaves
 	// the route unmounted and answering 404.
 	CLIAudience string
+
+	// MCPResource is the canonical URI of the remote MCP server,
+	// https://capsule.facile.studio/mcp in production, and the RFC 8707
+	// resource Registre binds its tokens to, from MCP_RESOURCE. Empty leaves
+	// /mcp unmounted.
+	MCPResource string
+}
+
+// MCPStateKey derives the key that signs MCP confirmation state from the
+// client secret, which is secret, stable across restarts and set whenever
+// OIDC is.
+func (o OIDCConfig) MCPStateKey() []byte {
+	sum := sha256.Sum256([]byte("capsule-mcp-state:" + o.ClientSecret))
+	return sum[:]
 }
 
 // Config is the process configuration: the tronc core, the Capsule-specific
@@ -83,6 +98,7 @@ func (c *Config) loadOIDC() error {
 		RedirectURL:  redirectURL,
 		SuccessURL:   successURL,
 		CLIAudience:  troncenv.String("OIDC_CLI_AUDIENCE", ""),
+		MCPResource:  troncenv.String("MCP_RESOURCE", ""),
 	}
 	return nil
 }

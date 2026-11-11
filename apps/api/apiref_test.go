@@ -22,7 +22,7 @@ func testRouter(t *testing.T) chi.Router {
 	if err != nil {
 		t.Fatalf("auth.New: %v", err)
 	}
-	router, err := buildRouter(nil, nil, kits, appEnv, slog.Default())
+	router, err := buildRouter(nil, nil, kits, appEnv, slog.Default(), nil)
 	if err != nil {
 		t.Fatalf("buildRouter: %v", err)
 	}

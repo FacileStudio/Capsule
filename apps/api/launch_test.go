@@ -41,7 +41,7 @@ func launchRouter(t *testing.T) chi.Router {
 	if err != nil {
 		t.Fatalf("auth.New: %v", err)
 	}
-	router, err := buildRouter(db, sqlDB, kits, appEnv, slog.Default())
+	router, err := buildRouter(db, sqlDB, kits, appEnv, slog.Default(), nil)
 	if err != nil {
 		t.Fatalf("buildRouter: %v", err)
 	}

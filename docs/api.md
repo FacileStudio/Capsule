@@ -120,6 +120,29 @@ set, `content` blanked, row retained.
 `X-Delete-Token` is added to the CORS allowed-headers list on top of the tronc defaults, so
 the header survives a preflight if you ever do open the allow-list.
 
+## MCP
+
+`POST /mcp` is a remote MCP server (spec 2026-07-28, stateless, on `tronc/mcp`) for any MCP
+client holding a Registre access token bound to `https://capsule.facile.studio/mcp` with
+`capsule.read` (and `capsule.write` to revoke). `/.well-known/oauth-protected-resource/mcp`
+describes how to get one. A person's first call creates their account, as a first sign-in would.
+MCP is free; no plan gates it.
+
+The server cannot decrypt, so no tool seals, opens or returns content or ciphertext:
+
+| Tool | Does | Confirmed |
+|---|---|---|
+| `capsule_get_status` | What the reveal page shows before opening: available, sealed and expiry times, burn after reading, password, syntax. Never opens the capsule | no |
+| `capsule_revoke` | Burns a capsule, given its id and delete token | yes |
+
+`capsule_revoke` checks the delete token when the client asks and never stores it: the pending
+action names the capsule by id only. The person confirms in their client (MRTR `input_required`)
+when it can ask, otherwise on `/pending?action=<id>`, signed in to Capsule. That page uses
+`GET /api/mcp/pending` and `POST /api/mcp/pending/{id}/confirm|dismiss`, which accept the
+browser session cookie only; any `Authorization` header is refused. A capsule opened or expired
+in between leaves nothing to confirm. Erasing a person through Registre also erases their pending
+actions.
+
 ## Rate limiting
 
 Only creation is limited, by tronc's `middleware.Ratelimit`: a token bucket of 30 per visitor

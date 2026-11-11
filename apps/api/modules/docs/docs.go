@@ -3,6 +3,7 @@ package docs
 import (
 	"net/http"
 
+	"github.com/FacileStudio/Capsule/apps/api/modules/mcp"
 	"github.com/FacileStudio/tronc/apiref"
 	"github.com/go-chi/chi/v5"
 )
@@ -63,6 +64,7 @@ func Reference() apiref.Config {
 		Registry: Registry{
 			Modules: []Module{
 				authModule(),
+				mcp.Documentation,
 				{
 					Name:        "pastes",
 					Description: "Create, read, and revoke encrypted pastes",

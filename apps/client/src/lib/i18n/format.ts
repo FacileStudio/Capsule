@@ -10,3 +10,8 @@ export function timeAgo(value: string | number | Date, locale: string, now = Dat
 	const [unit, size] = UNITS.find(([, length]) => seconds >= length) ?? ['second', Infinity];
 	return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(-Math.floor(seconds / size), unit);
 }
+
+/** Formats an instant as a medium date and a short time in the given locale. */
+export function formatDateTime(value: string | number | Date, locale: string): string {
+	return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
+}
