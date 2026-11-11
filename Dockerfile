@@ -7,7 +7,7 @@ RUN bun run build
 
 # 1.26 matches go.mod. The builder was on 1.25 while go.mod said 1.26, which
 # made the toolchain silently download a newer one mid-build.
-FROM golang:1.26-alpine AS api-build
+FROM golang:1.26.11-alpine AS api-build
 
 ARG TARGETOS=linux
 ARG TARGETARCH
