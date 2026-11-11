@@ -6,6 +6,8 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-11
+
 ### Added
 
 - feat(api): a remote MCP server at `/mcp` on tronc/mcp v0.22.1 and porte/mcpauth v0.2.1, behind Registre tokens bound to `https://capsule.facile.studio/mcp` (`capsule.read`, `capsule.write`), free for every account. The server cannot decrypt, so it exposes metadata and revoke only: `capsule_get_status` (what the reveal page shows before opening) and `capsule_revoke` (with the delete token, always confirmed by the person). A person's first MCP call creates their account. Migration `00004_mcp_actions.sql` adds tronc/mcp's pending action table; it is additive.
