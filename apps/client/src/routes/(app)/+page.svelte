@@ -106,11 +106,6 @@
 	}
 </script>
 
-<svelte:head>
-	<title>{t('create.title')}</title>
-	<meta name="description" content={t('create.description')} />
-</svelte:head>
-
 {#if phase === 'idle' || phase === 'sealing'}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">

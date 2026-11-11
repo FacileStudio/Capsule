@@ -2,18 +2,6 @@ import type { Row } from '../row';
 
 /** Strings of the page that seals a capsule, before and after sealing. */
 export const create = {
-	'create.title': [
-		'Capsule — Ephemeral Encrypted Sharing',
-		'Capsule — Partage chiffré et éphémère',
-		'Capsule — Compartir cifrado y efímero',
-		'Capsule — Verschlüsselt und flüchtig teilen'
-	],
-	'create.description': [
-		'Share secrets that self-destruct. End-to-end encrypted, zero knowledge.',
-		'Partagez des secrets qui se détruisent. Chiffrement de bout en bout, zéro connaissance.',
-		'Comparte secretos que se autodestruyen. Cifrado de extremo a extremo, conocimiento cero.',
-		'Teilen Sie Geheimnisse, die sich selbst zerstören. Ende-zu-Ende-verschlüsselt, Zero Knowledge.'
-	],
 	'create.heading': ['Seal a capsule', 'Sceller une capsule', 'Sellar una cápsula', 'Kapsel versiegeln'],
 	'create.intro': [
 		'Your content is encrypted in the browser. The server never sees the plaintext.',
