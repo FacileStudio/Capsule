@@ -6,6 +6,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-11
+
+### Security
+
+- build(api): Go 1.26.11 (`go` directive, `golang:1.26.11-alpine` builder, mise pin). It fixes GO-2026-6848 to GO-2026-6859 in the standard library and toolchain, which douane reported as unscored gaps and which failed the gate.
+
 ## [0.6.0] - 2026-11-10
 
 ### Added
