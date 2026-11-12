@@ -6,6 +6,10 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- An account re-created for a person Registre already erased (a bearer token minted before the erasure, an MCP first call) is erased again on the next deletion poll or push, with no restart. Sign-in, MCP provisioning and the profile sync refuse a subject Capsule erased. porte v0.19.0 (`Deletions.Holds`, `oidc.Deps.Erased`), porte/directory v0.5.0.
+
 ## [0.7.2] - 2026-11-11
 
 ### Fixed
