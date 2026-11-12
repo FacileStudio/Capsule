@@ -38,7 +38,8 @@ func (s deletionState) Save(ctx context.Context, state []byte) error {
 
 // newDeletions builds the receiver that polls Registre for erased people, with
 // the same client credentials the app signs in with. The kit store erases the
-// account first, then porte erases its own rows. It returns nil when single
+// account first, then porte erases its own rows. A handled subject that an
+// identity holds again is erased again (Holds). It returns nil when single
 // sign-on is not configured, since there is no Registre to poll.
 func newDeletions(sqlDB *sql.DB, store *portepg.Store, users *kit.Store, oidc *env.OIDCConfig, logger *slog.Logger) *directory.Deletions {
 	if oidc == nil {
@@ -52,6 +53,7 @@ func newDeletions(sqlDB *sql.DB, store *portepg.Store, users *kit.Store, oidc *e
 		},
 		OnPersonDeleted: users.EraseAccount,
 		Erase:           store.EraseIdentity,
+		Holds:           store.HoldsIdentity,
 		State:           deletionState{db: sqlDB},
 		Logger:          logger,
 	}

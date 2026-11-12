@@ -41,7 +41,8 @@ type Kits struct {
 }
 
 // New builds the session manager and runs OIDC discovery. A deployment with no
-// OIDC_ISSUER still serves /auth/config, answering oidc_enabled false.
+// OIDC_ISSUER still serves /auth/config, answering oidc_enabled false. With it,
+// the OIDC kit refuses an account to any subject the deletion receiver erased.
 func New(ctx context.Context, sqlDB *sql.DB, appEnv env.Config, logger *slog.Logger) (*Kits, error) {
 	cfg := appEnv.Porte()
 	store, err := newPorteStore(sqlDB)
@@ -55,18 +56,22 @@ func New(ctx context.Context, sqlDB *sql.DB, appEnv env.Config, logger *slog.Log
 		return nil, err
 	}
 
-	oidcKit, err := oidc.New(ctx, cfg, oidc.Deps{
+	users := newUsers(sqlDB)
+	deletions := newDeletions(sqlDB, store, users, appEnv.OIDC, logger)
+	deps := oidc.Deps{
 		Users:      store.Users(),
 		Identities: store.Identities(),
 		Sessions:   sessions,
 		Codes:      store.LoginCodes(),
 		Logger:     logger,
-	})
+	}
+	if deletions != nil {
+		deps.Erased = deletions
+	}
+	oidcKit, err := oidc.New(ctx, cfg, deps)
 	if err != nil {
 		return nil, err
 	}
-	users := newUsers(sqlDB)
-	deletions := newDeletions(sqlDB, store, users, appEnv.OIDC, logger)
 	return &Kits{
 		Sessions:    sessions,
 		OIDC:        oidcKit,
