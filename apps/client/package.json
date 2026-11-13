@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@facile/client": "github:FacileStudio/facile-client#v0.1.0",
-    "@facile/muse": "github:FacileStudio/muse#v0.18.0",
+    "@facile/muse": "github:FacileStudio/muse#v0.21.0",
     "shiki": "^4.1.0"
   },
   "overrides": {
