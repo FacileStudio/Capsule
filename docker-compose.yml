@@ -15,9 +15,11 @@ services:
       test:
       - CMD-SHELL
       - pg_isready -U capsule
-      interval: 5s
+      interval: 30s
       timeout: 5s
-      retries: 10
+      retries: 5
+      start_period: 30s
+      start_interval: 1s
     deploy:
       update_config:
         order: start-first
@@ -66,10 +68,11 @@ services:
       MCP_RESOURCE: ${MCP_RESOURCE:-https://capsule.facile.studio/mcp}
     healthcheck:
       test: ["CMD", "/api", "healthcheck"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 60s
+      start_interval: 1s
     depends_on:
       capsule-db:
         condition: service_healthy
