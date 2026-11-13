@@ -6,6 +6,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.5] - 2026-11-13
+
+### Fixed
+
+- Containers now honour `restart: unless-stopped` instead of the swarm-only `restart_policy: any`.
+
 ## [0.7.4] - 2026-11-13
 
 ### Changed
