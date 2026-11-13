@@ -6,6 +6,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.7.6] - 2026-11-13
+
+### Changed
+
+- build(client): muse v0.21.0. The theme toggle and remove-attachment buttons show their label as a muse tooltip.
+
 ## [0.7.5] - 2026-11-13
 
 ### Fixed
