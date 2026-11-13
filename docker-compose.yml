@@ -20,12 +20,6 @@ services:
       retries: 5
       start_period: 30s
       start_interval: 1s
-    deploy:
-      update_config:
-        order: start-first
-        parallelism: 1
-      restart_policy:
-        condition: any
   capsule-api:
     container_name: capsule-api
     restart: unless-stopped
@@ -76,12 +70,6 @@ services:
     depends_on:
       capsule-db:
         condition: service_healthy
-    deploy:
-      update_config:
-        order: start-first
-        parallelism: 1
-      restart_policy:
-        condition: any
 volumes:
   db_data:
     name: capsule_db_data
