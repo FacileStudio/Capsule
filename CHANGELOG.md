@@ -6,6 +6,17 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-14
+
+### Added
+
+- Public `/downloads` page with every capsule CLI option: the macOS and Linux archives from capsule-cli v0.4.2 with checksums, and the install commands.
+
+### Changed
+
+- The landing download section shows only the visitor's platform, with an "Other platforms" link to `/downloads`. The header and footer CLI link now opens `/downloads`.
+- build(client): muse v0.23.0 (device-only downloads, left-aligned footer on phones) and mise-en-scene v0.2.2.
+
 ## [0.8.0] - 2026-11-14
 
 ### Added
