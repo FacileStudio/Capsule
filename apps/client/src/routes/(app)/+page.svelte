@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Alert, Button, Card, Checkbox, Field, Icon, Input, SecretField, Select, Spinner, Textarea, icons } from '@facile/muse';
+	import { Alert, Button, Card, Checkbox, Collapsible, Field, Icon, Input, SecretField, Select, Spinner, Textarea, icons } from '@facile/muse';
 	import { generateKey, exportKey, encrypt, wrapContentKey } from '$lib/crypto';
 	import { encodeFile, serializePayload } from '$lib/envelope';
 	import FileAttachment from '$lib/components/FileAttachment.svelte';
@@ -107,12 +107,16 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Capsule · {t('landing.heroTitle')}</title>
+	<meta name="description" content={t('landing.heroBody')} />
+</svelte:head>
+
 {#if phase === 'idle' || phase === 'sealing'}
 	<section id="seal" class="mx-auto flex w-full max-w-2xl scroll-mt-20 flex-col gap-6 px-4 pt-10 pb-8 sm:px-6 sm:pt-16">
 		<div class="flex flex-col items-start gap-2">
 			<h1 class="font-fc-title text-fc-2xl font-bold tracking-tight sm:text-fc-3xl">{t('landing.heroTitle')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">{t('landing.heroBody')}</p>
-			<Button href="#download" variant="ghost" size="sm" icon={icons.code} class="-ml-3">{t('landing.cli')}</Button>
 		</div>
 
 		<Textarea
@@ -120,7 +124,6 @@
 			placeholder={t('create.placeholder')}
 			rows={8}
 			disabled={phase === 'sealing'}
-			class="font-fc-mono text-fc-sm"
 		/>
 
 		<FileAttachment bind:file={attachedFile} disabled={phase === 'sealing'} onError={(msg) => (error = msg)} />
@@ -130,13 +133,6 @@
 				<Select bind:value={expiresIn} disabled={phase === 'sealing'}>
 					{#each expiryOptions as opt}
 						<option value={opt.value}>{opt.label}</option>
-					{/each}
-				</Select>
-			</Field>
-			<Field label={t('create.syntax')}>
-				<Select bind:value={syntax} disabled={phase === 'sealing'}>
-					{#each syntaxOptions as s}
-						<option value={s}>{s}</option>
 					{/each}
 				</Select>
 			</Field>
@@ -150,6 +146,16 @@
 		{#if usePassword}
 			<Input type="password" bind:value={password} placeholder={t('create.passwordPlaceholder')} disabled={phase === 'sealing'} />
 		{/if}
+
+		<Collapsible title={t('landing.options')} region={false}>
+			<Field label={t('create.syntax')} class="pt-3 sm:max-w-[calc(50%-0.5rem)]">
+				<Select bind:value={syntax} disabled={phase === 'sealing'}>
+					{#each syntaxOptions as s}
+						<option value={s}>{s}</option>
+					{/each}
+				</Select>
+			</Field>
+		</Collapsible>
 
 		{#if error}
 			<Alert tone="danger">{error}</Alert>

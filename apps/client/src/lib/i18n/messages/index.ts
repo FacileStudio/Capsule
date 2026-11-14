@@ -1,4 +1,5 @@
 import type { Catalogs, Message } from '@facile/muse';
+import { blocks } from './blocks';
 import { create } from './create';
 import { landing } from './landing';
 import { pending } from './pending';
@@ -7,7 +8,7 @@ import { revoke } from './revoke';
 import { shell } from './shell';
 import type { Row } from '../row';
 
-const rows = { ...shell, ...create, ...landing, ...reveal, ...revoke, ...pending };
+const rows = { ...shell, ...create, ...landing, ...blocks, ...reveal, ...revoke, ...pending };
 
 export type AppKey = keyof typeof rows;
 type AppCatalog = Record<AppKey, Message>;

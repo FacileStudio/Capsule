@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('create page', () => {
 	test('renders seal form', async ({ page }) => {
 		await page.goto('/');
-		await expect(page.locator('h1')).toContainText('Seal a capsule');
+		await expect(page.locator('h1')).toContainText('Send a password');
 		await expect(page.locator('textarea')).toBeVisible();
 		await expect(page.getByRole('button', { name: /seal capsule/i })).toBeVisible();
 	});
@@ -23,6 +23,7 @@ test.describe('create page', () => {
 
 	test('syntax selector has expected options', async ({ page }) => {
 		await page.goto('/');
+		await page.getByRole('button', { name: 'Options' }).click();
 		await page.getByRole('combobox', { name: 'Syntax' }).click();
 		const options = (await page.getByRole('option').allTextContents()).map((text) => text.trim());
 		expect(options).toContain('plaintext');
@@ -94,7 +95,7 @@ test.describe('sealed state', () => {
 		await expect(page.locator('h1')).toContainText('Capsule sealed', { timeout: 10_000 });
 
 		await page.getByRole('button', { name: /seal another/i }).click();
-		await expect(page.locator('h1')).toContainText('Seal a capsule');
+		await expect(page.locator('h1')).toContainText('Send a password');
 		await expect(page.locator('textarea')).toHaveValue('');
 	});
 });

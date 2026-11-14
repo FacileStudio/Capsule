@@ -3,10 +3,10 @@ import type { Row } from '../row';
 /** Strings of the page that revokes a capsule with its delete token. */
 export const revoke = {
 	'revoke.title': [
-		'Revoke — Capsule',
-		'Révoquer — Capsule',
-		'Revocar — Capsule',
-		'Widerrufen — Capsule'
+		'Revoke · Capsule',
+		'Révoquer · Capsule',
+		'Revocar · Capsule',
+		'Widerrufen · Capsule'
 	],
 	'revoke.failed': [
 		'Failed to revoke capsule',

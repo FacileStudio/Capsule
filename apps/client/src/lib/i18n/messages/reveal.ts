@@ -2,7 +2,7 @@ import type { Row } from '../row';
 
 /** Strings of the page that opens a capsule from its link. */
 export const reveal = {
-	'reveal.title': ['Capsule — Open', 'Capsule — Ouvrir', 'Capsule — Abrir', 'Capsule — Öffnen'],
+	'reveal.title': ['Capsule · Open', 'Capsule · Ouvrir', 'Capsule · Abrir', 'Capsule · Öffnen'],
 	'reveal.description': [
 		'Someone sent you an encrypted capsule.',
 		'Quelqu’un vous a envoyé une capsule chiffrée.',

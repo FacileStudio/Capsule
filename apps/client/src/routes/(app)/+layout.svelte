@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { LandingFooter, LandingHeader, LocaleSwitch, UserMenu } from '@facile/muse';
+	import { LandingFooter, LandingHeader, LocaleSwitch, SignInWithFacile, UserMenu } from '@facile/muse';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
@@ -7,7 +7,7 @@
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import { backend, type Invitations, type SessionUser } from '$lib/backend';
 	import { rememberLocale, t } from '$lib/i18n/index.svelte';
-	import { takeReturn } from '$lib/signin';
+	import { SIGN_IN_HREF, takeReturn } from '$lib/signin';
 	import { theme, type ThemeMode } from '$lib/theme.svelte';
 
 	let { children } = $props();
@@ -41,13 +41,25 @@
 	const path = $derived(page.url.pathname);
 	const links = $derived([
 		{ href: '/', label: t('shell.seal'), active: path === '/' },
-		{ href: '/revoke', label: t('shell.revoke'), active: path === '/revoke' },
-		{ href: '/downloads', label: t('landing.nav.cli'), active: path === '/downloads' },
-		{ href: '/docs', label: t('shell.api'), external: true }
+		{ href: '/revoke', label: t('shell.revoke'), active: path === '/revoke' }
 	]);
 	const columns = $derived([
-		{ title: 'Capsule', links: links.map(({ href, label, external }) => ({ href, label, external })) },
-		{ title: 'Facile', links: [{ href: 'https://facile.studio', label: t('shell.facile'), external: true }] }
+		{ title: 'Capsule', links: links.map(({ href, label }) => ({ href, label })) },
+		{
+			title: t('blocks.footer.developers'),
+			links: [
+				{ href: '/downloads', label: t('landing.nav.cli') },
+				{ href: '/docs', label: t('shell.api'), external: true },
+				{ href: 'https://github.com/FacileStudio/Capsule', label: 'GitHub', external: true }
+			]
+		},
+		{
+			title: 'Facile',
+			links: [
+				{ href: 'https://suite.facile.studio', label: t('blocks.footer.suite'), external: true },
+				{ href: 'https://facile.studio', label: t('shell.facile'), external: true }
+			]
+		}
 	]);
 </script>
 
@@ -63,6 +75,7 @@
 			{:else}
 				<LocaleSwitch onChange={rememberLocale} />
 				<ThemeToggle />
+				<SignInWithFacile href={SIGN_IN_HREF} size="sm" />
 			{/if}
 		{/snippet}
 	</LandingHeader>

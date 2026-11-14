@@ -4,9 +4,9 @@
 	import { t } from '$lib/i18n/index.svelte';
 	import './seal-demo.css';
 
-	const SECRET = 'PGPASSWORD=horse-battery-staple';
 	const HOST = 'capsule.facile.studio';
 
+	const secret = $derived(t('landing.demoSecret'));
 	let draft = $state('');
 	let sealed = $state(false);
 	let copied = $state(false);
@@ -29,7 +29,7 @@
 	}
 
 	function poster() {
-		draft = SECRET;
+		draft = secret;
 		sealed = true;
 		copied = true;
 		arrived = true;
@@ -44,7 +44,7 @@
 
 	async function script(act: Act) {
 		await act.wait(700);
-		await act.type(SECRET, (v) => (draft = v), 55);
+		await act.type(secret, (v) => (draft = v), 55);
 		await act.wait(300);
 		cursor.visible = true;
 		await press(act, sealButton, 'seal');
@@ -87,7 +87,6 @@
 						<div class="sd-area" class:sd-placeholder={!draft}>{draft || t('create.placeholder')}</div>
 						<div class="sd-selects">
 							<span class="sd-select">{t('expiry.24h')}</span>
-							<span class="sd-select">plaintext</span>
 						</div>
 						<span class="sd-check"><span class="sd-box"></span>{t('create.burn')}</span>
 						<span class="sd-button" class:sd-pressed={pressed === 'seal'} bind:this={sealButton}>{t('create.seal')}</span>
@@ -114,7 +113,7 @@
 					<div class="sd-view" class:sd-off={!opened}>
 						<p class="sd-heading">{t('reveal.openedHeading')}</p>
 						<p class="sd-danger">{t('reveal.destroyed')}</p>
-						<pre class="sd-secret">{SECRET}</pre>
+						<pre class="sd-secret">{secret}</pre>
 					</div>
 				</div>
 			</Window>

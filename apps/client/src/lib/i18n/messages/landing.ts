@@ -1,67 +1,23 @@
 import type { Row } from '../row';
 
-/** Strings of the public landing around the seal form. */
+/** Strings of the landing hero, the how-it-works demo and the three demo tiles. */
 export const landing = {
 	'landing.heroTitle': [
-		'Share a secret that burns after reading',
-		'Partagez un secret qui se détruit à la lecture',
-		'Comparte un secreto que se destruye al leerlo',
-		'Teilen Sie ein Geheimnis, das sich nach dem Lesen löscht'
+		'Send a password. It’s gone once read.',
+		'Envoyez un mot de passe, il disparaît après lecture.',
+		'Envía una contraseña y desaparece tras leerla.',
+		'Passwort senden, nach dem Lesen ist es weg.'
 	],
 	'landing.heroBody': [
-		'Encrypted in your browser. The server never sees the content.',
-		'Chiffré dans votre navigateur. Le serveur ne voit jamais le contenu.',
-		'Cifrado en tu navegador. El servidor nunca ve el contenido.',
-		'Im Browser verschlüsselt. Der Server sieht den Inhalt nie.'
+		'A link that opens once, encrypted before it leaves your device. No account needed.',
+		'Un lien qui ne s’ouvre qu’une fois, chiffré avant même de quitter votre appareil. Aucun compte nécessaire.',
+		'Un enlace que solo se abre una vez, cifrado antes de salir de tu dispositivo. Sin cuenta.',
+		'Ein Link, der sich nur einmal öffnet, verschlüsselt, bevor er Ihr Gerät verlässt. Kein Konto nötig.'
 	],
-	'landing.cli': ['Install the CLI', 'Installer la CLI', 'Instalar la CLI', 'CLI installieren'],
+	'landing.options': ['Options', 'Options', 'Opciones', 'Optionen'],
 	'landing.nav.cli': ['CLI', 'CLI', 'CLI', 'CLI'],
 	'downloads.title': ['Downloads · Capsule', 'Téléchargements · Capsule', 'Descargas · Capsule', 'Downloads · Capsule'],
 	'downloads.heading': ['Get the capsule CLI', 'Obtenir la CLI capsule', 'Obtén la CLI capsule', 'Die capsule-CLI holen'],
-	'landing.demoTitle': ['How it works', 'Comment ça marche', 'Cómo funciona', 'So funktioniert es'],
-	'landing.demoLabel': [
-		'A password is sealed, its link copied, then the recipient opens it once and it is gone.',
-		'Un mot de passe est scellé, son lien copié, puis le destinataire l’ouvre une fois et il disparaît.',
-		'Se sella una contraseña, se copia su enlace y el destinatario la abre una vez antes de que desaparezca.',
-		'Ein Passwort wird versiegelt, der Link kopiert, der Empfänger öffnet es einmal und es ist weg.'
-	],
-	'landing.encrypted.title': [
-		'Encrypted in your browser',
-		'Chiffré dans votre navigateur',
-		'Cifrado en tu navegador',
-		'Im Browser verschlüsselt'
-	],
-	'landing.encrypted.body': [
-		'AES-256-GCM runs on your device. The key stays in the link and never reaches the server.',
-		'AES-256-GCM tourne sur votre appareil. La clé reste dans le lien et n’atteint jamais le serveur.',
-		'AES-256-GCM se ejecuta en tu dispositivo. La clave va en el enlace y nunca llega al servidor.',
-		'AES-256-GCM läuft auf Ihrem Gerät. Der Schlüssel bleibt im Link und erreicht nie den Server.'
-	],
-	'landing.once.title': ['Opens once', 'S’ouvre une fois', 'Se abre una vez', 'Öffnet sich einmal'],
-	'landing.once.body': [
-		'A capsule burns on first read, or expires when you choose.',
-		'Une capsule se détruit à la première lecture, ou expire quand vous le décidez.',
-		'Una cápsula se destruye al primer uso, o caduca cuando tú decidas.',
-		'Eine Kapsel löscht sich beim ersten Lesen oder läuft ab, wann Sie wollen.'
-	],
-	'landing.extras.title': [
-		'Passwords and files',
-		'Mots de passe et fichiers',
-		'Contraseñas y archivos',
-		'Passwörter und Dateien'
-	],
-	'landing.extras.body': [
-		'Add a password, or attach a file up to 10 MB.',
-		'Ajoutez un mot de passe, ou joignez un fichier jusqu’à 10 Mo.',
-		'Añade una contraseña o adjunta un archivo de hasta 10 MB.',
-		'Fügen Sie ein Passwort hinzu oder hängen Sie eine Datei bis 10 MB an.'
-	],
-	'landing.downloadTitle': [
-		'Seal from the terminal',
-		'Scellez depuis le terminal',
-		'Sella desde la terminal',
-		'Aus dem Terminal versiegeln'
-	],
 	'landing.downloadBody': [
 		'The capsule CLI encrypts on your machine and prints the link.',
 		'La CLI capsule chiffre sur votre machine et affiche le lien.',
@@ -69,16 +25,81 @@ export const landing = {
 		'Die capsule-CLI verschlüsselt auf Ihrem Rechner und gibt den Link aus.'
 	],
 	'landing.script': ['Install script', 'Script d’installation', 'Script de instalación', 'Installationsskript'],
-	'landing.ctaTitle': [
-		'Seal your first capsule',
-		'Scellez votre première capsule',
-		'Sella tu primera cápsula',
-		'Versiegeln Sie Ihre erste Kapsel'
+	'landing.demoTitle':['How it works', 'Comment ça marche', 'Cómo funciona', 'So funktioniert es'],
+	'landing.demoLabel': [
+		'A Wi-Fi password is sealed, its link copied, then the guest opens it once and it is gone.',
+		'Un code Wi-Fi est scellé, son lien copié, puis l’invité l’ouvre une fois et il disparaît.',
+		'Se sella una clave Wi-Fi, se copia su enlace y el invitado la abre una vez antes de que desaparezca.',
+		'Ein WLAN-Passwort wird versiegelt, der Link kopiert, der Gast öffnet es einmal und es ist weg.'
 	],
-	'landing.ctaBody': [
-		'No account needed.',
-		'Aucun compte requis.',
-		'No necesitas cuenta.',
-		'Kein Konto nötig.'
+	'landing.demoSecret': ['Wi-Fi: linden-sun-42', 'Wi-Fi : tilleul-soleil-42', 'Wi-Fi: tilo-sol-42', 'WLAN: linde-sonne-42'],
+	'landing.tilesTitle': [
+		'For anything that should not linger',
+		'Pour tout ce qui ne doit pas traîner',
+		'Para todo lo que no debe quedarse',
+		'Für alles, was nicht liegen bleiben soll'
+	],
+	'landing.tile.share.title': [
+		'A password, a Wi-Fi code',
+		'Un mot de passe, un code Wi-Fi',
+		'Una contraseña, una clave Wi-Fi',
+		'Ein Passwort, ein WLAN-Code'
+	],
+	'landing.tile.share.body': [
+		'A password for a colleague, a Wi-Fi code for a guest. They need no account either.',
+		'Un mot de passe pour un collègue, un code Wi-Fi pour un invité. Eux non plus n’ont pas besoin de compte.',
+		'Una contraseña para un compañero, una clave Wi-Fi para un invitado. Tampoco necesitan cuenta.',
+		'Ein Passwort für eine Kollegin, ein WLAN-Code für einen Gast. Auch sie brauchen kein Konto.'
+	],
+	'landing.tile.share.label': [
+		'Two links are sent: a password to a colleague and a Wi-Fi code to a guest.',
+		'Deux liens partent : un mot de passe pour une collègue et un code Wi-Fi pour un invité.',
+		'Salen dos enlaces: una contraseña para una compañera y una clave Wi-Fi para un invitado.',
+		'Zwei Links gehen raus: ein Passwort an eine Kollegin und ein WLAN-Code an einen Gast.'
+	],
+	'landing.tile.share.lea': ['Léa, colleague', 'Léa, collègue', 'Léa, compañera', 'Léa, Kollegin'],
+	'landing.tile.share.leaWhat': [
+		'Shared account password',
+		'Mot de passe du compte partagé',
+		'Contraseña de la cuenta compartida',
+		'Passwort des gemeinsamen Kontos'
+	],
+	'landing.tile.share.guest': ['Guest', 'Invité', 'Invitado', 'Gast'],
+	'landing.tile.share.guestWhat': ['Wi-Fi code', 'Code Wi-Fi', 'Clave Wi-Fi', 'WLAN-Code'],
+	'landing.tile.once.title': [
+		'Opens once, then it is gone',
+		'S’ouvre une fois, puis disparaît',
+		'Se abre una vez y desaparece',
+		'Öffnet sich einmal, dann ist es weg'
+	],
+	'landing.tile.once.body': [
+		'After the first read the link leads nowhere. Otherwise it expires on the date you chose.',
+		'Après la première lecture, le lien ne mène plus à rien. Sinon, il expire à la date choisie.',
+		'Tras la primera lectura el enlace ya no lleva a nada. Si no, caduca en la fecha que elijas.',
+		'Nach dem ersten Lesen führt der Link ins Leere. Sonst läuft er zum gewählten Termin ab.'
+	],
+	'landing.tile.once.label': [
+		'The capsule is opened once, and a second visit finds it empty.',
+		'La capsule est ouverte une fois, et une seconde visite la trouve vide.',
+		'La cápsula se abre una vez y una segunda visita la encuentra vacía.',
+		'Die Kapsel wird einmal geöffnet, ein zweiter Besuch findet sie leer.'
+	],
+	'landing.tile.extras.title': [
+		'Add a password or a file',
+		'Ajoutez un mot de passe ou un fichier',
+		'Añade una contraseña o un archivo',
+		'Passwort oder Datei hinzufügen'
+	],
+	'landing.tile.extras.body': [
+		'A password you give in person, or a file up to 10 MB, encrypted too.',
+		'Un mot de passe à donner de vive voix, ou un fichier jusqu’à 10 Mo, chiffré lui aussi.',
+		'Una contraseña que das en persona, o un archivo de hasta 10 MB, también cifrado.',
+		'Ein Passwort, das Sie persönlich weitergeben, oder eine Datei bis 10 MB, ebenfalls verschlüsselt.'
+	],
+	'landing.tile.extras.label': [
+		'A password is set on the capsule and a PDF is attached.',
+		'Un mot de passe protège la capsule et un PDF y est joint.',
+		'Se pone una contraseña a la cápsula y se adjunta un PDF.',
+		'Die Kapsel bekommt ein Passwort und ein PDF wird angehängt.'
 	]
 } satisfies Record<string, Row>;

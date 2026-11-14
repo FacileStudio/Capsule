@@ -22,10 +22,10 @@ export const create = {
 		'Datei zum Verschlüsseln ablegen (optional)'
 	],
 	'create.fileHint': [
-		'Max 10 MB — encrypted in your browser',
-		'Max 10 Mo — chiffré dans votre navigateur',
-		'Máx. 10 MB — cifrado en tu navegador',
-		'Max. 10 MB — im Browser verschlüsselt'
+		'Max 10 MB, encrypted in your browser',
+		'10 Mo maximum, chiffré dans votre navigateur',
+		'Máx. 10 MB, cifrado en tu navegador',
+		'Max. 10 MB, im Browser verschlüsselt'
 	],
 	'create.fileTooLarge': [
 		'File exceeds the 10 MB limit.',
@@ -69,25 +69,25 @@ export const create = {
 	'expiry.30d': ['30 days', '30 jours', '30 días', '30 Tage'],
 	'sealed.heading': ['Capsule sealed', 'Capsule scellée', 'Cápsula sellada', 'Kapsel versiegelt'],
 	'sealed.burnOnce': [
-		'Share this link — the capsule can only be opened once.',
+		'Share this link. The capsule can only be opened once.',
 		'Partagez ce lien : la capsule ne peut être ouverte qu’une fois.',
 		'Comparte este enlace: la cápsula solo se puede abrir una vez.',
 		'Teilen Sie diesen Link: Die Kapsel lässt sich nur einmal öffnen.'
 	],
 	'sealed.burnOncePassword': [
-		'Share this link and the password — the capsule can only be opened once.',
+		'Share this link and the password. The capsule can only be opened once.',
 		'Partagez ce lien et le mot de passe : la capsule ne peut être ouverte qu’une fois.',
 		'Comparte este enlace y la contraseña: la cápsula solo se puede abrir una vez.',
 		'Teilen Sie diesen Link und das Passwort: Die Kapsel lässt sich nur einmal öffnen.'
 	],
 	'sealed.expires': [
-		'Share this link — it expires in {duration}.',
+		'Share this link. It expires in {duration}.',
 		'Partagez ce lien : il expire dans {duration}.',
 		'Comparte este enlace: caduca en {duration}.',
 		'Teilen Sie diesen Link: Er läuft in {duration} ab.'
 	],
 	'sealed.expiresPassword': [
-		'Share this link and the password — it expires in {duration}.',
+		'Share this link and the password. It expires in {duration}.',
 		'Partagez ce lien et le mot de passe : il expire dans {duration}.',
 		'Comparte este enlace y la contraseña: caduca en {duration}.',
 		'Teilen Sie diesen Link und das Passwort: Er läuft in {duration} ab.'
@@ -97,7 +97,7 @@ export const create = {
 	'sealed.revoked': ['Capsule revoked', 'Capsule révoquée', 'Cápsula revocada', 'Kapsel widerrufen'],
 	'sealed.token': ['Delete token', 'Jeton de suppression', 'Token de eliminación', 'Löschtoken'],
 	'sealed.tokenHelp': [
-		'Copy it now — it is not stored anywhere you can read it back.',
+		'Copy it now. It is not stored anywhere you can read it back.',
 		'Copiez-le maintenant : il n’est stocké nulle part où vous pourriez le relire.',
 		'Cópialo ahora: no se guarda en ningún sitio donde puedas volver a leerlo.',
 		'Kopieren Sie ihn jetzt: Er wird nirgends gespeichert, wo Sie ihn erneut lesen könnten.'

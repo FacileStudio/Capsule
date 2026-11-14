@@ -94,7 +94,6 @@
 	padding: 10px 12px;
 	border-radius: 8px;
 	background: var(--color-fc-field);
-	font-family: var(--font-fc-mono);
 	font-size: 13px;
 	white-space: nowrap;
 	overflow: hidden;
@@ -170,7 +169,6 @@
 	padding: 9px 12px;
 	border-radius: 8px;
 	background: var(--color-fc-field);
-	font-family: var(--font-fc-mono);
 	font-size: 13px;
 	white-space: nowrap;
 	overflow: hidden;

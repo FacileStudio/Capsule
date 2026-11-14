@@ -1,60 +1,79 @@
 <script lang="ts">
-	import { Button, DownloadSection, Icon, icons } from '@facile/muse';
-	import { CHECKSUMS_HREF, CLI_DOWNLOADS, RELEASES_HREF, cliCommands } from '$lib/downloads';
+	import {
+		Button,
+		FeatureSplit,
+		ForDevelopers,
+		LANDING_HEADING,
+		PricingPlans,
+		SignUpWithFacile,
+		WorksWith,
+		icons,
+		type DeveloperRow,
+		type FeatureItem,
+		type WorksWithApp
+	} from '@facile/muse';
 	import { t } from '$lib/i18n/index.svelte';
-	import { CAPSULE_ICON } from '$lib/icons';
+	import { BULLE_ICON, CAPSULE_ICON } from '$lib/icons';
+	import DemoTiles from './DemoTiles.svelte';
 	import SealDemo from './SealDemo.svelte';
 
-	const features = $derived([
-		{ icon: icons.shield, title: t('landing.encrypted.title'), body: t('landing.encrypted.body') },
-		{ icon: icons.eye, title: t('landing.once.title'), body: t('landing.once.body') },
-		{ icon: icons.key, title: t('landing.extras.title'), body: t('landing.extras.body') }
+	const block = 'mx-auto w-full max-w-5xl px-4 sm:px-6';
+
+	const features: FeatureItem[] = $derived([
+		{ icon: icons.shield, title: t('blocks.features.device.title'), text: t('blocks.features.device.text') },
+		{ icon: icons.clock, title: t('blocks.features.expiry.title'), text: t('blocks.features.expiry.text') },
+		{ icon: icons.revoke, title: t('blocks.features.revoke.title'), text: t('blocks.features.revoke.text') },
+		{ icon: icons.userCircle, title: t('blocks.features.account.title'), text: t('blocks.features.account.text') }
 	]);
 
-	const commands = $derived(cliCommands(t('landing.script')));
+	const apps: WorksWithApp[] = $derived([
+		{ name: 'Bulle', icon: BULLE_ICON, line: t('blocks.with.bulle'), href: 'https://bulle.facile.studio' }
+	]);
+
+	const rows: DeveloperRow[] = $derived([
+		{ kind: 'cli', text: t('blocks.dev.cli'), href: '/downloads', command: 'brew install facilestudio/tap/capsule' },
+		{ kind: 'api', text: t('blocks.dev.api'), href: '/docs' },
+		{ kind: 'mcp', text: t('blocks.dev.mcp') },
+		{ kind: 'source', text: t('blocks.dev.source'), href: 'https://github.com/FacileStudio/Capsule' }
+	]);
+
+	const notes = $derived({ solo: t('blocks.pricing.free'), '*': t('blocks.pricing.paid') });
 </script>
 
-<section class="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16" aria-labelledby="demo-title">
-	<h2 id="demo-title" class="mb-8 text-center font-fc-title text-fc-2xl font-bold tracking-tight">
-		{t('landing.demoTitle')}
-	</h2>
-	<SealDemo />
-</section>
+<div class="flex flex-col gap-20 pt-12 pb-20 sm:gap-28 sm:pt-16 sm:pb-28">
+	<section class={block} aria-labelledby="demo-title">
+		<h2 id="demo-title" class="mb-8 text-center {LANDING_HEADING}">{t('landing.demoTitle')}</h2>
+		<SealDemo />
+	</section>
 
-<section class="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
-	<ul class="grid gap-4 md:grid-cols-3">
-		{#each features as feature (feature.icon)}
-			<li class="rounded-fc-lg bg-fc-surface p-6">
-				<span class="mb-3 flex size-10 items-center justify-center rounded-fc-md bg-fc-component">
-					<Icon icon={feature.icon} size={20} />
-				</span>
-				<h3 class="text-fc-lg font-bold">{feature.title}</h3>
-				<p class="mt-1.5 text-fc-sm text-fc-fg-muted">{feature.body}</p>
-			</li>
-		{/each}
-	</ul>
-</section>
+	<DemoTiles />
 
-<section id="download" class="mx-auto w-full max-w-3xl scroll-mt-20 px-4 py-12 sm:px-6 sm:py-16" aria-labelledby="download-title">
-	<div class="mb-6 text-center">
-		<h2 id="download-title" class="font-fc-title text-fc-2xl font-bold tracking-tight">{t('landing.downloadTitle')}</h2>
-		<p class="mt-2 text-fc-sm text-fc-fg-muted sm:text-fc-md">{t('landing.downloadBody')}</p>
-	</div>
-	<DownloadSection
-		mode="device"
-		allHref="/downloads"
-		downloads={CLI_DOWNLOADS}
-		{commands}
-		headingLevel={3}
-		releasesHref={RELEASES_HREF}
-		checksumsHref={CHECKSUMS_HREF}
+	<FeatureSplit class={block} title={t('blocks.features.title')} description={t('blocks.features.line')} {features} />
+
+	<WorksWith class={block} {apps} description={t('blocks.with.line')} />
+
+	<PricingPlans
+		id="pricing"
+		class={block}
+		title={t('blocks.pricing.title')}
+		headingClass={LANDING_HEADING}
+		highlight={['ai.access']}
+		highlightOnly
+		{notes}
+		recommended="pro"
+		suiteHref="https://suite.facile.studio/#tarifs"
 	/>
-</section>
 
-<section class="mx-auto w-full max-w-5xl px-4 py-16 text-center sm:px-6 sm:py-20">
-	<h2 class="font-fc-title text-fc-2xl font-bold tracking-tight">{t('landing.ctaTitle')}</h2>
-	<p class="mt-2 text-fc-sm text-fc-fg-muted">{t('landing.ctaBody')}</p>
-	<div class="mt-6 flex justify-center">
-		<Button href="#seal" size="lg" icon={CAPSULE_ICON}>{t('create.heading')}</Button>
+	<div class={block}>
+		<ForDevelopers {rows} description={t('blocks.dev.line')} />
 	</div>
-</section>
+
+	<section class="{block} flex flex-col items-center gap-4 text-center">
+		<h2 class={LANDING_HEADING}>{t('blocks.cta.title')}</h2>
+		<p class="max-w-xl text-fc-sm text-fc-fg-muted sm:text-fc-md">{t('blocks.cta.body')}</p>
+		<div class="mt-2 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+			<Button href="#seal" size="lg" icon={CAPSULE_ICON}>{t('blocks.cta.seal')}</Button>
+			<SignUpWithFacile size="lg" class="bg-fc-component text-fc-fg" />
+		</div>
+	</section>
+</div>

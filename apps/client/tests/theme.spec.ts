@@ -61,6 +61,7 @@ test.describe('theme', () => {
 		await page.goto('/');
 		await page.locator('textarea').fill('const apiKey = "theme check";');
 		await page.getByRole('checkbox', { name: 'Burn after opening' }).uncheck();
+		await page.getByRole('button', { name: 'Options' }).click();
 		await page.getByRole('combobox', { name: 'Syntax' }).click();
 		await page.getByRole('option', { name: 'typescript', exact: true }).click();
 		await page.getByRole('button', { name: /seal capsule/i }).click();

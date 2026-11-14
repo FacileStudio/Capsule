@@ -7,10 +7,10 @@ export const shell = {
 	'shell.api': ['API reference', 'Référence de l’API', 'Referencia de la API', 'API-Referenz'],
 	'shell.theme': ['Toggle theme', 'Changer de thème', 'Cambiar de tema', 'Design wechseln'],
 	'shell.tagline': [
-		'Secrets that burn after reading. The server only ever stores ciphertext.',
-		'Des secrets qui se détruisent à la lecture. Le serveur ne stocke que du texte chiffré.',
-		'Secretos que se destruyen al leerlos. El servidor solo almacena texto cifrado.',
-		'Geheimnisse, die sich nach dem Lesen auflösen. Der Server speichert nur Chiffretext.'
+		'Share a secret that disappears once read.',
+		'Partagez un secret qui disparaît après lecture.',
+		'Comparte un secreto que desaparece tras leerlo.',
+		'Teilen Sie ein Geheimnis, das nach dem Lesen verschwindet.'
 	],
 	'shell.facile': ['Facile Studio', 'Facile Studio', 'Facile Studio', 'Facile Studio']
 } satisfies Record<string, Row>;
