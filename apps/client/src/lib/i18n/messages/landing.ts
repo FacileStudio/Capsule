@@ -16,6 +16,8 @@ export const landing = {
 	],
 	'landing.cli': ['Install the CLI', 'Installer la CLI', 'Instalar la CLI', 'CLI installieren'],
 	'landing.nav.cli': ['CLI', 'CLI', 'CLI', 'CLI'],
+	'downloads.title': ['Downloads · Capsule', 'Téléchargements · Capsule', 'Descargas · Capsule', 'Downloads · Capsule'],
+	'downloads.heading': ['Get the capsule CLI', 'Obtenir la CLI capsule', 'Obtén la CLI capsule', 'Die capsule-CLI holen'],
 	'landing.demoTitle': ['How it works', 'Comment ça marche', 'Cómo funciona', 'So funktioniert es'],
 	'landing.demoLabel': [
 		'A password is sealed, its link copied, then the recipient opens it once and it is gone.',

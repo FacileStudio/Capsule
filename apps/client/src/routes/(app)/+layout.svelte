@@ -42,7 +42,7 @@
 	const links = $derived([
 		{ href: '/', label: t('shell.seal'), active: path === '/' },
 		{ href: '/revoke', label: t('shell.revoke'), active: path === '/revoke' },
-		{ href: '/#download', label: t('landing.nav.cli') },
+		{ href: '/downloads', label: t('landing.nav.cli'), active: path === '/downloads' },
 		{ href: '/docs', label: t('shell.api'), external: true }
 	]);
 	const columns = $derived([
@@ -67,7 +67,7 @@
 		{/snippet}
 	</LandingHeader>
 
-	<main id="main" class={path === '/' ? 'flex w-full flex-1 flex-col' : 'mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8 sm:px-6 sm:py-12'}>
+	<main id="main" class={path === '/' || path === '/downloads' ? 'flex w-full flex-1 flex-col' : 'mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8 sm:px-6 sm:py-12'}>
 		{@render children()}
 	</main>
 

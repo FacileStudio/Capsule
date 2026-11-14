@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Button, DownloadSection, Icon, icons, type CliCommand } from '@facile/muse';
+	import { Button, DownloadSection, Icon, icons } from '@facile/muse';
+	import { CHECKSUMS_HREF, CLI_DOWNLOADS, RELEASES_HREF, cliCommands } from '$lib/downloads';
 	import { t } from '$lib/i18n/index.svelte';
 	import { CAPSULE_ICON } from '$lib/icons';
 	import SealDemo from './SealDemo.svelte';
@@ -10,11 +11,7 @@
 		{ icon: icons.key, title: t('landing.extras.title'), body: t('landing.extras.body') }
 	]);
 
-	const commands: CliCommand[] = $derived([
-		{ label: t('landing.script'), command: 'curl -fsSL https://raw.githubusercontent.com/FacileStudio/capsule-cli/main/install.sh | bash' },
-		{ label: 'facile', command: 'facile install capsule' },
-		{ label: 'Homebrew', command: 'brew install facilestudio/tap/capsule' }
-	]);
+	const commands = $derived(cliCommands(t('landing.script')));
 </script>
 
 <section class="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16" aria-labelledby="demo-title">
@@ -43,7 +40,15 @@
 		<h2 id="download-title" class="font-fc-title text-fc-2xl font-bold tracking-tight">{t('landing.downloadTitle')}</h2>
 		<p class="mt-2 text-fc-sm text-fc-fg-muted sm:text-fc-md">{t('landing.downloadBody')}</p>
 	</div>
-	<DownloadSection {commands} headingLevel={3} releasesHref="https://github.com/FacileStudio/capsule-cli/releases" />
+	<DownloadSection
+		mode="device"
+		allHref="/downloads"
+		downloads={CLI_DOWNLOADS}
+		{commands}
+		headingLevel={3}
+		releasesHref={RELEASES_HREF}
+		checksumsHref={CHECKSUMS_HREF}
+	/>
 </section>
 
 <section class="mx-auto w-full max-w-5xl px-4 py-16 text-center sm:px-6 sm:py-20">
