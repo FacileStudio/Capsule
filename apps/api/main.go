@@ -132,6 +132,7 @@ func run() int {
 		appLogger.Error("failed to build the router", slog.Any("error", err))
 		return 1
 	}
+	mcpServer.keepPruned(cleanupCtx, appLogger)
 
 	addr := ":" + strconv.Itoa(appEnv.Port)
 	server := &http.Server{

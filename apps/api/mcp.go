@@ -15,14 +15,15 @@ import (
 // mcpSetup is what the MCP server needs besides the services buildRouter
 // builds. A nil setup leaves /mcp unmounted.
 type mcpSetup struct {
-	config mcp.Config
+	config  mcp.Config
+	pending mcpkit.PostgresPending
 }
 
 // newMCPSetup prepares the MCP server when MCP_RESOURCE is set and SSO is
 // on, and nothing otherwise. The verifier runs Registre discovery here, so a
 // wrong issuer fails at boot like the OIDC kit does. A person's first MCP
 // call creates their account through the OIDC kit, as a first web login
-// would. Resolved and expired pending actions are pruned until ctx ends.
+// would.
 func newMCPSetup(ctx context.Context, appEnv env.Config, sqlDB *sql.DB, kits *auth.Kits, appLogger *slog.Logger) (*mcpSetup, error) {
 	if appEnv.OIDC == nil || appEnv.OIDC.MCPResource == "" {
 		return nil, nil
@@ -40,7 +41,6 @@ func newMCPSetup(ctx context.Context, appEnv env.Config, sqlDB *sql.DB, kits *au
 		return nil, err
 	}
 	pending := mcpkit.PostgresPending{DB: sqlDB}
-	go mcpkit.KeepPruned(ctx, pending, 0, 0, appLogger)
 	appLogger.Info("mcp server on", slog.String("resource", appEnv.OIDC.MCPResource))
 	return &mcpSetup{config: mcp.Config{
 		Resource: appEnv.OIDC.MCPResource,
@@ -51,7 +51,16 @@ func newMCPSetup(ctx context.Context, appEnv env.Config, sqlDB *sql.DB, kits *au
 		Verifier: verifier,
 		Pending:  pending,
 		Logger:   appLogger,
-	}}, nil
+	}, pending: pending}, nil
+}
+
+// keepPruned prunes resolved and expired pending actions until ctx ends. run
+// starts it once startup succeeded, so no prune outlives the database pool.
+func (s *mcpSetup) keepPruned(ctx context.Context, logger *slog.Logger) {
+	if s == nil {
+		return
+	}
+	go mcpkit.KeepPruned(ctx, s.pending, 0, 0, logger)
 }
 
 // service builds the MCP server over deps, or nothing for a nil setup.

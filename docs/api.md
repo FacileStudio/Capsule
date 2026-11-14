@@ -141,7 +141,7 @@ when it can ask, otherwise on `/pending?action=<id>`, signed in to Capsule. That
 `GET /api/mcp/pending` and `POST /api/mcp/pending/{id}/confirm|dismiss`, which accept the
 cookie of a browser sign-in only (porte `mcpauth.RequireOwnSession`): any `Authorization` header,
 API key, delegated token, or a CLI, device or mobile session sent as a cookie is refused with 403.
-A cookie minted before porte v0.20.0 is refused too, until the person signs in again. A capsule opened or expired
+A cookie minted before porte v0.20.1 is refused too, until the person signs in again. A capsule opened or expired
 in between leaves nothing to confirm. Erasing a person through Registre also erases their pending
 actions.
 
