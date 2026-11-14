@@ -11,6 +11,7 @@ describe('own-session refusal', () => {
 		expect(refusesOwnSession(apiError(403, 'permission_denied', "only the person's own session can confirm actions"))).toBe(true);
 		expect(refusesOwnSession(apiError(412, 'failed_precondition', 'This capsule changed'))).toBe(false);
 		expect(refusesOwnSession(apiError(403, 'insufficient_scope', 'no'))).toBe(false);
+		expect(refusesOwnSession(apiError(403, 'permission_denied', 'access denied'))).toBe(false);
 		expect(refusesOwnSession(new Error('network'))).toBe(false);
 		expect(refusesOwnSession(null)).toBe(false);
 	});
