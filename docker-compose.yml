@@ -21,7 +21,6 @@ services:
       start_period: 30s
       start_interval: 1s
   capsule-api:
-    container_name: capsule-api
     restart: unless-stopped
     build:
       context: .
@@ -32,6 +31,7 @@ services:
     - default
     - dokploy-network
     labels:
+      journal.app: capsule-api
       traefik.enable: 'true'
       traefik.docker.network: dokploy-network
       traefik.http.routers.capsule-web.rule: "Host(`capsule.facile.studio`)"
