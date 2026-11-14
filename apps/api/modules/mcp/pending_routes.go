@@ -5,23 +5,20 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/FacileStudio/porte"
-	"github.com/FacileStudio/tronc/errors"
+	"github.com/FacileStudio/porte/mcpauth"
 	mcpkit "github.com/FacileStudio/tronc/mcp"
 )
 
 const webActor = "capsule-web"
 
 // pendingUser is the signed-in person of a confirm page request. Only the
-// person's own browser session passes: a bearer token, a CLI's included, and
-// a delegated token never confirm what an agent asked for.
+// person's own browser session passes, as porte's mcpauth.RequireOwnSession
+// decides: a bearer token, a CLI's included, an API key and a delegated token
+// never confirm what an agent asked for.
 func pendingUser(r *http.Request) (string, error) {
-	identity, ok := porte.From(r.Context())
-	if !ok {
-		return "", errors.Unauthorized("missing auth")
-	}
-	if r.Header.Get("Authorization") != "" || identity.SessionID == 0 || identity.Actor != "" {
-		return "", mcpkit.ErrDelegated
+	identity, err := mcpauth.RequireOwnSession(r)
+	if err != nil {
+		return "", err
 	}
 	return strconv.FormatInt(identity.UserID, 10), nil
 }

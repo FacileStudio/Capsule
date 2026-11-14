@@ -5,12 +5,14 @@
 	import { backend, type PendingAction } from '$lib/backend';
 	import PendingCard from '$lib/components/PendingCard.svelte';
 	import { t } from '$lib/i18n/index.svelte';
+	import { refusesOwnSession } from '$lib/session-refusal';
 	import { SIGN_IN_HREF, rememberReturn } from '$lib/signin';
 
 	let actions = $state<PendingAction[]>([]);
 	let phase = $state<'loading' | 'signedOut' | 'ready'>('loading');
 	let busy = $state('');
 	let notice = $state<{ tone: 'success' | 'danger'; text: string } | null>(null);
+	let notOwnSession = $state(false);
 
 	const focused = $derived(page.url.searchParams.get('action') ?? '');
 	const ordered = $derived([
@@ -27,12 +29,19 @@
 		await load();
 	});
 
+	/** Reports whether err is the refusal of a session no browser sign-in opened. */
+	function refusedSession(err: unknown) {
+		notOwnSession = refusesOwnSession(err);
+		if (notOwnSession) notice = null;
+		return notOwnSession;
+	}
+
 	/** Loads the open actions. */
 	async function load() {
 		try {
 			actions = (await backend.listPending()).actions;
-		} catch {
-			notice = { tone: 'danger', text: t('pending.loadFailed') };
+		} catch (err) {
+			if (!refusedSession(err)) notice = { tone: 'danger', text: t('pending.loadFailed') };
 		}
 		phase = 'ready';
 	}
@@ -51,8 +60,10 @@
 			notice = { tone: 'success', text: t('pending.revoked') };
 			actions = actions.filter((item) => item.id !== action.id);
 		} catch (err) {
-			notice = { tone: 'danger', text: err instanceof Error ? err.message : t('pending.failed') };
-			await load();
+			if (!refusedSession(err)) {
+				notice = { tone: 'danger', text: err instanceof Error ? err.message : t('pending.failed') };
+				await load();
+			}
 		}
 		busy = '';
 	}
@@ -65,7 +76,7 @@
 			notice = { tone: 'success', text: t('pending.dismissed') };
 			actions = actions.filter((item) => item.id !== action.id);
 		} catch (err) {
-			notice = { tone: 'danger', text: err instanceof Error ? err.message : t('pending.failed') };
+			if (!refusedSession(err)) notice = { tone: 'danger', text: err instanceof Error ? err.message : t('pending.failed') };
 		}
 		busy = '';
 	}
@@ -85,7 +96,12 @@
 		<Alert tone={notice.tone}>{notice.text}</Alert>
 	{/if}
 
-	{#if phase === 'loading'}
+	{#if notOwnSession}
+		<Alert tone="warning" title={t('pending.signInAgain')}>
+			<p>{t('pending.signInAgainBody')}</p>
+			<Button size="sm" class="mt-3" onclick={signIn}>{t('pending.signInAgainButton')}</Button>
+		</Alert>
+	{:else if phase === 'loading'}
 		<div class="flex h-48 items-center justify-center"><Spinner /></div>
 	{:else if phase === 'signedOut'}
 		<div class="flex flex-col gap-4">

@@ -133,7 +133,7 @@ func signedIn(next http.Handler) http.Handler {
 			http.Error(w, "unauthenticated", http.StatusUnauthorized)
 			return
 		}
-		identity := porte.Identity{UserID: id, SessionID: 1}
+		identity := porte.Identity{UserID: id, SessionID: 1, BrowserSession: r.Header.Get("X-Test-Session") != "cli"}
 		next.ServeHTTP(w, r.WithContext(porte.WithIdentity(r.Context(), identity)))
 	})
 }

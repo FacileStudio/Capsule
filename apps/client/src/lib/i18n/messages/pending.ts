@@ -18,6 +18,14 @@ export const pending = {
 		'Nur Sie können bestätigen, worum ein KI-Client gebeten hat. Melden Sie sich mit Ihrem Facile-Konto an, dann kommen Sie hierher zurück.'
 	],
 	'pending.signIn': ['Sign in', 'Se connecter', 'Iniciar sesión', 'Anmelden'],
+	'pending.signInAgain': ['Sign in again to confirm', 'Reconnectez-vous pour confirmer', 'Vuelve a iniciar sesión para confirmar', 'Melden Sie sich erneut an, um zu bestätigen'],
+	'pending.signInAgainBody': [
+		'Only a session you opened in this browser can confirm. Sign in again here, then confirm. The command line and the mobile or desktop apps cannot confirm.',
+		'Seule une session ouverte dans ce navigateur peut confirmer. Reconnectez-vous ici, puis confirmez. La ligne de commande et les applications mobile ou de bureau ne peuvent pas confirmer.',
+		'Solo una sesión abierta en este navegador puede confirmar. Vuelve a iniciar sesión aquí y luego confirma. La línea de comandos y las aplicaciones móviles o de escritorio no pueden confirmar.',
+		'Nur eine in diesem Browser geöffnete Sitzung kann bestätigen. Melden Sie sich hier erneut an und bestätigen Sie dann. Die Kommandozeile und die Mobil- oder Desktop-Apps können nicht bestätigen.'
+	],
+	'pending.signInAgainButton': ['Sign in again', 'Se reconnecter', 'Iniciar sesión de nuevo', 'Erneut anmelden'],
 	'pending.none': ['Nothing is waiting', 'Rien en attente', 'Nada pendiente', 'Nichts ausstehend'],
 	'pending.noneBody': [
 		'Actions an AI client asks for appear here until you confirm or dismiss them.',

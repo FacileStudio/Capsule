@@ -15,7 +15,8 @@ import (
 // mcpSetup is what the MCP server needs besides the services buildRouter
 // builds. A nil setup leaves /mcp unmounted.
 type mcpSetup struct {
-	config mcp.Config
+	config  mcp.Config
+	pending mcpkit.PostgresPending
 }
 
 // newMCPSetup prepares the MCP server when MCP_RESOURCE is set and SSO is
@@ -39,17 +40,27 @@ func newMCPSetup(ctx context.Context, appEnv env.Config, sqlDB *sql.DB, kits *au
 	if err != nil {
 		return nil, err
 	}
+	pending := mcpkit.PostgresPending{DB: sqlDB}
 	appLogger.Info("mcp server on", slog.String("resource", appEnv.OIDC.MCPResource))
 	return &mcpSetup{config: mcp.Config{
 		Resource: appEnv.OIDC.MCPResource,
 		Issuer:   appEnv.OIDC.Issuer,
 		Version:  version,
 		Origins:  appEnv.CORSAllowedOrigins,
-		StateKey: appEnv.OIDC.MCPStateKey(),
+		StateKey: mcpkit.StateKey("capsule", appEnv.OIDC.ClientSecret),
 		Verifier: verifier,
-		Pending:  mcpkit.PostgresPending{DB: sqlDB},
+		Pending:  pending,
 		Logger:   appLogger,
-	}}, nil
+	}, pending: pending}, nil
+}
+
+// keepPruned prunes resolved and expired pending actions until ctx ends. run
+// starts it once startup succeeded, so no prune outlives the database pool.
+func (s *mcpSetup) keepPruned(ctx context.Context, logger *slog.Logger) {
+	if s == nil {
+		return
+	}
+	go mcpkit.KeepPruned(ctx, s.pending, 0, 0, logger)
 }
 
 // service builds the MCP server over deps, or nothing for a nil setup.
