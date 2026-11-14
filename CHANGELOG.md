@@ -6,6 +6,18 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-14
+
+### Changed
+
+- The confirm page accepts only a session opened by a browser sign-in (porte v0.20.1 `mcpauth.RequireOwnSession`). CLI, device and mobile sessions sent as a cookie, API keys, and cookies minted before porte v0.20.1 are refused with 403. Sign in once in the browser after this release.
+- `/pending` explains that refusal: a translated "Sign in again to confirm" alert with a sign-in button that returns to the page, and a note that the command line and the mobile or desktop apps cannot confirm.
+- build(api): tronc v0.23.1, tronc/migrate v0.1.1, tronc/testdb v0.1.2, porte v0.20.1, porte/mcpauth v0.3.1, porte/forfait v0.1.3. The MCP state key comes from `mcpkit.StateKey` (same bytes, signed state survives) and `capsule_revoke` returns the kit's waiting text.
+
+### Fixed
+
+- Resolved and expired pending actions are pruned only once startup succeeded, so no prune runs against a closed database pool.
+
 ## [0.9.0] - 2026-11-14
 
 ### Added
