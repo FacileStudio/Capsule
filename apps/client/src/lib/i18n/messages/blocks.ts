@@ -92,10 +92,16 @@ export const blocks = {
 		'Agenten prüfen und widerrufen eine Kapsel über /mcp und lesen nie den Inhalt.'
 	],
 	'blocks.dev.source': [
-		'The code is open. The README explains how to run Capsule yourself.',
-		'Le code est ouvert. Le README explique comment installer Capsule chez vous.',
-		'El código es abierto. El README explica cómo instalar Capsule tú mismo.',
-		'Der Code ist offen. Das README erklärt, wie Sie Capsule selbst betreiben.'
+		'The code is open, on GitHub.',
+		'Le code est ouvert, sur GitHub.',
+		'El código es abierto, en GitHub.',
+		'Der Code ist offen, auf GitHub.'
+	],
+	'blocks.dev.selfHostHref': [
+		'https://suite.facile.studio/en/auto-hebergement',
+		'https://suite.facile.studio/auto-hebergement',
+		'https://suite.facile.studio/es/auto-hebergement',
+		'https://suite.facile.studio/de/auto-hebergement'
 	],
 	'blocks.cta.title': [
 		'One Facile account, the whole suite',

@@ -1,7 +1,7 @@
 {
   "name": "Capsule",
   "short_name": "Capsule",
-  "description": "Encrypted end to end in the browser, so the server never sees the content. You choose when it expires.",
+  "description": "A link that opens once, encrypted before it leaves your device. No account needed.",
   "icons": [
     {
       "src": "/icon-192.png",

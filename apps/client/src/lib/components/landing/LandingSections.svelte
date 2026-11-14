@@ -61,11 +61,13 @@
 		highlightOnly
 		{notes}
 		recommended="pro"
+		freeLabel={t('blocks.cta.seal')}
+		freeHref="/#seal"
 		suiteHref="https://suite.facile.studio/#tarifs"
 	/>
 
 	<div class={block}>
-		<ForDevelopers {rows} description={t('blocks.dev.line')} />
+		<ForDevelopers {rows} selfHostHref={t('blocks.dev.selfHostHref')} description={t('blocks.dev.line')} />
 	</div>
 
 	<section class="{block} flex flex-col items-center gap-4 text-center">
