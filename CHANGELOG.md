@@ -6,6 +6,18 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-11-14
+
+### Fixed
+
+- The free Solo card says "Free, no account needed", and its button now says "Seal a secret" and goes to the seal form at the top of the page, instead of "Start for free" leading to sign-up (en, fr, es, de).
+- The For developers block has a "Self-host" button to the Suite self-hosting page in the visitor's language; the source code row no longer sends people to the README for that.
+
+### Changed
+
+- New link preview image and web manifest description from muse v0.25.1 ("A link that opens once, encrypted before it leaves your device. No account needed.").
+- build(client): muse v0.25.1.
+
 ## [0.11.0] - 2026-11-14
 
 ### Changed
