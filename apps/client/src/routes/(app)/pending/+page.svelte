@@ -77,7 +77,7 @@
 
 <div class="flex w-full flex-col gap-6">
 	<div class="flex flex-col gap-1">
-		<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('pending.heading')}</h1>
+		<h1 class="text-fc-2xl font-bold tracking-tight sm:text-fc-3xl">{t('pending.heading')}</h1>
 		<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">{t('pending.intro')}</p>
 	</div>
 

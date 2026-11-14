@@ -55,7 +55,7 @@
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
 			<Icon icon={icons.remove} size={28} class="mb-3 text-fc-danger" />
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('revoke.doneHeading')}</h1>
+			<h1 class="text-fc-2xl font-bold tracking-tight sm:text-fc-3xl">{t('revoke.doneHeading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				{t('revoke.doneText')}
 			</p>
@@ -69,7 +69,7 @@
 {:else}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('revoke.heading')}</h1>
+			<h1 class="text-fc-2xl font-bold tracking-tight sm:text-fc-3xl">{t('revoke.heading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				{t('revoke.intro')}
 			</p>

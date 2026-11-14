@@ -3,6 +3,7 @@
 	import { generateKey, exportKey, encrypt, wrapContentKey } from '$lib/crypto';
 	import { encodeFile, serializePayload } from '$lib/envelope';
 	import FileAttachment from '$lib/components/FileAttachment.svelte';
+	import LandingSections from '$lib/components/landing/LandingSections.svelte';
 	import { backend } from '$lib/backend';
 	import { page } from '$app/state';
 	import { t } from '$lib/i18n/index.svelte';
@@ -107,10 +108,11 @@
 </script>
 
 {#if phase === 'idle' || phase === 'sealing'}
-	<div class="flex flex-col gap-6">
-		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('create.heading')}</h1>
-			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">{t('create.intro')}</p>
+	<section id="seal" class="mx-auto flex w-full max-w-2xl scroll-mt-20 flex-col gap-6 px-4 pt-10 pb-8 sm:px-6 sm:pt-16">
+		<div class="flex flex-col items-start gap-2">
+			<h1 class="font-fc-title text-fc-2xl font-bold tracking-tight sm:text-fc-3xl">{t('landing.heroTitle')}</h1>
+			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">{t('landing.heroBody')}</p>
+			<Button href="#download" variant="ghost" size="sm" icon={icons.code} class="-ml-3">{t('landing.cli')}</Button>
 		</div>
 
 		<Textarea
@@ -141,7 +143,6 @@
 		</div>
 
 		<div class="flex flex-col gap-3">
-			<!-- The 16px box is by design; the <label> Checkbox renders carries the hit target. -->
 			<Checkbox label={t('create.burn')} bind:checked={burnAfterRead} disabled={phase === 'sealing'} class="min-h-11" />
 			<Checkbox label={t('create.password')} bind:checked={usePassword} disabled={phase === 'sealing'} class="min-h-11" />
 		</div>
@@ -160,7 +161,7 @@
 				icon={phase === 'sealing' ? undefined : CAPSULE_ICON}
 				onclick={seal}
 				disabled={(!content.trim() && !attachedFile) || (usePassword && !password) || phase === 'sealing'}
-				class="flex-1"
+				class="sm:flex-1"
 			>
 				{#if phase === 'sealing'}
 					<Spinner size="sm" label={t('create.sealingLabel')} />
@@ -171,12 +172,14 @@
 			</Button>
 			<Button href="/revoke" variant="secondary" size="lg" icon={icons.revoke}>{t('shell.revoke')}</Button>
 		</div>
-	</div>
+	</section>
+
+	<LandingSections />
 {:else if phase === 'sealed'}
-	<div class="flex flex-col gap-6">
+	<div class="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-12">
 		<div class="flex flex-col gap-1">
 			<Icon icon={icons.check} size={28} class="mb-3 text-fc-success" />
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('sealed.heading')}</h1>
+			<h1 class="text-fc-2xl font-bold tracking-tight sm:text-fc-3xl">{t('sealed.heading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">{sealedHelp}</p>
 		</div>
 
@@ -194,8 +197,6 @@
 					{t('sealed.revoked')}
 				</p>
 			{:else}
-				<!-- The token is shown once and is the only way to burn this capsule early, so it
-				     gets a copy button. It used to be `truncate`d text: unreadable and unselectable. -->
 				<SecretField bind:value={deleteToken} label={t('sealed.token')} helper={t('sealed.tokenHelp')} />
 				<Button variant="danger" icon={icons.remove} onclick={revoke} disabled={revoking} class="w-fit">
 					{revoking ? t('sealed.revoking') : t('sealed.revoke')}

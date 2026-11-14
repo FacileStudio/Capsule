@@ -1,0 +1,199 @@
+.sd {
+	position: absolute;
+	inset: 0;
+	font-family: var(--font-fc-body);
+	color: var(--color-fc-fg);
+}
+.sd .sd-seal {
+	top: 36px;
+	left: 60px;
+	width: 520px;
+	height: 360px;
+	transition: translate 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sd .sd-solo {
+	translate: 160px 44px;
+}
+.sd-compact .sd-solo {
+	translate: 0 113px;
+}
+.sd .sd-reveal {
+	top: 236px;
+	left: 520px;
+	width: 400px;
+	height: 270px;
+	transition:
+		opacity 0.45s ease,
+		translate 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sd-compact .sd-seal {
+	top: 16px;
+	left: 16px;
+	width: 326px;
+	height: 262px;
+}
+.sd-compact .sd-reveal {
+	top: 250px;
+	left: 16px;
+	width: 326px;
+	height: 240px;
+}
+.sd .sd-away {
+	opacity: 0;
+	translate: 0 24px;
+}
+.sd-body {
+	flex: 1;
+	min-height: 0;
+	padding: 24px 28px;
+}
+.sd-compact .sd-body {
+	padding: 16px 18px;
+}
+.sd-stack {
+	display: grid;
+}
+.sd-view {
+	grid-area: 1 / 1;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 14px;
+	min-width: 0;
+	transition: opacity 0.3s ease 0.15s;
+}
+.sd-compact .sd-view {
+	gap: 10px;
+}
+.sd-off {
+	opacity: 0;
+	transition: opacity 0.15s ease;
+}
+.sd-heading {
+	margin: 0;
+	font-family: var(--font-fc-title);
+	font-size: 20px;
+	font-weight: 700;
+}
+.sd-compact .sd-heading {
+	font-size: 16px;
+}
+.sd-muted,
+.sd-danger {
+	margin: -6px 0 0;
+	font-size: 13px;
+	line-height: 1.45;
+	color: var(--color-fc-fg-muted);
+}
+.sd-danger {
+	color: var(--color-fc-danger);
+}
+.sd-area {
+	align-self: stretch;
+	height: 104px;
+	padding: 10px 12px;
+	border-radius: 8px;
+	background: var(--color-fc-field);
+	font-family: var(--font-fc-mono);
+	font-size: 13px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.sd-compact .sd-area {
+	height: 60px;
+}
+.sd-placeholder {
+	color: var(--color-fc-fg-muted);
+}
+.sd-selects {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+	align-self: stretch;
+}
+.sd-compact .sd-selects {
+	display: none;
+}
+.sd-select {
+	padding: 9px 12px;
+	border-radius: 8px;
+	background: var(--color-fc-field);
+	font-size: 13px;
+}
+.sd-check {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+}
+.sd-box {
+	width: 16px;
+	height: 16px;
+	border-radius: 4px;
+	background: var(--color-fc-accent);
+}
+.sd-button {
+	display: inline-flex;
+	align-items: center;
+	height: 40px;
+	padding: 0 22px;
+	border-radius: 999px;
+	background: var(--color-fc-accent);
+	color: var(--color-fc-accent-fg);
+	font-size: 14px;
+	font-weight: 500;
+	white-space: nowrap;
+	transition: scale 0.12s ease;
+}
+.sd-small {
+	height: 34px;
+	padding: 0 16px;
+	font-size: 13px;
+}
+.sd-pressed {
+	scale: 0.96;
+}
+.sd-link {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	align-self: stretch;
+}
+.sd-compact .sd-link {
+	flex-direction: column;
+	align-items: flex-start;
+}
+.sd-url {
+	flex: 1;
+	min-width: 0;
+	align-self: stretch;
+	padding: 9px 12px;
+	border-radius: 8px;
+	background: var(--color-fc-field);
+	font-family: var(--font-fc-mono);
+	font-size: 13px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.sd-compact .sd-url {
+	font-size: 12px;
+}
+.sd-dim {
+	color: var(--color-fc-fg-muted);
+}
+.sd-key {
+	color: var(--color-fc-fg);
+	font-weight: 700;
+}
+.sd-secret {
+	align-self: stretch;
+	margin: 0;
+	padding: 12px 14px;
+	border-radius: 8px;
+	background: var(--color-fc-surface);
+	font-family: var(--font-fc-mono);
+	font-size: 13px;
+	white-space: nowrap;
+	overflow: hidden;
+}

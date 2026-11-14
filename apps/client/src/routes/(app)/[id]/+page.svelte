@@ -136,7 +136,7 @@
 	<div class="flex flex-col items-center gap-4 py-12 text-center sm:py-20">
 		<Icon icon={CAPSULE_ICON} size={28} class="text-fc-fg-muted" />
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-xl font-semibold tracking-tight sm:text-fc-2xl">{t('reveal.emptyHeading')}</h1>
+			<h1 class="text-fc-xl font-bold tracking-tight sm:text-fc-2xl">{t('reveal.emptyHeading')}</h1>
 			<p class="mx-auto max-w-sm text-fc-sm text-fc-fg-muted">
 				{t('reveal.emptyText')}
 			</p>
@@ -147,7 +147,7 @@
 	<div class="flex flex-col items-center gap-4 py-12 text-center sm:py-20">
 		<Icon icon={icons.warning} size={28} class="text-fc-danger" />
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-xl font-semibold tracking-tight sm:text-fc-2xl">{t('reveal.errorHeading')}</h1>
+			<h1 class="text-fc-xl font-bold tracking-tight sm:text-fc-2xl">{t('reveal.errorHeading')}</h1>
 			<p class="mx-auto max-w-sm text-fc-sm text-fc-fg-muted">{error}</p>
 		</div>
 		<Button href="/" variant="secondary" size="lg">{t('reveal.back')}</Button>
@@ -155,7 +155,7 @@
 {:else if phase === 'password'}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('reveal.passwordHeading')}</h1>
+			<h1 class="text-fc-2xl font-bold tracking-tight sm:text-fc-3xl">{t('reveal.passwordHeading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				{t('reveal.passwordText')}
 			</p>
@@ -181,7 +181,7 @@
 {:else if phase === 'ready' || phase === 'revealing'}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('reveal.readyHeading')}</h1>
+			<h1 class="text-fc-2xl font-bold tracking-tight sm:text-fc-3xl">{t('reveal.readyHeading')}</h1>
 			<p class="text-fc-sm text-fc-fg-muted sm:text-fc-md">
 				{#if meta?.burn_after_read}
 					{t('reveal.readyBurn')}
@@ -211,7 +211,7 @@
 {:else if phase === 'revealed'}
 	<div class="flex flex-col gap-6">
 		<div class="flex flex-col gap-1">
-			<h1 class="text-fc-2xl font-semibold tracking-tight sm:text-fc-3xl">{t('reveal.openedHeading')}</h1>
+			<h1 class="text-fc-2xl font-bold tracking-tight sm:text-fc-3xl">{t('reveal.openedHeading')}</h1>
 			{#if meta?.burn_after_read}
 				<p class="text-fc-sm text-fc-danger">
 					{t('reveal.destroyed')}

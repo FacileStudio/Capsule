@@ -6,7 +6,7 @@ Zero-knowledge, end-to-end encrypted paste tool. Secrets self-destruct after rea
 
 - **API**: Go 1.26, Chi router, GORM, PostgreSQL 16, [`tronc`](https://github.com/FacileStudio/tronc) as the app chassis, [`tronc/migrate`](https://github.com/FacileStudio/tronc/tree/main/migrate) for schema
 - **Client**: SvelteKit 5 (Svelte 5 runes), Tailwind CSS 4, Vite 7, adapter-static (the Go binary serves the build)
-- **Design system**: [`@facile/muse`](https://github.com/FacileStudio/muse), pinned to a tag. It owns the palette, the Goga faces, dark mode and the base layer
+- **Design system**: [`@facile/muse`](https://github.com/FacileStudio/muse), pinned to a tag. It owns the palette, the Magnetik faces, dark mode and the base layer
 - **Encryption**: AES-256-GCM via Web Crypto API (client-side only)
 - **Runtime**: Bun (client), Docker Compose for full stack
 - **Gate**: `sh scripts/check.sh` and `filet gate .`, run before every push by the tracked `lefthook.yml` (`mise run hooks` installs it). `.github/workflows/ci.yml` runs gofmt, vet, race tests on Postgres, svelte-check, the client tests, filet v0.19.0 (`preset: facile` in `filet.yml`) and douane 0.7.0 (`-fail critical -scope prod`). `scripts/check.sh` runs the `filet` on `PATH`, which must be v0.19.0 or later: older ones refuse `preset: facile`
