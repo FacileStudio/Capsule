@@ -139,7 +139,9 @@ The server cannot decrypt, so no tool seals, opens or returns content or ciphert
 action names the capsule by id only. The person confirms in their client (MRTR `input_required`)
 when it can ask, otherwise on `/pending?action=<id>`, signed in to Capsule. That page uses
 `GET /api/mcp/pending` and `POST /api/mcp/pending/{id}/confirm|dismiss`, which accept the
-browser session cookie only; any `Authorization` header is refused. A capsule opened or expired
+cookie of a browser sign-in only (porte `mcpauth.RequireOwnSession`): any `Authorization` header,
+API key, delegated token, or a CLI, device or mobile session sent as a cookie is refused with 403.
+A cookie minted before porte v0.20.0 is refused too, until the person signs in again. A capsule opened or expired
 in between leaves nothing to confirm. Erasing a person through Registre also erases their pending
 actions.
 

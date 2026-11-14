@@ -22,7 +22,7 @@ type mcpSetup struct {
 // on, and nothing otherwise. The verifier runs Registre discovery here, so a
 // wrong issuer fails at boot like the OIDC kit does. A person's first MCP
 // call creates their account through the OIDC kit, as a first web login
-// would.
+// would. Resolved and expired pending actions are pruned until ctx ends.
 func newMCPSetup(ctx context.Context, appEnv env.Config, sqlDB *sql.DB, kits *auth.Kits, appLogger *slog.Logger) (*mcpSetup, error) {
 	if appEnv.OIDC == nil || appEnv.OIDC.MCPResource == "" {
 		return nil, nil
@@ -39,15 +39,17 @@ func newMCPSetup(ctx context.Context, appEnv env.Config, sqlDB *sql.DB, kits *au
 	if err != nil {
 		return nil, err
 	}
+	pending := mcpkit.PostgresPending{DB: sqlDB}
+	go mcpkit.KeepPruned(ctx, pending, 0, 0, appLogger)
 	appLogger.Info("mcp server on", slog.String("resource", appEnv.OIDC.MCPResource))
 	return &mcpSetup{config: mcp.Config{
 		Resource: appEnv.OIDC.MCPResource,
 		Issuer:   appEnv.OIDC.Issuer,
 		Version:  version,
 		Origins:  appEnv.CORSAllowedOrigins,
-		StateKey: appEnv.OIDC.MCPStateKey(),
+		StateKey: mcpkit.StateKey("capsule", appEnv.OIDC.ClientSecret),
 		Verifier: verifier,
-		Pending:  mcpkit.PostgresPending{DB: sqlDB},
+		Pending:  pending,
 		Logger:   appLogger,
 	}}, nil
 }

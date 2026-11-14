@@ -10,12 +10,7 @@ import (
 	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-const (
-	statusRevoked = "revoked"
-	waiting       = "Nothing happened yet: your client cannot ask the user to confirm. Give the user confirm_url and " +
-		"ask them to confirm there, signed in to Capsule. Do not call this tool again for the same capsule; the " +
-		"request stays open for 7 days or until the capsule is opened or expires."
-)
+const statusRevoked = "revoked"
 
 // revoke is capsule_revoke: the capsule burns once the user confirms. The
 // delete token is checked here and never stored: the pending action names
@@ -41,7 +36,7 @@ func (t *toolset) revoke(ctx context.Context, req *sdk.CallToolRequest, in revok
 	if result != nil {
 		return result, revokeOutput{}, nil
 	}
-	return nil, revokeOutput{Status: outcome.Status, ID: paste.ID, ConfirmURL: outcome.ConfirmURL, Message: waiting}, nil
+	return nil, revokeOutput{Status: outcome.Status, ID: paste.ID, ConfirmURL: outcome.ConfirmURL, Message: outcome.Message}, nil
 }
 
 // resumeRevoke handles the retry that carries the person's answer.

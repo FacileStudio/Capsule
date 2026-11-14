@@ -98,8 +98,10 @@ func TestConfirmPageRevokesOnceForItsOwnerOnly(t *testing.T) {
 	if _, body := f.page(t, http.MethodGet, "", "owner", nil); !strings.Contains(body, `"capsule":{"id":"`+created.ID) || strings.Contains(body, created.DeleteToken) {
 		t.Fatalf("the owner must see the capsule's metadata and never its token: %s", body)
 	}
-	if code, _ := f.page(t, http.MethodPost, "/"+id+"/confirm", "owner", map[string]string{"Authorization": "Bearer cli"}); code != http.StatusForbidden {
-		t.Fatalf("a bearer token must not confirm, got %d", code)
+	for _, header := range []map[string]string{{"Authorization": "Bearer cli"}, {"X-Test-Session": "cli"}} {
+		if code, _ := f.page(t, http.MethodPost, "/"+id+"/confirm", "owner", header); code != http.StatusForbidden || f.burned(created.ID) {
+			t.Fatalf("only a session a browser login minted confirms, %v got %d", header, code)
+		}
 	}
 	if code, _ := f.page(t, http.MethodPost, "/"+id+"/confirm", "other", nil); code != http.StatusNotFound || f.burned(created.ID) {
 		t.Fatalf("another person must not confirm, got %d", code)
