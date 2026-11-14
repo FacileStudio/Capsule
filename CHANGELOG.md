@@ -6,6 +6,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.11.2] - 2026-11-14
+
+### Changed
+
+- build(compose): `capsule-api` no longer sets `container_name`, so Dokploy can roll it with the docker zdt plugin (zero-downtime deploys). Compose DNS still answers to the service name. The service now carries the label `journal.app: capsule-api`, so its Journal app name is unchanged.
+
 ## [0.11.1] - 2026-11-14
 
 ### Fixed
