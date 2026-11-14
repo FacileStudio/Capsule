@@ -97,7 +97,7 @@ func TestClientPagesKeepTheKeyFragmentPrivate(t *testing.T) {
 	sum := sha256.Sum256([]byte(inlineScript))
 	hash := "'sha256-" + base64.StdEncoding.EncodeToString(sum[:]) + "'"
 	policy := recorder.Header().Get("Content-Security-Policy-Report-Only")
-	for _, want := range []string{hash, analyticsOrigin} {
+	for _, want := range []string{hash, analyticsOrigin, "connect-src 'self' " + catalogOrigin} {
 		if !strings.Contains(policy, want) {
 			t.Errorf("CSP %q does not allow %s", policy, want)
 		}
