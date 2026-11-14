@@ -6,6 +6,22 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-14
+
+### Added
+
+- Landing around the seal form: a hero, a mise-en-scene demo of sealing and revealing a capsule, three feature blocks and a closing call to action.
+- muse `DownloadSection` with the real capsule CLI install commands (script, `facile install capsule`, Homebrew), linked from the hero and the header.
+
+### Changed
+
+- build(client): muse v0.22.0, so titles and body use Magnetik; mise-en-scene v0.2.1 added.
+- Page titles use `font-bold`.
+
+### Fixed
+
+- The seal button no longer collapses to a thin bar on phones.
+
 ## [0.7.6] - 2026-11-13
 
 ### Changed
