@@ -6,6 +6,22 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-14
+
+### Changed
+
+- The landing speaks to people sharing a password first: new slogan, subtitle, title and meta description in en, fr, es and de ("Envoyez un mot de passe, il disparaît après lecture."). Sealing a secret stays the main action and still needs no account.
+- The syntax picker moved into an "Options" disclosure under the seal form; sealing behaves as before. The secret field no longer uses a monospace font.
+- The header lists only Seal and Revoke and gains "Sign in with Facile". CLI, API reference and GitHub moved to a Developers footer column and a "For developers" block near the bottom (CLI, API, MCP, source code with the self-hosting README).
+- The how-it-works demo seals a Wi-Fi code, and three new demo tiles show a password for a colleague, a link that opens once, and a password or file on a capsule.
+- New blocks from muse v0.24.0: a feature split, "Works with" Bulle (checks and revokes a capsule, Pro or Studio), the plan note with "one subscription covers every app", and a closing call with "Create a free account" as the secondary button.
+- Visible copy has no em dash left (file hint, sealed notices, page titles).
+- build(client): muse v0.24.0.
+
+### Security
+
+- The report-only CSP allows `connect-src https://api-ardoise.facile.studio`, the public plan catalog the pricing block reads.
+
 ## [0.10.1] - 2026-11-14
 
 ### Fixed
