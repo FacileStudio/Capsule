@@ -13,7 +13,7 @@
 		type WorksWithApp
 	} from '@facile/muse';
 	import { t } from '$lib/i18n/index.svelte';
-	import { BULLE_ICON, CAPSULE_ICON } from '$lib/icons';
+	import { BULLE_ICON, CAPSULE_ICON, PLACE_ICON, PRISME_ICON } from '$lib/icons';
 	import DemoTiles from './DemoTiles.svelte';
 	import SealDemo from './SealDemo.svelte';
 
@@ -27,6 +27,8 @@
 	]);
 
 	const apps: WorksWithApp[] = $derived([
+		{ name: 'Prisme', icon: PRISME_ICON, line: t('blocks.with.prisme'), href: 'https://prisme.facile.studio' },
+		{ name: 'Place', icon: PLACE_ICON, line: t('blocks.with.place'), href: 'https://place.facile.studio' },
 		{ name: 'Bulle', icon: BULLE_ICON, line: t('blocks.with.bulle'), href: 'https://bulle.facile.studio' }
 	]);
 
