@@ -96,11 +96,17 @@ func TestClientPagesKeepTheKeyFragmentPrivate(t *testing.T) {
 
 	sum := sha256.Sum256([]byte(inlineScript))
 	hash := "'sha256-" + base64.StdEncoding.EncodeToString(sum[:]) + "'"
-	policy := recorder.Header().Get("Content-Security-Policy-Report-Only")
-	for _, want := range []string{hash, analyticsOrigin, "connect-src 'self' " + catalogOrigin} {
+	policy := recorder.Header().Get("Content-Security-Policy")
+	for _, want := range []string{hash, "connect-src 'self' " + catalogOrigin, "media-src blob:", "default-src 'self'"} {
 		if !strings.Contains(policy, want) {
 			t.Errorf("CSP %q does not allow %s", policy, want)
 		}
+	}
+	if strings.Contains(policy, "vision.facile.studio") {
+		t.Errorf("CSP %q names the analytics origin, which should be served from this origin", policy)
+	}
+	if got := recorder.Header().Get("Content-Security-Policy-Report-Only"); got != "" {
+		t.Errorf("Content-Security-Policy-Report-Only = %q, want none: the policy is enforced", got)
 	}
 	for _, name := range []string{"Content-Security-Policy", "Content-Security-Policy-Report-Only"} {
 		if strings.Contains(recorder.Header().Get(name), "unsafe-eval") {
@@ -133,8 +139,11 @@ func TestAnalyticsNeverLoadsOnRevealPages(t *testing.T) {
 		t.Fatalf("read app.html: %v", err)
 	}
 	html := string(page)
-	if strings.Contains(html, `<script async src="`+analyticsOrigin) || strings.Contains(html, `<script defer src="`+analyticsOrigin) {
-		t.Error("app.html loads the analytics script on every page, reveal pages included")
+	if strings.Contains(html, "vision.facile.studio") {
+		t.Error("app.html loads a script from another origin")
+	}
+	if !strings.Contains(html, "s.src = '/vision-tracker.js'") {
+		t.Error("app.html does not load the pinned tracker from this origin")
 	}
 	if !strings.Contains(html, "p !== '/' && p !== '/revoke'") {
 		t.Error("app.html does not gate the analytics script to the landing and revoke pages")
