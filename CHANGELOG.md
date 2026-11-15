@@ -6,6 +6,8 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-11-16
+
 ### Security
 
 - The Vision tracker is now a pinned copy served from Capsule itself (`/vision-tracker.js`), so no script from another origin runs on `/`, where the plaintext is typed and the link with the key is shown. It still loads on `/` and `/revoke` only. `script-src` no longer names `vision.facile.studio`.
