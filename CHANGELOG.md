@@ -6,6 +6,15 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Security
+
+- The Vision tracker is now a pinned copy served from Capsule itself (`/vision-tracker.js`), so no script from another origin runs on `/`, where the plaintext is typed and the link with the key is shown. It still loads on `/` and `/revoke` only. `script-src` no longer names `vision.facile.studio`.
+- The Content-Security-Policy is enforced instead of report-only. The reveal page's audio and video players load blob: object URLs, so the policy adds `media-src blob:`. A Playwright test (`tests/csp.spec.ts`) fails on any CSP violation across the landing, text, image, PDF and audio capsules, the syntax-highlighted reveal, `/revoke`, `/downloads` and `/pending`.
+
+### Fixed
+
+- The README and `docs/architecture.md` no longer say Capsule has no sign-in, that the rate limiter is global behind a proxy, or that the schema is GORM AutoMigrate.
+
 ## [0.12.0] - 2026-11-15
 
 ### Added

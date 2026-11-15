@@ -62,8 +62,9 @@ curl -fsSL https://get.facile.studio | bash
 facile install capsule
 ```
 
-Capsule is zero-knowledge and has no account, so there is nothing to sign
-into.
+Capsule is zero-knowledge and needs no account to seal or reveal. Signing in
+through Registre is optional and exists for the CLI. Capsules stay anonymous
+either way.
 
 ## Configuration
 

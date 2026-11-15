@@ -97,9 +97,17 @@ bugs, but "zero knowledge" without them is a half-truth.
 - **IP addresses appear in the request log.** The tronc request logger records `remote_addr`
   and `client_ip` on every request, and ships them to Journal when Journal is configured.
   The content is opaque; who fetched it and when is not.
-- **The rate limiter keys on `r.RemoteAddr`.** Behind Traefik that is the proxy's address,
-  not the caller's, so the 30-per-minute create limit behaves as a global limit rather than
-  a per-client one. It does not weaken the encryption; it does change what the limit means.
+- **The rate limiter keys on the visitor, and that depends on `TRUSTED_PROXIES`.**
+  `newCreateLimiter` in `main.go` keys on the host of `r.RemoteAddr` after tronc's real-IP
+  rewrite. Behind Traefik and Cloudflare the rewrite only finds the visitor when
+  `TRUSTED_PROXIES=private,cloudflare` is set. Without it the key is the proxy's address
+  and the 30-per-minute create limit acts as one global limit. It does not weaken the
+  encryption; it does change what the limit means.
+- **The analytics tracker is a pinned copy that Capsule serves itself.** It lives at
+  `/vision-tracker.js` on the same origin, so no script from another origin runs on a page
+  of the app, and `script-src` names no analytics host. It loads on `/` and `/revoke` only,
+  never on a reveal page, whose path is the capsule id. It sends image beacons to Vision,
+  which `img-src` allows.
 
 ## Request lifecycle
 
@@ -133,7 +141,7 @@ One table.
 | `burned` | bool, default false | |
 | `created_at` | timestamp | |
 
-`schemas.Migrate` is GORM `AutoMigrate` over this single model.
+The schema is goose migrations in `apps/api/migrations`, applied at boot through `tronc/migrate`. The `pastes` table above is the only table the paste flow touches; the migrations also create the tables for sign-in and for pending MCP actions.
 
 ## Burning
 
@@ -155,10 +163,16 @@ cleanup goroutine cannot serve an expired capsule.
 
 ## Cross-app integration
 
-Capsule is deliberately outside the suite's event bus. It has **no users, no sessions and no
-authentication at all**, so it cannot supply the `actor_email` the `pool`/`enveloppe` event
-contract keys on. Nothing about a capsule is attributable to a person by design, and adding
-an actor identity would undo that.
+Capsule is deliberately outside the suite's event bus. Sign-in is optional and goes through
+Registre by way of porte, and it exists for the CLI and the MCP endpoint. A capsule carries
+no owner: no route under `/api/pastes` needs a session, and a reveal link works without one.
+So Capsule cannot supply the `actor_email` the `pool`/`enveloppe` event contract keys on.
+Nothing about a capsule is attributable to a person by design, and adding an actor identity
+would undo that.
+
+The MCP endpoint at `/mcp` serves protected-resource metadata and two tools,
+`capsule_get_status` and `capsule_revoke`. Neither returns content or ciphertext, because
+the server cannot decrypt, and a revoke waits for the person to confirm it in the browser.
 
 The one integration is **Journal**: with both `JOURNAL_URL` and `JOURNAL_TOKEN` set, the
 tronc logger is wrapped in `journal.NewHandler` and structured log lines ship to Journal —
