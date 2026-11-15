@@ -18,14 +18,16 @@
 		<script>
 			/*
 			 * Vision records the page path. A reveal page's path is the capsule id, which is enough
-			 * to burn a capsule, so the tracker loads on the landing and revoke pages only.
+			 * to burn a capsule, so the tracker loads on the landing and revoke pages only. It is a
+			 * pinned copy served from this origin, so no script from another origin runs on the page
+			 * that holds the plaintext and the link.
 			 */
 			(function () {
 				var p = location.pathname;
 				if (p !== '/' && p !== '/revoke') return;
 				var s = document.createElement('script');
 				s.async = true;
-				s.src = 'https://vision.facile.studio/s.js';
+				s.src = '/vision-tracker.js';
 				document.head.appendChild(s);
 			})();
 		</script>
