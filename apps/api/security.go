@@ -8,18 +8,18 @@ import (
 	"github.com/FacileStudio/tronc/spa"
 )
 
-const analyticsOrigin = "https://vision.facile.studio"
-
 const catalogOrigin = "https://api-ardoise.facile.studio"
 
 // securityConfig extends tronc's default policy for Capsule's client: the
 // inline scripts adapter-static writes, hashed from the build the binary
-// serves, the Vision analytics script app.html loads, and the Ardoise plan
-// catalog the landing's pricing block fetches. Capsule needs nothing else.
+// serves, the Ardoise plan catalog the landing's pricing block fetches, and
+// blob: media, which the reveal page's audio and video players load from an
+// object URL of the decrypted file. The Vision tracker is a pinned copy the client serves itself, so script-src
+// names no analytics origin. Capsule needs nothing else.
 // Web Crypto, the Shiki regex engine and the lazy chunks are
-// same-origin and need no unsafe-eval. The policy stays report-only.
+// same-origin and need no unsafe-eval. The full policy is enforced.
 func securityConfig(clientDir string, logger *slog.Logger) middleware.SecurityConfig {
-	sources := []string{analyticsOrigin}
+	var sources []string
 	if spa.Available(clientDir) {
 		hashes, err := spa.InlineScriptHashes(clientDir)
 		if err != nil {
@@ -27,10 +27,14 @@ func securityConfig(clientDir string, logger *slog.Logger) middleware.SecurityCo
 		}
 		sources = append(sources, hashes...)
 	}
-	return middleware.SecurityConfig{CSPSources: map[string][]string{
-		"script-src":  sources,
-		"connect-src": {catalogOrigin},
-	}}
+	return middleware.SecurityConfig{
+		CSPEnforce: true,
+		CSPSources: map[string][]string{
+			"script-src":  sources,
+			"connect-src": {catalogOrigin},
+			"media-src":   {"blob:"},
+		},
+	}
 }
 
 // noReferrer stops the browser sending a Referer from the client's pages. A
