@@ -149,3 +149,17 @@ func TestAnalyticsNeverLoadsOnRevealPages(t *testing.T) {
 		t.Error("app.html does not gate the analytics script to the landing and revoke pages")
 	}
 }
+
+func TestOnlyTheReferencePageAllowsEval(t *testing.T) {
+	router := launchRouter(t)
+
+	docsPolicy := serve(router, http.MethodGet, "/docs", nil).Header().Get("Content-Security-Policy")
+	if !strings.Contains(docsPolicy, "'unsafe-eval'") || !strings.Contains(docsPolicy, "https://api.scalar.com") {
+		t.Errorf("/docs CSP %q lacks what Scalar needs", docsPolicy)
+	}
+	for _, path := range []string{"/", "/cap_0000000000000000"} {
+		if policy := serve(router, http.MethodGet, path, nil).Header().Get("Content-Security-Policy"); strings.Contains(policy, "unsafe-eval") {
+			t.Errorf("%s CSP %q allows unsafe-eval", path, policy)
+		}
+	}
+}

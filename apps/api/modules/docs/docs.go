@@ -52,7 +52,7 @@ type DeleteResponse struct {
 
 // Mount mounts the reference page and the OpenAPI document on router.
 func Mount(router chi.Router) {
-	apiref.Mount(router, Reference())
+	apiref.Mount(referenceRouter(router), Reference())
 }
 
 // Reference returns Capsule's API reference configuration.

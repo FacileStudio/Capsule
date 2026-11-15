@@ -9,7 +9,7 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Security
 
 - The Vision tracker is now a pinned copy served from Capsule itself (`/vision-tracker.js`), so no script from another origin runs on `/`, where the plaintext is typed and the link with the key is shown. It still loads on `/` and `/revoke` only. `script-src` no longer names `vision.facile.studio`.
-- The Content-Security-Policy is enforced instead of report-only. The reveal page's audio and video players load blob: object URLs, so the policy adds `media-src blob:`. A Playwright test (`tests/csp.spec.ts`) fails on any CSP violation across the landing, text, image, PDF and audio capsules, the syntax-highlighted reveal, `/revoke`, `/downloads` and `/pending`.
+- The Content-Security-Policy is enforced instead of report-only. The reveal page's audio and video players load blob: object URLs, so the policy adds `media-src blob:`. `/docs` adds `'unsafe-eval'` and `https://api.scalar.com` for the Scalar bundle, on that page only. A Playwright test (`tests/csp.spec.ts`) fails on any CSP violation across the landing, `/docs` (skipped when the Scalar CDN is unreachable), text, image, PDF and audio capsules, the syntax-highlighted reveal, `/revoke`, `/downloads` and `/pending`.
 
 ### Fixed
 
