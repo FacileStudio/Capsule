@@ -48,11 +48,23 @@ export const blocks = {
 		'Comprueba si una cápsula se abrió y la revoca.',
 		'Prüft, ob eine Kapsel geöffnet wurde, und widerruft sie.'
 	],
+	'blocks.with.prisme': [
+		'Sends a chat message as a capsule that destroys itself once read.',
+		'Envoie un message de chat sous forme de capsule qui s’autodétruit une fois lue.',
+		'Envía un mensaje de chat como una cápsula que se destruye al leerla.',
+		'Sendet eine Chatnachricht als Kapsel, die sich nach dem Lesen selbst zerstört.'
+	],
+	'blocks.with.place': [
+		'Drops capsules on a map, to open on the spot.',
+		'Dépose des capsules sur une carte, à ouvrir sur place.',
+		'Deja cápsulas en un mapa, para abrirlas en el lugar.',
+		'Legt Kapseln auf einer Karte ab, die man vor Ort öffnet.'
+	],
 	'blocks.with.line': [
-		'Bulle never sees the content and asks before it revokes. Bulle needs a Pro or Studio plan.',
-		'Bulle ne voit jamais le contenu et demande votre accord avant de révoquer. Bulle demande une offre Pro ou Studio.',
-		'Bulle nunca ve el contenido y te pide permiso antes de revocar. Bulle requiere un plan Pro o Studio.',
-		'Bulle sieht den Inhalt nie und fragt vor dem Widerruf nach. Bulle braucht den Tarif Pro oder Studio.'
+		'Prisme and Place seal in your browser, so Capsule never sees the content. Bulle only checks and revokes, with a Pro or Studio plan.',
+		'Prisme et Place chiffrent dans votre navigateur : Capsule ne voit jamais le contenu. Bulle vérifie et révoque seulement, avec une offre Pro ou Studio.',
+		'Prisme y Place cifran en tu navegador, así que Capsule nunca ve el contenido. Bulle solo comprueba y revoca, con un plan Pro o Studio.',
+		'Prisme und Place verschlüsseln in Ihrem Browser, Capsule sieht den Inhalt also nie. Bulle prüft und widerruft nur, mit dem Tarif Pro oder Studio.'
 	],
 	'blocks.pricing.title': ['Free, and in every plan', 'Gratuit, et dans chaque offre', 'Gratis, y en cada plan', 'Kostenlos und in jedem Tarif'],
 	'blocks.pricing.free': [
