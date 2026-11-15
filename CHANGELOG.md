@@ -6,6 +6,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-11-15
+
+### Added
+
+- The landing's "Works with" block lists Prisme (chat messages sent as self-destructing capsules) and Place (capsules dropped on a map) next to Bulle, in en, fr, es and de. Both marks are bundled in `src/lib/icons.ts`, so no icon is fetched at runtime.
+
 ## [0.11.2] - 2026-11-14
 
 ### Changed
