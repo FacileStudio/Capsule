@@ -66,6 +66,21 @@ test.describe('content security policy', () => {
 		expect(enforced).toContain("default-src 'self'");
 		expect(enforced).toContain("script-src 'self'");
 		expect(enforced).not.toContain('vision.facile.studio');
+		expect(enforced).not.toContain('unsafe-eval');
+	});
+
+	test('the API reference renders under the enforced policy', async ({ page, request }) => {
+		const cdn = await request
+			.get('https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.64.0', { timeout: 10_000 })
+			.catch(() => null);
+		test.skip(!cdn?.ok(), 'the Scalar bundle on cdn.jsdelivr.net is unreachable from here');
+
+		const logged = await watchCsp(page);
+		await page.goto('/docs');
+		await page.getByRole('button', { name: /^pastes Open Group/ }).click({ timeout: 20_000 });
+		await expect(page.getByText('Store encrypted content on the server').first()).toBeVisible({ timeout: 20_000 });
+		await page.waitForLoadState('networkidle');
+		expect(await collected(page, logged)).toEqual([]);
 	});
 
 	test('the pages and flows raise no violation', async ({ page }) => {
