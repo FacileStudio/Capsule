@@ -60,7 +60,7 @@ test.describe('theme', () => {
 	test('syntax highlighting follows the theme with no class set', async ({ page }) => {
 		await page.goto('/');
 		await page.locator('textarea').fill('const apiKey = "theme check";');
-		await page.getByRole('checkbox', { name: 'Burn after opening' }).uncheck();
+		await page.getByRole('checkbox', { name: 'Burn after opening' }).uncheck({ force: true });
 		await page.getByRole('button', { name: 'Options' }).click();
 		await page.getByRole('combobox', { name: 'Syntax' }).click();
 		await page.getByRole('option', { name: 'typescript', exact: true }).click();
