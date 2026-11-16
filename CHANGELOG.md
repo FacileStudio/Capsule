@@ -6,6 +6,16 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.12.2] - 2026-11-16
+
+### Changed
+
+- Client: muse v0.32.0 (Magnetik typeface, slimmer avatar menu, Tabs and option cards at button height). Signed-in users lose the language, theme and plan rows of the avatar menu, because Capsule has no settings page. The signed-out header keeps the language switch and the theme toggle.
+
+### Fixed
+
+- The Playwright theme and flow tests force the burn checkbox click, because muse's hit area covers the input.
+
 ## [0.12.1] - 2026-11-16
 
 ### Security
