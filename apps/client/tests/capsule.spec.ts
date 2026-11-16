@@ -120,7 +120,7 @@ test.describe('full create → reveal flow', () => {
 
 		const burnCheckbox = page.getByRole('checkbox', { name: 'Burn after opening' });
 		if (await burnCheckbox.isChecked()) {
-			await burnCheckbox.uncheck();
+			await burnCheckbox.uncheck({ force: true });
 		}
 
 		await page.getByRole('button', { name: /seal capsule/i }).click();
