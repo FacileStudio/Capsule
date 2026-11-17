@@ -30,7 +30,7 @@ export const CLI_DOWNLOADS: DownloadEntry[] = [
 export function cliCommands(scriptLabel: string): CliCommand[] {
 	return [
 		{ label: scriptLabel, command: 'curl -fsSL https://raw.githubusercontent.com/FacileStudio/capsule-cli/main/install.sh | bash' },
-		{ label: 'facile', command: 'facile install capsule' },
+		{ label: 'kit', command: 'kit add capsule' },
 		{ label: 'Homebrew', command: 'brew install facilestudio/tap/capsule' }
 	];
 }
