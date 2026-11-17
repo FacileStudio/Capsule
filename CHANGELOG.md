@@ -6,6 +6,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.12.3] - 2026-11-17
+
+### Changed
+
+- Vision tracker v0.15.0: sends bot-detection flags and a first-gesture engagement beacon.
+
 ## [0.12.2] - 2026-11-16
 
 ### Changed
